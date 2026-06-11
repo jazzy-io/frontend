@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="TravelOrbit – Explore breathtaking destinations around the world">
+  <title>TravelOrbit | Destination Explorer</title>
+  <!-- Leaflet CSS for maps integration -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* ---------- CSS Custom Properties (Design Tokens) ---------- */
+    :root {
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-light: #dbeafe;
+      --color-background: #f8fafc;
+      --color-surface: #ffffff;
+      --color-text: #0f172a;
+      --color-text-secondary: #475569;
+      --color-border: #e2e8f0;
+      --color-success: #16a34a;
+      --color-error: #dc2626;
+      --color-warning: #f59e0b;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      --transition: 0.2s ease;
+    }
+
+    /* ---------- Reset & Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 100%; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-family);
+      background: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    img { display: block; max-width: 100%; height: auto; }
+
+    /* ---------- Layout: Grid & Flexbox ---------- */
+    .app-container {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    /* ---------- Header / Navigation ---------- */
+    .app-header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    .nav-links a:hover,
+    .nav-links a[aria-current="page"] {
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    /* ---------- Footer ---------- */
+    .app-footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      padding: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--color-text-secondary);
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.95rem;
+      background: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-outline {
+      background: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+    .btn-outline:hover {
+      background: var(--color-primary-light);
+    }
+    .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; }
+    .btn-icon { padding: 0.5rem; border-radius: 50%; }
+
+    /* ---------- Cards Grid (destination gallery) ---------- */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .destination-card {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .destination-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+
+    /* Image Slider inside card */
+    .card-slider {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+    }
+    .card-slider img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.3s;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .slider-controls {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 2;
+    }
+    .slider-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider-dot.active { background: white; }
+
+    .card-body {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-body h3 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+    .location { color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0; }
+    .tag {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .card-actions { margin-top: auto; display: flex; gap: 0.5rem; padding-top: 0.8rem; }
+
+    /* ---------- Search & Filters Bar ---------- */
+    .search-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      background: var(--color-surface);
+      padding: 1rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      flex: 1 1 250px;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .filter-select {
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: white;
+      font-size: 0.9rem;
+      min-width: 140px;
+    }
+
+    /* ---------- Detail Page ---------- */
+    .detail-container {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 1.5rem;
+    }
+    .detail-hero img {
+      border-radius: var(--radius);
+      max-height: 400px;
+      width: 100%;
+      object-fit: cover;
+    }
+    .detail-meta { margin: 1rem 0; }
+    #detail-map { height: 320px; width: 100%; border-radius: var(--radius); margin: 1.5rem 0; }
+
+    /* ---------- Itinerary & Recommendations ---------- */
+    .itinerary-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+    .itinerary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--color-surface);
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+    .recommendations-panel {
+      background: var(--color-surface);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+    }
+
+    /* ---------- Loading & Error States ---------- */
+    .loader {
+      display: flex;
+      justify-content: center;
+      padding: 3rem;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--color-primary-light);
+      border-top: 4px solid var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-message {
+      background: #fee2e2;
+      color: var(--color-error);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    /* ---------- Utility ---------- */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 1rem; }
+
+    /* ---------- Responsive (mobile-first already handled by grid) ---------- */
+    @media (max-width: 600px) {
+      .header-inner { flex-direction: column; align-items: flex-start; }
+      .nav-links { flex-wrap: wrap; gap: 0.75rem; }
+      .search-filters { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-inner">
+        <a href="#" class="logo" aria-label="TravelOrbit Home">🌍 TravelOrbit</a>
+        <nav aria-label="Main navigation">
+          <ul class="nav-links" id="mainNav">
+            <li><a href="#home" data-page="home" aria-current="page">Explore</a></li>
+            <li><a href="#itinerary" data-page="itinerary">My Itinerary</a></li>
+            <li><a href="#recommendations" data-page="recommendations">For You</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-content" id="appRoot">
+      <!-- Dynamic content injected by JavaScript -->
+      <div class="loader" id="loadingSpinner">
+        <div class="spinner"></div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>© 2026 TravelOrbit — Discover your next journey</p>
+    </footer>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    /**
+     * TravelOrbit – Destination Explorer
+     * Production-ready Frontend Application
+     * Built with semantic HTML5, CSS3 (Grid/Flexbox), ES6+, Fetch API
+     */
+
+    // ---------- MOCK DATA (simulates API response) ----------
+    const DESTINATIONS = [
+      {
+        id: 1,
+        name: "Santorini",
+        country: "Greece",
+        description: "Iconic whitewashed villages with blue-domed churches overlooking the Aegean Sea.",
+        fullDescription: "Santorini is a volcanic island known for its dramatic views, stunning sunsets, and unique beaches. Explore the ancient ruins of Akrotiri, taste local Assyrtiko wine, and sail around the caldera.",
+        tags: ["beach", "romantic", "island"],
+        region: "Europe",
+        coordinates: { lat: 36.3932, lng: 25.4615 },
+        images: [
+          "https://picsum.photos/id/1043/600/400",
+          "https://picsum.photos/id/1044/600/400",
+          "https://picsum.photos/id/1045/600/400"
+        ]
+      },
+      {
+        id: 2,
+        name: "Kyoto",
+        country: "Japan",
+        description: "Tranquil temples, bamboo groves, and traditional tea houses.",
+        fullDescription: "Kyoto, the cultural heart of Japan, offers over 2,000 temples and shrines. Walk through the Arashiyama Bamboo Grove, experience a tea ceremony, and see geisha in Gion.",
+        tags: ["culture", "historic", "city"],
+        region: "Asia",
+        coordinates: { lat: 35.0116, lng: 135.7681 },
+        images: [
+          "https://picsum.photos/id/1015/600/400",
+          "https://picsum.photos/id/1016/600/400",
+          "https://picsum.photos/id/1018/600/400"
+        ]
+      },
+      {
+        id: 3,
+        name: "Banff",
+        country: "Canada",
+        description: "Crystal-clear lakes and rugged mountain peaks in the Canadian Rockies.",
+        fullDescription: "Banff National Park is a paradise for outdoor enthusiasts. Hike to Lake Louise, spot wildlife, and relax in natural hot springs surrounded by snow-capped mountains.",
+        tags: ["mountain", "adventure", "nature"],
+        region: "North America",
+        coordinates: { lat: 51.1784, lng: -115.5708 },
+        images: [
+          "https://picsum.photos/id/1020/600/400",
+          "https://picsum.photos/id/1021/600/400",
+          "https://picsum.photos/id/1023/600/400"
+        ]
+      },
+      {
+        id: 4,
+        name: "Barcelona",
+        country: "Spain",
+        description: "Architectural wonders, vibrant street life, and Mediterranean beaches.",
+        fullDescription: "Barcelona captivates with Gaudí's masterpieces, the Gothic Quarter, and delicious tapas. Enjoy the sun at Barceloneta beach and explore the lively La Boqueria market.",
+        tags: ["city", "beach", "culture"],
+        region: "Europe",
+        coordinates: { lat: 41.3874, lng: 2.1686 },
+        images: [
+          "https://picsum.photos/id/1035/600/400",
+          "https://picsum.photos/id/1036/600/400",
+          "https://picsum.photos/id/1037/600/400"
+        ]
+      },
+      {
+        id: 5,
+        name: "Cusco",
+        country: "Peru",
+        description: "Ancient Incan capital and gateway to Machu Picchu.",
+        fullDescription: "Cusco blends Incan and colonial architecture. Acclimate to the altitude, visit Sacsayhuamán, and embark on the Inca Trail to the mystical Machu Picchu.",
+        tags: ["historic", "adventure", "mountain"],
+        region: "South America",
+        coordinates: { lat: -13.5320, lng: -71.9675 },
+        images: [
+          "https://picsum.photos/id/1040/600/400",
+          "https://picsum.photos/id/1042/600/400",
+          "https://picsum.photos/id/1047/600/400"
+        ]
+      }
+    ];
+
+    // ---------- SIMULATED FETCH (with configurable delay/error) ----------
+    const simulateFetch = (data, delay = 400, errorProbability = 0.05) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() < errorProbability) {
+            reject(new Error("Network error: Failed to load destinations. Please try again."));
+          } else {
+            resolve({ ok: true, json: () => Promise.resolve([...data]) });
+          }
+        }, delay);
+      });
+    };
+
+    // ---------- APPLICATION STATE (simple reactive store) ----------
+    class TravelOrbitApp {
+      constructor() {
+        this.state = {
+          destinations: [],
+          currentPage: 'home',       // 'home', 'detail', 'itinerary', 'recommendations'
+          selectedDestinationId: null,
+          searchQuery: '',
+          regionFilter: '',
+          tagFilter: '',
+          itinerary: JSON.parse(localStorage.getItem('travelOrbitItinerary') || '[]'),
+          preferences: {
+            tags: []  // for recommendation engine
+          },
+          isLoading: false,
+          error: null
+        };
+        this.appRoot = document.getElementById('appRoot');
+        this.navLinks = document.querySelectorAll('[data-page]');
+        this.init();
+      }
+
+      init() {
+        this.bindNavigation();
+        this.loadDestinations();
+      }
+
+      // ---------- NAVIGATION (Client-side routing) ----------
+      bindNavigation() {
+        // Delegate clicks on nav links
+        document.getElementById('mainNav').addEventListener('click', (e) => {
+          const link = e.target.closest('a[data-page]');
+          if (!link) return;
+          e.preventDefault();
+          const page = link.dataset.page;
+          this.navigateTo(page);
+        });
+
+        // Listen to hash changes for back/forward
+        window.addEventListener('hashchange', () => this.handleHashChange());
+        if (window.location.hash) {
+          this.handleHashChange();
+        } else {
+          this.setPage('home');
+        }
+      }
+
+      handleHashChange() {
+        const hash = window.location.hash.replace('#', '');
+        const page = hash || 'home';
+        this.navigateTo(page);
+      }
+
+      navigateTo(page, id = null) {
+        if (page === 'detail' && id) {
+          this.state.selectedDestinationId = id;
+        }
+        this.setPage(page);
+        window.location.hash = page === 'home' ? '' : page; // update hash (no # for home)
+        // Update aria-current on nav links
+        this.navLinks.forEach(link => {
+          const linkPage = link.dataset.page;
+          if (linkPage === page || (page === 'detail' && linkPage === 'home')) {
+            link.setAttribute('aria-current', 'page');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      setPage(page) {
+        this.state.currentPage = page;
+        this.state.error = null;
+        this.render();
+      }
+
+      // ---------- DATA LOADING (Fetch API) ----------
+      async loadDestinations() {
+        this.state.isLoading = true;
+        this.state.error = null;
+        this.render(); // show spinner
+
+        try {
+          const response = await simulateFetch(DESTINATIONS, 600, 0.1); // 10% error for demo
+          if (!response.ok) throw new Error('Failed to fetch');
+          const data = await response.json();
+          this.state.destinations = data;
+        } catch (err) {
+          this.state.error = err.message;
+          console.error('Fetch error:', err);
+        } finally {
+          this.state.isLoading = false;
+          this.render();
+        }
+      }
+
+      // ---------- ITINERARY MANAGEMENT ----------
+      addToItinerary(destId) {
+        if (!this.state.itinerary.includes(destId)) {
+          this.state.itinerary = [...this.state.itinerary, destId];
+          this.saveItinerary();
+        }
+      }
+
+      removeFromItinerary(destId) {
+        this.state.itinerary = this.state.itinerary.filter(id => id !== destId);
+        this.saveItinerary();
+      }
+
+      isInItinerary(destId) {
+        return this.state.itinerary.includes(destId);
+      }
+
+      saveItinerary() {
+        localStorage.setItem('travelOrbitItinerary', JSON.stringify(this.state.itinerary));
+        // re-render if currently on itinerary page or home to update buttons
+        if (this.state.currentPage === 'itinerary' || this.state.currentPage === 'home') {
+          this.render();
+        }
+      }
+
+      // ---------- RECOMMENDATION ENGINE ----------
+      updatePreferences(selectedTags) {
+        this.state.preferences.tags = selectedTags;
+        this.render();
+      }
+
+      getRecommendedDestinations() {
+        const { destinations, preferences } = this.state;
+        if (!preferences.tags.length) return [];
+        return destinations
+          .map(dest => {
+            const matchCount = dest.tags.filter(t => preferences.tags.includes(t)).length;
+            return { ...dest, matchCount };
+          })
+          .filter(d => d.matchCount > 0)
+          .sort((a, b) => b.matchCount - a.matchCount);
+      }
+
+      // ---------- FILTERING & SEARCH ----------
+      getFilteredDestinations() {
+        const { destinations, searchQuery, regionFilter, tagFilter } = this.state;
+        return destinations.filter(dest => {
+          const matchesSearch = searchQuery === '' ||
+            dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            dest.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            dest.description.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesRegion = regionFilter === '' || dest.region === regionFilter;
+          const matchesTag = tagFilter === '' || dest.tags.includes(tagFilter);
+          return matchesSearch && matchesRegion && matchesTag;
+        });
+      }
+
+      // ---------- UI RENDERING (Reactive) ----------
+      render() {
+        if (this.state.isLoading) {
+          this.appRoot.innerHTML = `<div class="loader" aria-live="polite"><div class="spinner"></div><p class="text-center mt-2">Loading destinations...</p></div>`;
+          return;
+        }
+
+        if (this.state.error) {
+          this.appRoot.innerHTML = `<div class="error-message" role="alert">⚠️ ${this.state.error}<br><button class="btn btn-sm mt-2" id="retryBtn">Retry</button></div>`;
+          document.getElementById('retryBtn')?.addEventListener('click', () => this.loadDestinations());
+          return;
+        }
+
+        switch (this.state.currentPage) {
+          case 'home':
+            this.renderHome();
+            break;
+          case 'detail':
+            this.renderDetail();
+            break;
+          case 'itinerary':
+            this.renderItinerary();
+            break;
+          case 'recommendations':
+            this.renderRecommendations();
+            break;
+          default:
+            this.renderHome();
+        }
+      }
+
+      renderHome() {
+        const filtered = this.getFilteredDestinations();
+        const searchQuery = this.state.searchQuery;
+        const regionFilter = this.state.regionFilter;
+        const tagFilter = this.state.tagFilter;
+
+        let html = `
+          <section aria-labelledby="galleryHeading">
+            <h1 id="galleryHeading" class="text-center">Explore Destinations</h1>
+            <div class="search-filters">
+              <input type="search" class="search-input" placeholder="Search by name or country..." value="${this.escapeHtml(searchQuery)}" id="searchInput" aria-label="Search destinations">
+              <select class="filter-select" id="regionFilter" aria-label="Filter by region">
+                <option value="">All Regions</option>
+                <option value="Europe" ${regionFilter === 'Europe' ? 'selected' : ''}>Europe</option>
+                <option value="Asia" ${regionFilter === 'Asia' ? 'selected' : ''}>Asia</option>
+                <option value="North America" ${regionFilter === 'North America' ? 'selected' : ''}>North America</option>
+                <option value="South America" ${regionFilter === 'South America' ? 'selected' : ''}>South America</option>
+              </select>
+              <select class="filter-select" id="tagFilter" aria-label="Filter by interest">
+                <option value="">All Interests</option>
+                <option value="beach" ${tagFilter === 'beach' ? 'selected' : ''}>Beach</option>
+                <option value="mountain" ${tagFilter === 'mountain' ? 'selected' : ''}>Mountain</option>
+                <option value="city" ${tagFilter === 'city' ? 'selected' : ''}>City</option>
+                <option value="historic" ${tagFilter === 'historic' ? 'selected' : ''}>Historic</option>
+                <option value="adventure" ${tagFilter === 'adventure' ? 'selected' : ''}>Adventure</option>
+                <option value="culture" ${tagFilter === 'culture' ? 'selected' : ''}>Culture</option>
+                <option value="romantic" ${tagFilter === 'romantic' ? 'selected' : ''}>Romantic</option>
+                <option value="nature" ${tagFilter === 'nature' ? 'selected' : ''}>Nature</option>
+              </select>
+              <button class="btn btn-outline btn-sm" id="clearFilters">Clear</button>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+              ${filtered.length === 0 ? '<p class="text-center">No destinations match your criteria.</p>' : ''}
+              ${filtered.map(dest => this.createCardHTML(dest)).join('')}
+            </div>
+          </section>
+        `;
+
+        this.appRoot.innerHTML = html;
+
+        // Bind events
+        document.getElementById('searchInput')?.addEventListener('input', (e) => {
+          this.state.searchQuery = e.target.value;
+          this.renderHome(); // re-render for simplicity (debounce could be added)
+        });
+        document.getElementById('regionFilter')?.addEventListener('change', (e) => {
+          this.state.regionFilter = e.target.value;
+          this.renderHome();
+        });
+        document.getElementById('tagFilter')?.addEventListener('change', (e) => {
+          this.state.tagFilter = e.target.value;
+          this.renderHome();
+        });
+        document.getElementById('clearFilters')?.addEventListener('click', () => {
+          this.state.searchQuery = '';
+          this.state.regionFilter = '';
+          this.state.tagFilter = '';
+          this.renderHome();
+        });
+
+        // Card interactions: view detail, add to itinerary, slider
+        this.attachCardEvents();
+      }
+
+      createCardHTML(dest) {
+        const inItinerary = this.isInItinerary(dest.id);
+        return `
+          <article class="destination-card" data-id="${dest.id}">
+            <div class="card-slider" data-id="${dest.id}">
+              ${dest.images.map((img, idx) => `<img src="${img}" alt="${dest.name} view ${idx+1}" loading="lazy" class="${idx === 0 ? '' : 'hidden'}">`).join('')}
+              <div class="slider-controls">
+                ${dest.images.map((_, idx) => `<span class="slider-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></span>`).join('')}
+              </div>
+            </div>
+            <div class="card-body">
+              <h3>${dest.name}</h3>
+              <p class="location">📍 ${dest.country}</p>
+              <p>${dest.description}</p>
+              <div class="tags">${dest.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              <div class="card-actions">
+                <button class="btn btn-sm view-detail" data-id="${dest.id}">Details</button>
+                <button class="btn btn-outline btn-sm itinerary-toggle" data-id="${dest.id}">
+                  ${inItinerary ? '❤️ Saved' : '🤍 Save'}
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      attachCardEvents() {
+        // Slider logic
+        document.querySelectorAll('.card-slider').forEach(slider => {
+          const images = slider.querySelectorAll('img');
+          const dots = slider.querySelectorAll('.slider-dot');
+          let currentIndex = 0;
+
+          const showImage = (index) => {
+            images.forEach(img => img.classList.add('hidden'));
+            images[index].classList.remove('hidden');
+            dots.forEach(dot => dot.classList.remove('active'));
+            dots[index].classList.add('active');
+          };
+
+          dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const idx = parseInt(dot.dataset.index);
+              currentIndex = idx;
+              showImage(idx);
+            });
+          });
+
+          // Auto-rotate every 4 seconds, but pause on hover
+          let interval = setInterval(() => {
+            currentIndex = (currentIndex + 1) % images.length;
+            showImage(currentIndex);
+          }, 4000);
+          slider.addEventListener('mouseenter', () => clearInterval(interval));
+          slider.addEventListener('mouseleave', () => {
+            interval = setInterval(() => {
+              currentIndex = (currentIndex + 1) % images.length;
+              showImage(currentIndex);
+            }, 4000);
+          });
+        });
+
+        // View detail button
+        document.querySelectorAll('.view-detail').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = parseInt(btn.dataset.id);
+            this.navigateTo('detail', id);
+          });
+        });
+
+        // Itinerary toggle
+        document.querySelectorAll('.itinerary-toggle').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = parseInt(btn.dataset.id);
+            if (this.isInItinerary(id)) {
+              this.removeFromItinerary(id);
+            } else {
+              this.addToItinerary(id);
+            }
+            // Update button text inline without full re-render
+            const inItin = this.isInItinerary(id);
+            btn.innerHTML = inItin ? '❤️ Saved' : '🤍 Save';
+          });
+        });
+      }
+
+      // ---------- DETAIL PAGE ----------
+      renderDetail() {
+        const id = this.state.selectedDestinationId;
+        const dest = this.state.destinations.find(d => d.id === id);
+        if (!dest) {
+          this.appRoot.innerHTML = `<p class="text-center">Destination not found. <a href="#home">Back to explore</a></p>`;
+          return;
+        }
+
+        const inItinerary = this.isInItinerary(id);
+        this.appRoot.innerHTML = `
+          <div class="detail-container">
+            <button class="btn btn-outline btn-sm mb-2" id="backBtn">← Back</button>
+            <div class="detail-hero">
+              <img src="${dest.images[0]}" alt="${dest.name} panorama" loading="lazy">
+            </div>
+            <h2>${dest.name}, ${dest.country}</h2>
+            <p class="detail-meta">${dest.fullDescription}</p>
+            <div class="tags">${dest.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <div id="detail-map" aria-label="Map showing ${dest.name}"></div>
+            <div class="card-actions">
+              <button class="btn itinerary-detail-toggle" data-id="${dest.id}">
+                ${inItinerary ? '❤️ Remove from Itinerary' : '🤍 Add to Itinerary'}
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => this.navigateTo('home'));
+
+        // Itinerary toggle
+        document.querySelector('.itinerary-detail-toggle')?.addEventListener('click', (e) => {
+          const id = parseInt(e.target.dataset.id);
+          if (this.isInItinerary(id)) {
+            this.removeFromItinerary(id);
+          } else {
+            this.addToItinerary(id);
+          }
+          // Re-render detail page to update button
+          this.renderDetail();
+        });
+
+        // Initialize Leaflet map (maps integration)
+        this.initMap(dest.coordinates.lat, dest.coordinates.lng, dest.name);
+      }
+
+      initMap(lat, lng, title) {
+        // Ensure map container exists
+        const mapEl = document.getElementById('detail-map');
+        if (!mapEl) return;
+        // Leaflet map (open-source maps integration)
+        if (typeof L === 'undefined') {
+          mapEl.innerHTML = '<p>Map library not loaded.</p>';
+          return;
+        }
+        // If map already initialized, remove it
+        if (mapEl._leaflet_id) {
+          mapEl._leaflet_id = null;
+          mapEl.innerHTML = '';
+        }
+        const map = L.map('detail-map').setView([lat, lng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        L.marker([lat, lng]).addTo(map).bindPopup(`<b>${title}</b>`).openPopup();
+        // Fix map size issue after dynamic render
+        setTimeout(() => map.invalidateSize(), 100);
+      }
+
+      // ---------- ITINERARY PAGE ----------
+      renderItinerary() {
+        const itineraryIds = this.state.itinerary;
+        const items = this.state.destinations.filter(d => itineraryIds.includes(d.id));
+        let html = `<section aria-labelledby="itineraryHeading"><h2 id="itineraryHeading">My Itinerary</h2>`;
+        if (items.length === 0) {
+          html += `<p>No destinations saved yet. <a href="#home">Explore now</a>.</p>`;
+        } else {
+          html += `<ul class="itinerary-list">`;
+          items.forEach(dest => {
+            html += `
+              <li class="itinerary-item">
+                <div>
+                  <strong>${dest.name}</strong> (${dest.country})
+                  <span class="tags" style="display:inline-flex; margin-left:10px;">${dest.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+                </div>
+                <div>
+                  <button class="btn btn-sm view-detail" data-id="${dest.id}">View</button>
+                  <button class="btn btn-outline btn-sm remove-itinerary" data-id="${dest.id}">Remove</button>
+                </div>
+              </li>
+            `;
+          });
+          html += `</ul>`;
+        }
+        html += `</section>`;
+        this.appRoot.innerHTML = html;
+
+        // Bind events
+        document.querySelectorAll('.view-detail').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = parseInt(btn.dataset.id);
+            this.navigateTo('detail', id);
+          });
+        });
+        document.querySelectorAll('.remove-itinerary').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = parseInt(btn.dataset.id);
+            this.removeFromItinerary(id);
+          });
+        });
+      }
+
+      // ---------- RECOMMENDATIONS PAGE (Recommendation Engine) ----------
+      renderRecommendations() {
+        const allTags = ['beach', 'mountain', 'city', 'historic', 'adventure', 'culture', 'romantic', 'nature'];
+        const selected = this.state.preferences.tags;
+        const recommendations = this.getRecommendedDestinations();
+
+        let html = `
+          <section class="recommendations-panel" aria-labelledby="recommendHeading">
+            <h2 id="recommendHeading">Personalized Recommendations</h2>
+            <p>Select your interests and we'll find perfect destinations for you.</p>
+            <div class="tags" style="margin:1rem 0;">
+              ${allTags.map(tag => `
+                <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                  <input type="checkbox" value="${tag}" ${selected.includes(tag) ? 'checked' : ''} class="pref-checkbox"> ${tag}
+                </label>
+              `).join('')}
+            </div>
+            <div id="recommendationResults">
+              ${recommendations.length ? `
+                <div class="gallery-grid">
+                  ${recommendations.map(dest => this.createCardHTML(dest)).join('')}
+                </div>
+              ` : '<p>Select at least one interest to see suggestions.</p>'}
+            </div>
+          </section>
+        `;
+
+        this.appRoot.innerHTML = html;
+
+        // Checkbox listeners
+        document.querySelectorAll('.pref-checkbox').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const checked = [];
+            document.querySelectorAll('.pref-checkbox:checked').forEach(c => checked.push(c.value));
+            this.updatePreferences(checked);
+          });
+        });
+
+        // Re-attach card events for recommendations
+        this.attachCardEvents();
+      }
+
+      // helper
+      escapeHtml(text) {
+        return String(text).replace(/[&<>"]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          if (m === '"') return '&quot;';
+          return m;
+        });
+      }
+    }
+
+    // ---------- BOOTSTRAP APPLICATION ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      new TravelOrbitApp();
+    });
+  </script>
+</body>
+</html>

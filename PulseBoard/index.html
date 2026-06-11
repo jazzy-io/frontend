@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PulseBoard - Live Trends Dashboard">
+  <title>PulseBoard | Live Trends</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <style>
+    /* ===== CSS Custom Properties (Light & Dark) ===== */
+    :root {
+      --color-bg: #f4f6fb;
+      --color-surface: #ffffff;
+      --color-text: #1e293b;
+      --color-text-secondary: #64748b;
+      --color-primary: #3b82f6;
+      --color-primary-hover: #2563eb;
+      --color-accent: #8b5cf6;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+      --color-border: #e2e8f0;
+      --color-skeleton: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+    body.dark {
+      --color-bg: #0f172a;
+      --color-surface: #1e293b;
+      --color-text: #f1f5f9;
+      --color-text-secondary: #94a3b8;
+      --color-border: #334155;
+      --color-skeleton: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.5;
+      transition: background-color var(--transition), color var(--transition);
+      min-height: 100vh;
+    }
+    a { color: var(--color-primary); text-decoration: none; }
+
+    /* ===== Layout ===== */
+    .app {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background-color: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dark-toggle {
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: 50px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--color-text);
+      background-color: var(--color-surface);
+      transition: all var(--transition);
+    }
+    .dark-toggle:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    /* ===== Main Content ===== */
+    .main { padding: 2rem 0; }
+
+    /* KPI Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background-color: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    .kpi-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .kpi-desc {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+    }
+
+    /* Search & Trend List */
+    .trends-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .search-wrapper {
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background-color: var(--color-surface);
+      color: var(--color-text);
+      font-size: 1rem;
+      transition: border-color var(--transition);
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-secondary);
+    }
+    .trend-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .trend-item {
+      background-color: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      transition: background-color var(--transition);
+    }
+    .trend-item:hover {
+      background-color: rgba(59,130,246,0.03);
+    }
+    .trend-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .trend-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .trend-meta {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      display: flex;
+      gap: 1rem;
+    }
+    .trend-stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Chart Section */
+    .chart-section {
+      background-color: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 350px;
+    }
+
+    /* Skeleton Loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-skeleton) 25%, transparent 50%, var(--color-skeleton) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    .skeleton-card {
+      height: 100px;
+    }
+    .skeleton-text {
+      height: 1rem;
+      width: 80%;
+      margin-bottom: 0.5rem;
+    }
+    .skeleton-chart {
+      height: 350px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Error / Empty States */
+    .state-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--color-text-secondary);
+    }
+    .btn-retry {
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.5rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: 1rem 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .trend-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">PulseBoard</h1>
+        <button id="darkModeToggle" class="dark-toggle" aria-label="Toggle dark mode" aria-pressed="false">
+          🌙 Dark
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main" aria-live="polite" aria-atomic="true">
+      <div class="container">
+        <!-- KPI Cards -->
+        <section class="kpi-grid" id="kpiContainer" aria-label="Key Performance Indicators">
+          <!-- Dynamically filled -->
+        </section>
+
+        <!-- Search & Trends -->
+        <section class="trends-section" aria-label="Trending Topics">
+          <div class="search-wrapper">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search trends..." aria-label="Search trending topics">
+          </div>
+          <div id="trendList" class="trend-list"></div>
+        </section>
+
+        <!-- Chart -->
+        <section class="chart-section" aria-label="Engagement Chart">
+          <h2 style="margin-bottom:1rem;">Top 10 Engagement Scores</h2>
+          <div id="chartWrapper">
+            <canvas id="trendChart" class="chart-container"></canvas>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>Data from Hacker News API · Updates every 60s</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /**
+     * PulseBoard - Live Trends Dashboard
+     * Modular JavaScript Architecture
+     */
+    class PulseBoard {
+      constructor() {
+        // DOM Elements
+        this.kpiContainer = document.getElementById('kpiContainer');
+        this.trendList = document.getElementById('trendList');
+        this.searchInput = document.getElementById('searchInput');
+        this.chartWrapper = document.getElementById('chartWrapper');
+        this.chartCanvas = document.getElementById('trendChart');
+        this.darkToggle = document.getElementById('darkModeToggle');
+
+        // State
+        this.trends = [];
+        this.filteredTrends = [];
+        this.chartInstance = null;
+        this.isLoading = true;
+        this.error = null;
+
+        // API endpoints
+        this.topStoriesURL = 'https://hacker-news.firebaseio.com/v0/topstories.json';
+        this.itemBaseURL = 'https://hacker-news.firebaseio.com/v0/item/';
+
+        // Bind methods
+        this.handleSearch = this.handleSearch.bind(this);
+        this.toggleDarkMode = this.toggleDarkMode.bind(this);
+        this.fetchData = this.fetchData.bind(this);
+        this.render = this.render.bind(this);
+
+        this.init();
+      }
+
+      init() {
+        // Load dark mode preference from localStorage
+        const savedMode = localStorage.getItem('pulseboard-dark');
+        if (savedMode === 'true') {
+          document.body.classList.add('dark');
+          this.darkToggle.innerHTML = '☀️ Light';
+          this.darkToggle.setAttribute('aria-pressed', 'true');
+        } else {
+          this.darkToggle.innerHTML = '🌙 Dark';
+          this.darkToggle.setAttribute('aria-pressed', 'false');
+        }
+
+        // Event Listeners
+        this.darkToggle.addEventListener('click', this.toggleDarkMode);
+        this.searchInput.addEventListener('input', this.handleSearch);
+
+        // Initial data fetch & start auto-refresh
+        this.fetchData();
+        this.intervalId = setInterval(() => this.fetchData(), 60000);
+      }
+
+      toggleDarkMode() {
+        const isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('pulseboard-dark', isDark);
+        this.darkToggle.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+        this.darkToggle.setAttribute('aria-pressed', isDark);
+        // Chart colors need update if dark mode changes
+        if (this.chartInstance && !this.isLoading) {
+          this.updateChartColors();
+        }
+      }
+
+      handleSearch() {
+        const query = this.searchInput.value.toLowerCase().trim();
+        this.filteredTrends = query === ''
+          ? [...this.trends]
+          : this.trends.filter(trend =>
+              trend.title.toLowerCase().includes(query)
+            );
+        this.renderTrendList();
+      }
+
+      async fetchData() {
+        this.isLoading = true;
+        this.error = null;
+
+        // Show skeletons while loading
+        this.renderSkeletons();
+
+        try {
+          // Step 1: Get top story IDs
+          const idsResponse = await fetch(this.topStoriesURL);
+          if (!idsResponse.ok) throw new Error(`HTTP error! status: ${idsResponse.status}`);
+          const ids = await idsResponse.json();
+          const top15 = ids.slice(0, 15);
+
+          // Step 2: Fetch details for each story (parallel)
+          const storyPromises = top15.map(id =>
+            fetch(`${this.itemBaseURL}${id}.json`)
+              .then(res => {
+                if (!res.ok) throw new Error(`Failed to fetch item ${id}`);
+                return res.json();
+              })
+          );
+          const stories = await Promise.all(storyPromises);
+
+          // Transform to our trend model
+          this.trends = stories
+            .filter(story => story && story.title) // safety
+            .map(story => ({
+              id: story.id,
+              title: story.title,
+              score: story.score || 0,
+              descendants: story.descendants || 0,
+              time: story.time ? new Date(story.time * 1000).toLocaleString() : 'unknown',
+              url: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+              by: story.by || 'anon'
+            }));
+
+          // Reset filter after fresh data
+          this.filteredTrends = [...this.trends];
+          this.searchInput.value = '';
+
+        } catch (error) {
+          console.error('Fetch error:', error);
+          this.error = error.message;
+        } finally {
+          this.isLoading = false;
+          this.render();
+        }
+      }
+
+      renderSkeletons() {
+        // KPI skeletons
+        this.kpiContainer.innerHTML = Array.from({ length: 4 }, () => `
+          <div class="kpi-card skeleton skeleton-card"></div>
+        `).join('');
+
+        // Trend list skeletons
+        this.trendList.innerHTML = Array.from({ length: 5 }, () => `
+          <div class="trend-item" style="display:flex; flex-direction:column; gap:0.5rem;">
+            <div class="skeleton skeleton-text" style="width:60%;"></div>
+            <div class="skeleton skeleton-text" style="width:40%;"></div>
+          </div>
+        `).join('');
+
+        // Chart skeleton
+        this.chartWrapper.innerHTML = '<div class="skeleton skeleton-chart"></div>';
+      }
+
+      render() {
+        if (this.error) {
+          this.renderError();
+          return;
+        }
+        if (this.isLoading) {
+          this.renderSkeletons();
+          return;
+        }
+        this.renderKPI();
+        this.renderTrendList();
+        this.renderChart();
+      }
+
+      renderKPI() {
+        const totalTrends = this.trends.length;
+        const avgScore = totalTrends > 0
+          ? Math.round(this.trends.reduce((sum, t) => sum + t.score, 0) / totalTrends)
+          : 0;
+        const activeDiscussions = this.trends.filter(t => t.descendants > 10).length;
+        const latestUpdate = new Date().toLocaleTimeString();
+
+        const kpis = [
+          { title: 'Trending Topics', value: totalTrends, desc: 'Active stories' },
+          { title: 'Avg. Engagement', value: avgScore, desc: 'Avg score per trend' },
+          { title: 'Hot Discussions', value: activeDiscussions, desc: '10+ comments' },
+          { title: 'Last Updated', value: latestUpdate, desc: 'Auto-refresh 60s' }
+        ];
+
+        this.kpiContainer.innerHTML = kpis.map(kpi => `
+          <article class="kpi-card">
+            <span class="kpi-title">${kpi.title}</span>
+            <span class="kpi-value">${kpi.value}</span>
+            <span class="kpi-desc">${kpi.desc}</span>
+          </article>
+        `).join('');
+      }
+
+      renderTrendList() {
+        if (this.filteredTrends.length === 0) {
+          this.trendList.innerHTML = `<div class="state-message">No trends match your search.</div>`;
+          return;
+        }
+        this.trendList.innerHTML = this.filteredTrends.map(trend => `
+          <article class="trend-item">
+            <div class="trend-content">
+              <a href="${trend.url}" target="_blank" rel="noopener noreferrer" class="trend-title">${this.escapeHTML(trend.title)}</a>
+              <div class="trend-meta">
+                <span>by ${trend.by}</span>
+                <span>${trend.time}</span>
+              </div>
+            </div>
+            <div class="trend-stats">
+              <span class="stat-item" title="Score">⬆️ ${trend.score}</span>
+              <span class="stat-item" title="Comments">💬 ${trend.descendants}</span>
+            </div>
+          </article>
+        `).join('');
+      }
+
+      renderChart() {
+        // Restore canvas element if overwritten by skeleton
+        if (!document.getElementById('trendChart')) {
+          this.chartWrapper.innerHTML = '<canvas id="trendChart" class="chart-container"></canvas>';
+          this.chartCanvas = document.getElementById('trendChart');
+        }
+        const ctx = this.chartCanvas.getContext('2d');
+
+        // Destroy previous chart instance
+        if (this.chartInstance) {
+          this.chartInstance.destroy();
+        }
+
+        // Top 10 by score
+        const topByScore = [...this.trends]
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 10);
+
+        const labels = topByScore.map(t => t.title.length > 25 ? t.title.substring(0,25)+'…' : t.title);
+        const data = topByScore.map(t => t.score);
+        const commentData = topByScore.map(t => t.descendants);
+
+        const isDark = document.body.classList.contains('dark');
+        const gridColor = isDark ? '#334155' : '#e2e8f0';
+        const textColor = isDark ? '#cbd5e1' : '#475569';
+
+        this.chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'Score',
+                data,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6,
+                borderColor: isDark ? '#1e3a5f' : '#bfdbfe',
+                borderWidth: 1
+              },
+              {
+                label: 'Comments',
+                data: commentData,
+                backgroundColor: '#8b5cf6',
+                borderRadius: 6,
+                borderColor: isDark ? '#4c1d95' : '#ddd6fe',
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: textColor }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: textColor, maxRotation: 45 },
+                grid: { color: gridColor }
+              },
+              y: {
+                ticks: { color: textColor },
+                grid: { color: gridColor }
+              }
+            }
+          }
+        });
+      }
+
+      updateChartColors() {
+        if (!this.chartInstance) return;
+        const isDark = document.body.classList.contains('dark');
+        const textColor = isDark ? '#cbd5e1' : '#475569';
+        const gridColor = isDark ? '#334155' : '#e2e8f0';
+        this.chartInstance.options.scales.x.ticks.color = textColor;
+        this.chartInstance.options.scales.x.grid.color = gridColor;
+        this.chartInstance.options.scales.y.ticks.color = textColor;
+        this.chartInstance.options.scales.y.grid.color = gridColor;
+        this.chartInstance.options.plugins.legend.labels.color = textColor;
+        this.chartInstance.update();
+      }
+
+      renderError() {
+        this.kpiContainer.innerHTML = '';
+        this.trendList.innerHTML = `
+          <div class="state-message">
+            <p>⚠️ Failed to load trends: ${this.error}</p>
+            <button class="btn-retry" onclick="window.pulseBoard.fetchData()">Retry</button>
+          </div>
+        `;
+        this.chartWrapper.innerHTML = '<div class="state-message">Chart unavailable</div>';
+      }
+
+      escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    }
+
+    // Instantiate and expose globally for retry button
+    window.pulseBoard = new PulseBoard();
+  </script>
+</body>
+</html>

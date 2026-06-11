@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindMap Studio</title>
+  <style>
+    /* ===== CSS Variables & Theme ===== */
+    :root {
+      --color-bg: #f8fafc;
+      --color-canvas: #ffffff;
+      --color-primary: #3b82f6;
+      --color-primary-hover: #2563eb;
+      --color-danger: #ef4444;
+      --color-text: #1e293b;
+      --color-muted: #64748b;
+      --color-border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --radius: 6px;
+      --transition: 150ms ease;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-bg);
+      color: var(--color-text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ===== Header / Toolbar ===== */
+    .toolbar {
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .toolbar__group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .toolbar__separator {
+      width: 1px;
+      height: 24px;
+      background: var(--color-border);
+      margin: 0 0.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border: 1px solid var(--color-border);
+      background: white;
+      color: var(--color-text);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn--primary {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background: var(--color-primary-hover);
+    }
+
+    .btn--danger {
+      color: var(--color-danger);
+    }
+
+    .btn--danger:hover:not(:disabled) {
+      background: #fee2e2;
+      border-color: #fecaca;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ===== Canvas Area ===== */
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--color-canvas);
+      touch-action: none; /* Prevent browser gestures on touch devices */
+    }
+
+    .mindmap-svg {
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    .mindmap-svg:active {
+      cursor: grabbing;
+    }
+
+    /* Connection lines */
+    .connection-line {
+      stroke: #94a3b8;
+      stroke-width: 2;
+      fill: none;
+      pointer-events: none;
+    }
+
+    /* Node styles */
+    .node-group {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .node-rect {
+      fill: #dbeafe;
+      stroke: #93c5fd;
+      stroke-width: 2;
+      rx: 8;
+      ry: 8;
+      filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+      transition: fill var(--transition), stroke var(--transition);
+    }
+
+    .node-group.selected .node-rect {
+      fill: #bfdbfe;
+      stroke: var(--color-primary);
+      stroke-width: 3;
+    }
+
+    .node-text {
+      font-size: 14px;
+      font-weight: 500;
+      fill: var(--color-text);
+      dominant-baseline: middle;
+      text-anchor: middle;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      backdrop-filter: blur(2px);
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: slideUp 0.3s ease;
+    }
+
+    .toast.error { background: var(--color-danger); }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      .toolbar { padding: 0.5rem; gap: 0.5rem; }
+      .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar" role="toolbar" aria-label="Mind map tools">
+    <div class="toolbar__group">
+      <button class="btn btn--primary" id="btn-add-root" title="Add root node (or click empty canvas)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Root
+      </button>
+      <button class="btn" id="btn-add-child" disabled title="Add child to selected node">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2v6a1 1 0 102 0v-6h2a2 2 0 002-2V5a2 2 0 00-2-2H5z"/></svg>
+        Child
+      </button>
+      <button class="btn" id="btn-add-sibling" disabled title="Add sibling below selected node">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 6a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 6a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        Sibling
+      </button>
+      <button class="btn btn--danger" id="btn-delete" disabled title="Delete selected node">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        Delete
+      </button>
+    </div>
+
+    <div class="toolbar__separator"></div>
+
+    <div class="toolbar__group">
+      <button class="btn" id="btn-save" title="Save mind map">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        Save
+      </button>
+      <button class="btn" id="btn-load" title="Load mind map">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        Load
+      </button>
+    </div>
+
+    <div class="toolbar__separator"></div>
+
+    <div class="toolbar__group">
+      <button class="btn" id="btn-zoom-in" title="Zoom in">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="btn" id="btn-zoom-out" title="Zoom out">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+      </button>
+      <button class="btn" id="btn-reset-zoom" title="Reset zoom/pan">Reset</button>
+    </div>
+
+    <div class="toolbar__separator"></div>
+
+    <div class="toolbar__group">
+      <button class="btn" id="btn-export-png" title="Export as PNG">PNG</button>
+      <button class="btn" id="btn-export-json" title="Export as JSON">JSON</button>
+      <button class="btn" id="btn-export-svg" title="Export as SVG">SVG</button>
+    </div>
+  </header>
+
+  <main class="canvas-container" id="canvas-container">
+    <svg class="mindmap-svg" id="mindmap-svg" aria-label="Mind map canvas"></svg>
+    <!-- Loading overlay (hidden by default) -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+      <div class="spinner" aria-label="Loading"></div>
+    </div>
+  </main>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <script>
+    (function() {
+      // ===================== CONSTANTS & CONFIG =====================
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const NODE_WIDTH = 120;
+      const NODE_HEIGHT = 50;
+      const ZOOM_STEP = 0.1;
+      const MIN_ZOOM = 0.2;
+      const MAX_ZOOM = 2.5;
+
+      // ===================== STATE MANAGEMENT =====================
+      class MindMapState {
+        constructor() {
+          this.nodes = new Map();          // id -> { id, text, x, y, parentId? }
+          this.selectedNodeId = null;
+          this.rootNodeId = null;
+          this.nextId = 1;
+          this.viewBox = { x: 0, y: 0, width: 1200, height: 800, scale: 1 };
+        }
+
+        addNode(text, x, y, parentId = null) {
+          const id = `node-${this.nextId++}`;
+          const node = { id, text, x, y, parentId };
+          this.nodes.set(id, node);
+          return node;
+        }
+
+        deleteNode(id) {
+          if (!this.nodes.has(id)) return false;
+          // Remove all children recursively
+          const children = this.getChildren(id);
+          children.forEach(childId => this.nodes.delete(childId));
+          this.nodes.delete(id);
+          if (this.selectedNodeId === id) {
+            this.selectedNodeId = null;
+          }
+          if (this.rootNodeId === id) {
+            this.rootNodeId = null;
+          }
+          return true;
+        }
+
+        getChildren(parentId) {
+          return Array.from(this.nodes.values())
+            .filter(n => n.parentId === parentId)
+            .map(n => n.id);
+        }
+
+        getNode(id) {
+          return this.nodes.get(id) || null;
+        }
+
+        toJSON() {
+          return {
+            nodes: Array.from(this.nodes.values()),
+            rootNodeId: this.rootNodeId,
+            nextId: this.nextId,
+          };
+        }
+
+        loadFromJSON(data) {
+          this.nodes.clear();
+          data.nodes.forEach(n => this.nodes.set(n.id, n));
+          this.rootNodeId = data.rootNodeId;
+          this.nextId = data.nextId || 1;
+          this.selectedNodeId = null;
+        }
+      }
+
+      // ===================== MOCK API (Fetch-based with localStorage fallback) =====================
+      class MindMapAPI {
+        constructor() {
+          this.baseUrl = '/api/mindmap';  // Replace with real endpoint
+          this.storageKey = 'mindmap-studio-data';
+        }
+
+        async save(state) {
+          const payload = state.toJSON();
+          try {
+            const response = await fetch(this.baseUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            // Fallback to localStorage
+            localStorage.setItem(this.storageKey, JSON.stringify(payload));
+            return await response.json();
+          } catch (error) {
+            console.warn('Remote API failed, using localStorage.', error);
+            localStorage.setItem(this.storageKey, JSON.stringify(payload));
+            // Simulate network delay
+            await new Promise(r => setTimeout(r, 300));
+            return { success: true, saved: 'local' };
+          }
+        }
+
+        async load() {
+          try {
+            const response = await fetch(this.baseUrl);
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const data = await response.json();
+            localStorage.setItem(this.storageKey, JSON.stringify(data));
+            return data;
+          } catch (error) {
+            console.warn('Remote load failed, using localStorage.', error);
+            await new Promise(r => setTimeout(r, 300));
+            const raw = localStorage.getItem(this.storageKey);
+            if (!raw) return null;
+            return JSON.parse(raw);
+          }
+        }
+      }
+
+      // ===================== SVG RENDERER =====================
+      class Renderer {
+        constructor(svgElement, state) {
+          this.svg = svgElement;
+          this.state = state;
+          this.svgGroup = document.createElementNS(SVG_NS, 'g');
+          this.svg.appendChild(this.svgGroup);
+          this._initViewBox();
+        }
+
+        _initViewBox() {
+          this.updateViewBox();
+        }
+
+        updateViewBox() {
+          const { x, y, width, height, scale } = this.state.viewBox;
+          this.svg.setAttribute('viewBox', `${x} ${y} ${width / scale} ${height / scale}`);
+          this.svg.setAttribute('width', '100%');
+          this.svg.setAttribute('height', '100%');
+        }
+
+        clearAll() {
+          while (this.svgGroup.firstChild) {
+            this.svgGroup.removeChild(this.svgGroup.firstChild);
+          }
+        }
+
+        renderAll() {
+          this.clearAll();
+          // Render connections first (behind nodes)
+          this.state.nodes.forEach(node => {
+            if (node.parentId) {
+              this._drawConnection(node.parentId, node.id);
+            }
+          });
+          // Render nodes
+          this.state.nodes.forEach(node => this._drawNode(node));
+        }
+
+        _drawNode(node) {
+          const g = document.createElementNS(SVG_NS, 'g');
+          g.classList.add('node-group');
+          g.setAttribute('data-node-id', node.id);
+          g.setAttribute('role', 'button');
+          g.setAttribute('aria-label', `Node: ${node.text}`);
+          g.setAttribute('tabindex', '0');
+          g.setAttribute('transform', `translate(${node.x - NODE_WIDTH/2}, ${node.y - NODE_HEIGHT/2})`);
+
+          const rect = document.createElementNS(SVG_NS, 'rect');
+          rect.classList.add('node-rect');
+          rect.setAttribute('width', NODE_WIDTH);
+          rect.setAttribute('height', NODE_HEIGHT);
+
+          const text = document.createElementNS(SVG_NS, 'text');
+          text.classList.add('node-text');
+          text.setAttribute('x', NODE_WIDTH / 2);
+          text.setAttribute('y', NODE_HEIGHT / 2);
+          text.textContent = node.text || 'New Node';
+
+          g.appendChild(rect);
+          g.appendChild(text);
+
+          if (node.id === this.state.selectedNodeId) {
+            g.classList.add('selected');
+          }
+
+          this.svgGroup.appendChild(g);
+          return g;
+        }
+
+        _drawConnection(parentId, childId) {
+          const parent = this.state.getNode(parentId);
+          const child = this.state.getNode(childId);
+          if (!parent || !child) return;
+
+          const line = document.createElementNS(SVG_NS, 'path');
+          line.classList.add('connection-line');
+          const d = this._computeCurve(parent.x, parent.y, child.x, child.y);
+          line.setAttribute('d', d);
+          this.svgGroup.insertBefore(line, this.svgGroup.firstChild);
+        }
+
+        _computeCurve(x1, y1, x2, y2) {
+          const dx = Math.abs(x2 - x1) * 0.5;
+          return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+        }
+
+        updateNodePosition(nodeId) {
+          // Re-render everything (optimization: could update transform only)
+          this.renderAll();
+        }
+
+        setSelected(nodeId) {
+          this.state.selectedNodeId = nodeId;
+          // Update classes
+          this.svgGroup.querySelectorAll('.node-group').forEach(g => {
+            const id = g.getAttribute('data-node-id');
+            g.classList.toggle('selected', id === nodeId);
+          });
+        }
+      }
+
+      // ===================== INTERACTION CONTROLLER =====================
+      class MindMapController {
+        constructor(state, renderer, api) {
+          this.state = state;
+          this.renderer = renderer;
+          this.api = api;
+          this.isDragging = false;
+          this.isPanning = false;
+          this.dragNode = null;
+          this.dragOffset = { x: 0, y: 0 };
+          this.panStart = { x: 0, y: 0 };
+          this.lastMouse = { x: 0, y: 0 };
+          this._initEvents();
+        }
+
+        _initEvents() {
+          const svg = this.renderer.svg;
+          const container = document.getElementById('canvas-container');
+
+          // Node interactions
+          svg.addEventListener('mousedown', this._onMouseDown.bind(this));
+          svg.addEventListener('mousemove', this._onMouseMove.bind(this));
+          window.addEventListener('mouseup', this._onMouseUp.bind(this));
+
+          // Touch events for mobile
+          svg.addEventListener('touchstart', this._onTouchStart.bind(this), { passive: false });
+          svg.addEventListener('touchmove', this._onTouchMove.bind(this), { passive: false });
+          svg.addEventListener('touchend', this._onTouchEnd.bind(this));
+
+          // Zoom with wheel
+          svg.addEventListener('wheel', this._onWheel.bind(this), { passive: false });
+
+          // Double click to edit text
+          svg.addEventListener('dblclick', this._onDoubleClick.bind(this));
+
+          // Keyboard events
+          document.addEventListener('keydown', this._onKeyDown.bind(this));
+
+          // Toolbar buttons
+          this._bindToolbar();
+        }
+
+        _bindToolbar() {
+          document.getElementById('btn-add-root').addEventListener('click', () => this.addRootNode());
+          document.getElementById('btn-add-child').addEventListener('click', () => this.addChildNode());
+          document.getElementById('btn-add-sibling').addEventListener('click', () => this.addSiblingNode());
+          document.getElementById('btn-delete').addEventListener('click', () => this.deleteSelected());
+          document.getElementById('btn-save').addEventListener('click', () => this.saveMap());
+          document.getElementById('btn-load').addEventListener('click', () => this.loadMap());
+          document.getElementById('btn-zoom-in').addEventListener('click', () => this.zoomIn());
+          document.getElementById('btn-zoom-out').addEventListener('click', () => this.zoomOut());
+          document.getElementById('btn-reset-zoom').addEventListener('click', () => this.resetZoom());
+          document.getElementById('btn-export-png').addEventListener('click', () => this.exportPNG());
+          document.getElementById('btn-export-json').addEventListener('click', () => this.exportJSON());
+          document.getElementById('btn-export-svg').addEventListener('click', () => this.exportSVG());
+        }
+
+        // ------ Node Creation ------
+        addRootNode(text = 'Central Idea') {
+          const vb = this.state.viewBox;
+          const centerX = vb.x + vb.width / (2 * vb.scale);
+          const centerY = vb.y + vb.height / (2 * vb.scale);
+          const node = this.state.addNode(text, centerX, centerY);
+          this.state.rootNodeId = node.id;
+          this.state.selectedNodeId = node.id;
+          this.renderer.renderAll();
+          this._updateToolbarState();
+        }
+
+        addChildNode() {
+          const parent = this.state.getNode(this.state.selectedNodeId);
+          if (!parent) return;
+          const children = this.state.getChildren(parent.id);
+          const offsetY = (children.length + 1) * 80;
+          const child = this.state.addNode(
+            'New Child',
+            parent.x + 180,
+            parent.y + offsetY,
+            parent.id
+          );
+          this.state.selectedNodeId = child.id;
+          this.renderer.renderAll();
+          this._updateToolbarState();
+        }
+
+        addSiblingNode() {
+          const selected = this.state.getNode(this.state.selectedNodeId);
+          if (!selected || !selected.parentId) return;
+          const parent = this.state.getNode(selected.parentId);
+          if (!parent) return;
+          const siblings = this.state.getChildren(parent.id);
+          const newSibling = this.state.addNode(
+            'New Sibling',
+            selected.x + 160,
+            selected.y + 80,
+            parent.id
+          );
+          this.state.selectedNodeId = newSibling.id;
+          this.renderer.renderAll();
+          this._updateToolbarState();
+        }
+
+        deleteSelected() {
+          if (!this.state.selectedNodeId) return;
+          this.state.deleteNode(this.state.selectedNodeId);
+          this.renderer.renderAll();
+          this._updateToolbarState();
+        }
+
+        // ------ Zoom & Pan ------
+        zoomIn() {
+          this._zoom(ZOOM_STEP);
+        }
+
+        zoomOut() {
+          this._zoom(-ZOOM_STEP);
+        }
+
+        resetZoom() {
+          this.state.viewBox.x = 0;
+          this.state.viewBox.y = 0;
+          this.state.viewBox.scale = 1;
+          this.renderer.updateViewBox();
+        }
+
+        _zoom(delta) {
+          const newScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, this.state.viewBox.scale + delta));
+          if (newScale === this.state.viewBox.scale) return;
+          // Zoom toward center of viewport
+          const container = document.getElementById('canvas-container');
+          const rect = container.getBoundingClientRect();
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const vb = this.state.viewBox;
+          const worldX = vb.x + centerX / vb.scale;
+          const worldY = vb.y + centerY / vb.scale;
+          vb.scale = newScale;
+          vb.x = worldX - centerX / newScale;
+          vb.y = worldY - centerY / newScale;
+          this.renderer.updateViewBox();
+        }
+
+        _onWheel(e) {
+          e.preventDefault();
+          this._zoom(e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP);
+        }
+
+        // ------ Dragging & Panning ------
+        _getMousePos(e) {
+          const svg = this.renderer.svg;
+          const pt = svg.createSVGPoint();
+          pt.x = e.clientX;
+          pt.y = e.clientY;
+          return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        _onMouseDown(e) {
+          const target = e.target.closest('.node-group');
+          if (target) {
+            // Start node drag
+            const nodeId = target.getAttribute('data-node-id');
+            const node = this.state.getNode(nodeId);
+            if (!node) return;
+            this.isDragging = true;
+            this.dragNode = node;
+            const mouse = this._getMousePos(e);
+            this.dragOffset.x = node.x - mouse.x;
+            this.dragOffset.y = node.y - mouse.y;
+            this.state.selectedNodeId = nodeId;
+            this.renderer.setSelected(nodeId);
+            this._updateToolbarState();
+            e.stopPropagation();
+          } else if (e.target === this.renderer.svg || e.target === this.renderer.svgGroup) {
+            // Start panning
+            this.isPanning = true;
+            this.panStart = { x: e.clientX, y: e.clientY };
+            this.renderer.svg.style.cursor = 'grabbing';
+          }
+        }
+
+        _onMouseMove(e) {
+          if (this.isDragging && this.dragNode) {
+            const mouse = this._getMousePos(e);
+            this.dragNode.x = mouse.x + this.dragOffset.x;
+            this.dragNode.y = mouse.y + this.dragOffset.y;
+            this.renderer.renderAll(); // Re-render to update connections
+          } else if (this.isPanning) {
+            const dx = e.clientX - this.panStart.x;
+            const dy = e.clientY - this.panStart.y;
+            const scale = this.state.viewBox.scale;
+            this.state.viewBox.x -= dx / scale;
+            this.state.viewBox.y -= dy / scale;
+            this.renderer.updateViewBox();
+            this.panStart = { x: e.clientX, y: e.clientY };
+          }
+        }
+
+        _onMouseUp() {
+          this.isDragging = false;
+          this.dragNode = null;
+          this.isPanning = false;
+          this.renderer.svg.style.cursor = '';
+        }
+
+        // Touch support
+        _onTouchStart(e) {
+          e.preventDefault();
+          if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, target: document.elementFromPoint(touch.clientX, touch.clientY) };
+            this._onMouseDown(fakeEvent);
+          }
+        }
+
+        _onTouchMove(e) {
+          e.preventDefault();
+          if (e.touches.length === 1 && (this.isDragging || this.isPanning)) {
+            const touch = e.touches[0];
+            const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+            this._onMouseMove(fakeEvent);
+          }
+        }
+
+        _onTouchEnd(e) {
+          this._onMouseUp();
+        }
+
+        _onDoubleClick(e) {
+          const target = e.target.closest('.node-group');
+          if (!target) return;
+          const nodeId = target.getAttribute('data-node-id');
+          const node = this.state.getNode(nodeId);
+          if (!node) return;
+          const newText = prompt('Enter node text:', node.text);
+          if (newText !== null && newText.trim() !== '') {
+            node.text = newText.trim();
+            this.renderer.renderAll();
+          }
+        }
+
+        _onKeyDown(e) {
+          if (e.key === 'Delete' && this.state.selectedNodeId) {
+            e.preventDefault();
+            this.deleteSelected();
+          }
+        }
+
+        // ------ Save / Load with Fetch API ------
+        async saveMap() {
+          this._showLoading(true);
+          try {
+            await this.api.save(this.state);
+            this._showToast('Mind map saved successfully', 'success');
+          } catch (error) {
+            this._showToast('Failed to save: ' + error.message, 'error');
+          } finally {
+            this._showLoading(false);
+          }
+        }
+
+        async loadMap() {
+          this._showLoading(true);
+          try {
+            const data = await this.api.load();
+            if (!data) {
+              this._showToast('No saved map found', 'error');
+              return;
+            }
+            this.state.loadFromJSON(data);
+            this.renderer.renderAll();
+            this._updateToolbarState();
+            this._showToast('Mind map loaded', 'success');
+          } catch (error) {
+            this._showToast('Failed to load: ' + error.message, 'error');
+          } finally {
+            this._showLoading(false);
+          }
+        }
+
+        // ------ Export ------
+        exportPNG() {
+          const svgEl = this.renderer.svg;
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(svgEl);
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob(blob => {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'mindmap.png';
+              a.click();
+              URL.revokeObjectURL(url);
+              this._showToast('PNG exported', 'success');
+            });
+          };
+          img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+        }
+
+        exportJSON() {
+          const data = this.state.toJSON();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'mindmap.json';
+          a.click();
+          URL.revokeObjectURL(url);
+          this._showToast('JSON exported', 'success');
+        }
+
+        exportSVG() {
+          const serializer = new XMLSerializer();
+          const svgString = serializer.serializeToString(this.renderer.svg);
+          const blob = new Blob([svgString], { type: 'image/svg+xml' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'mindmap.svg';
+          a.click();
+          URL.revokeObjectURL(url);
+          this._showToast('SVG exported', 'success');
+        }
+
+        // ------ UI Helpers ------
+        _updateToolbarState() {
+          const hasSelection = !!this.state.selectedNodeId;
+          document.getElementById('btn-add-child').disabled = !hasSelection;
+          document.getElementById('btn-add-sibling').disabled = !hasSelection || !this.state.getNode(this.state.selectedNodeId)?.parentId;
+          document.getElementById('btn-delete').disabled = !hasSelection;
+        }
+
+        _showLoading(show) {
+          document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+
+        _showToast(message, type = 'info') {
+          const container = document.getElementById('toast-container');
+          const toast = document.createElement('div');
+          toast.className = `toast ${type}`;
+          toast.textContent = message;
+          container.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
+      }
+
+      // ===================== INITIALIZATION =====================
+      const svgElement = document.getElementById('mindmap-svg');
+      const state = new MindMapState();
+      const renderer = new Renderer(svgElement, state);
+      const api = new MindMapAPI();
+      const controller = new MindMapController(state, renderer, api);
+
+      // Set initial viewBox dimensions to container size
+      function resizeViewBox() {
+        const container = document.getElementById('canvas-container');
+        state.viewBox.width = container.clientWidth;
+        state.viewBox.height = container.clientHeight;
+        renderer.updateViewBox();
+      }
+      window.addEventListener('resize', resizeViewBox);
+      resizeViewBox();
+
+      // Start with a root node for demo
+      if (state.nodes.size === 0) {
+        controller.addRootNode('My Mind Map');
+      } else {
+        renderer.renderAll();
+      }
+      controller._updateToolbarState();
+
+      // Expose for debugging (optional)
+      window.mindmap = { state, renderer, controller, api };
+    })();
+  </script>
+</body>
+</html>

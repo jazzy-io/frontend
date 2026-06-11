@@ -1,0 +1,2550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FitSync - Your all-in-one fitness tracking dashboard. Track workouts, plan routines, and achieve your goals.">
+    <meta name="theme-color" content="#0f0f1a">
+    <title>FitSync | Fitness Tracking Dashboard</title>
+
+    <style>
+        /* ============================================
+             CSS VARIABLES & RESET
+             ============================================ */
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #1e1e35;
+            --bg-card-hover: #252540;
+            --bg-sidebar: #141428;
+            --bg-input: #1a1a30;
+            --border-color: #2a2a45;
+            --border-active: #3a3a58;
+
+            --text-primary: #f0f0f5;
+            --text-secondary: #b0b0c8;
+            --text-muted: #7a7a95;
+            --text-accent: #4ade80;
+
+            --accent: #4ade80;
+            --accent-glow: rgba(74, 222, 128, 0.25);
+            --accent-hover: #5fea90;
+            --accent-dark: #3ab868;
+
+            --danger: #f87171;
+            --danger-glow: rgba(248, 113, 113, 0.25);
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --purple: #a78bfa;
+
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 50%;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 24px var(--accent-glow);
+
+            --transition-fast: 150ms ease;
+            --transition: 250ms ease;
+            --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 0px;
+            --header-height: 64px;
+
+            --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+
+            --z-sidebar: 100;
+            --z-overlay: 90;
+            --z-toast: 200;
+            --z-modal: 150;
+            --z-header: 80;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            outline: none;
+        }
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            border: none;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        ul {
+            list-style: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 20px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-active);
+        }
+
+        /* ============================================
+             LAYOUT: APP SHELL (CSS GRID)
+             ============================================ */
+        .app-container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            grid-template-rows: 1fr;
+            min-height: 100vh;
+            transition: grid-template-columns var(--transition-slow);
+            position: relative;
+        }
+
+        /* ============================================
+             SIDEBAR
+             ============================================ */
+        .sidebar {
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: var(--z-sidebar);
+            overflow-y: auto;
+            transition: transform var(--transition-slow), opacity var(--transition-slow);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .sidebar-logo .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius);
+            background: var(--accent);
+            color: #0f0f1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .sidebar-logo span {
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 1rem 0.75rem 0.4rem;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            position: relative;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border: 1px solid transparent;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .nav-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        .nav-link.active {
+            background: var(--bg-card);
+            color: var(--accent);
+            border-color: var(--border-active);
+            box-shadow: var(--shadow-glow);
+            font-weight: 600;
+        }
+        .nav-link .nav-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .nav-link .badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #0f0f1a;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2em 0.55em;
+            border-radius: 20px;
+            min-width: 22px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        /* ============================================
+             MAIN CONTENT
+             ============================================ */
+        .main-content {
+            padding: 1.5rem 2rem 3rem;
+            overflow-y: auto;
+            max-height: 100vh;
+            transition: padding var(--transition);
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeSlideIn 0.4s ease;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+
+        /* ============================================
+             HEADER
+             ============================================ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+        .page-header .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+             CARDS
+             ============================================ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: var(--border-active);
+            box-shadow: var(--shadow);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .card-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Stat Card */
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all var(--transition);
+            cursor: default;
+        }
+        .stat-card:hover {
+            border-color: var(--border-active);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .stat-icon.green {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--accent);
+        }
+        .stat-icon.blue {
+            background: rgba(96, 165, 250, 0.15);
+            color: var(--info);
+        }
+        .stat-icon.purple {
+            background: rgba(167, 139, 250, 0.15);
+            color: var(--purple);
+        }
+        .stat-icon.yellow {
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--warning);
+        }
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ============================================
+             GRID LAYOUTS
+             ============================================ */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* ============================================
+             BUTTONS
+             ============================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #0f0f1a;
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border-active);
+            color: var(--text-primary);
+        }
+        .btn-outline:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            box-shadow: var(--danger-glow);
+        }
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .btn-icon:hover {
+            color: var(--text-primary);
+            border-color: var(--border-active);
+        }
+
+        /* ============================================
+             FORMS
+             ============================================ */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+        .form-input,
+        .form-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.65rem 0.9rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            width: 100%;
+        }
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            outline: none;
+        }
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23b0b0c8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.2rem;
+        }
+
+        /* ============================================
+             CHIPS / TAGS
+             ============================================ */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+        .chip:hover {
+            border-color: var(--border-active);
+            color: var(--text-primary);
+        }
+        .chip.active {
+            background: var(--accent);
+            color: #0f0f1a;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ============================================
+             EXERCISE CARD
+             ============================================ */
+        .exercise-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .exercise-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+        .exercise-card .ex-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card-hover);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+        .exercise-card .ex-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .exercise-card .ex-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .exercise-card .ex-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================
+             PROGRESS BAR
+             ============================================ */
+        .progress-bar-container {
+            background: var(--bg-input);
+            border-radius: 20px;
+            height: 10px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+            transition: width var(--transition-slow);
+        }
+
+        /* ============================================
+             TABLE
+             ============================================ */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        thead {
+            background: var(--bg-card);
+        }
+        th {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        tbody tr {
+            transition: background var(--transition-fast);
+        }
+        tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        /* ============================================
+             TOAST NOTIFICATIONS
+             ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: var(--z-toast);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius);
+            padding: 0.9rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-lg);
+            pointer-events: auto;
+            animation: toastIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            max-width: 400px;
+        }
+        .toast.removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+        .toast.success {
+            border-left: 3px solid var(--accent);
+        }
+        .toast.error {
+            border-left: 3px solid var(--danger);
+        }
+        .toast.info {
+            border-left: 3px solid var(--info);
+        }
+
+        /* ============================================
+             MODAL
+             ============================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: var(--z-modal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 550px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: fadeSlideIn 0.3s ease;
+        }
+        .modal h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* ============================================
+             SKELETON LOADING
+             ============================================ */
+        .skeleton {
+            background: var(--bg-card-hover);
+            border-radius: var(--radius-sm);
+            animation: pulse 1.5s infinite;
+            min-height: 1em;
+        }
+        .skeleton-text {
+            height: 1em;
+            width: 80%;
+            margin-bottom: 0.5rem;
+        }
+        .skeleton-title {
+            height: 1.4em;
+            width: 50%;
+            margin-bottom: 0.8rem;
+        }
+        .skeleton-card {
+            height: 120px;
+            border-radius: var(--radius);
+        }
+
+        /* ============================================
+             CHART CONTAINER
+             ============================================ */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            min-height: 280px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chart-container canvas {
+            width: 100%;
+            height: 100%;
+            max-height: 300px;
+        }
+
+        /* ============================================
+             MOBILE HAMBURGER
+             ============================================ */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: calc(var(--z-sidebar) + 10);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+             RESPONSIVE DESIGN
+             ============================================ */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-content {
+                padding: 1rem 1.2rem 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                transform: translateX(-100%);
+                width: 280px;
+                z-index: var(--z-sidebar);
+                box-shadow: var(--shadow-lg);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .mobile-toggle {
+                display: flex;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: var(--z-overlay);
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .grid-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .page-header h1 {
+                font-size: 1.4rem;
+            }
+            .main-content {
+                padding: 0.8rem 0.8rem 2rem;
+                padding-top: 3.5rem;
+            }
+            .modal {
+                padding: 1.25rem;
+                max-width: 95vw;
+            }
+            .table-wrapper {
+                font-size: 0.78rem;
+            }
+            th,
+            td {
+                padding: 0.5rem 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.6rem;
+            }
+            .stat-card {
+                padding: 0.8rem 1rem;
+                gap: 0.6rem;
+            }
+            .stat-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+            .stat-value {
+                font-size: 1.3rem;
+            }
+            .btn {
+                padding: 0.5rem 0.9rem;
+                font-size: 0.8rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .chart-container {
+                min-height: 220px;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    MOBILE TOGGLE & OVERLAY
+    ============================================ -->
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation menu">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ============================================
+    APP CONTAINER
+    ============================================ -->
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-logo">
+                <div class="logo-icon">FS</div>
+                <span>FitSync</span>
+            </div>
+
+            <div class="nav-section-label">Main</div>
+            <button class="nav-link active" data-page="dashboard" aria-current="page">
+                <span class="nav-icon">📊</span> Dashboard
+            </button>
+            <button class="nav-link" data-page="exercises">
+                <span class="nav-icon">🏋️</span> Exercise Library
+                <span class="badge" id="exerciseCount">42</span>
+            </button>
+            <button class="nav-link" data-page="planner">
+                <span class="nav-icon">📋</span> Workout Planner
+                <span class="badge" id="planCount">0</span>
+            </button>
+
+            <div class="nav-section-label">Tracking</div>
+            <button class="nav-link" data-page="progress">
+                <span class="nav-icon">📈</span> Progress Tracker
+            </button>
+            <button class="nav-link" data-page="goals">
+                <span class="nav-icon">🎯</span> Goals
+                <span class="badge" id="goalsActive">0</span>
+            </button>
+
+            <div class="nav-section-label">Account</div>
+            <button class="nav-link" data-page="profile">
+                <span class="nav-icon">👤</span> Profile
+            </button>
+            <button class="nav-link" id="btnSync" data-page="">
+                <span class="nav-icon">🔄</span> Sync Data
+            </button>
+
+            <div class="sidebar-footer">
+                <button class="nav-link" id="btnExport">
+                    <span class="nav-icon">📥</span> Export Data
+                </button>
+                <button class="nav-link" id="btnReset" style="color: var(--danger);">
+                    <span class="nav-icon">⚠️</span> Reset All Data
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard Page -->
+            <section class="page-section active" id="page-dashboard">
+                <div class="page-header">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p class="subtitle">Welcome back! Here's your fitness overview.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnQuickWorkout">+ Quick Workout</button>
+                </div>
+                <div class="grid-stats" id="dashboardStats">
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                </div>
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">📊 Weekly Activity</span>
+                        </div>
+                        <div class="chart-container" id="weeklyChartContainer">
+                            <canvas id="weeklyChart" aria-label="Weekly workout activity bar chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">🔥 Recent Workouts</span>
+                        </div>
+                        <div id="recentWorkouts">
+                            <p style="color: var(--text-muted); padding: 1rem;">No recent workouts. Start your first workout!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exercise Library Page -->
+            <section class="page-section" id="page-exercises">
+                <div class="page-header">
+                    <div>
+                        <h1>Exercise Library</h1>
+                        <p class="subtitle">Browse and search exercises by muscle group.</p>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom: 1rem;" id="muscleFilterChips">
+                    <span class="chip active" data-filter="all">All</span>
+                    <span class="chip" data-filter="Chest">Chest</span>
+                    <span class="chip" data-filter="Back">Back</span>
+                    <span class="chip" data-filter="Shoulders">Shoulders</span>
+                    <span class="chip" data-filter="Legs">Legs</span>
+                    <span class="chip" data-filter="Arms">Arms</span>
+                    <span class="chip" data-filter="Core">Core</span>
+                    <span class="chip" data-filter="Cardio">Cardio</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <input type="text" class="form-input" id="exerciseSearch" placeholder="🔍 Search exercises by name..." aria-label="Search exercises">
+                </div>
+                <div id="exerciseList" class="grid-2" style="margin-top: 1rem;">
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                </div>
+                <p id="noExerciseResults" style="display:none; color:var(--text-muted); text-align:center; padding:2rem;">No exercises match your search.</p>
+            </section>
+
+            <!-- Workout Planner Page -->
+            <section class="page-section" id="page-planner">
+                <div class="page-header">
+                    <div>
+                        <h1>Workout Planner</h1>
+                        <p class="subtitle">Create and manage your workout routines.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnNewRoutine">+ New Routine</button>
+                </div>
+                <div id="routineList" class="grid-2">
+                    <p style="color: var(--text-muted);">No routines yet. Create your first workout routine!</p>
+                </div>
+            </section>
+
+            <!-- Progress Tracker Page -->
+            <section class="page-section" id="page-progress">
+                <div class="page-header">
+                    <div>
+                        <h1>Progress Tracker</h1>
+                        <p class="subtitle">Visualize your strength gains over time.</p>
+                    </div>
+                </div>
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div class="card-header">
+                        <span class="card-title">📈 Strength Progression</span>
+                        <select class="form-select" id="progressExerciseSelect" style="width:auto; min-width:180px;">
+                            <option value="">Select an exercise...</option>
+                        </select>
+                    </div>
+                    <div class="chart-container" id="progressChartContainer">
+                        <canvas id="progressChart" aria-label="Strength progression line chart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">📋 Workout History Log</span></div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Date</th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Weight (kg)</th></tr></thead>
+                            <tbody id="historyTableBody">
+                                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No workout history recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Goals Page -->
+            <section class="page-section" id="page-goals">
+                <div class="page-header">
+                    <div>
+                        <h1>Goals Tracking</h1>
+                        <p class="subtitle">Set and monitor your fitness goals.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnNewGoal">+ New Goal</button>
+                </div>
+                <div id="goalsList" class="grid-2">
+                    <p style="color: var(--text-muted);">No goals set yet. Define your first fitness goal!</p>
+                </div>
+            </section>
+
+            <!-- Profile Page -->
+            <section class="page-section" id="page-profile">
+                <div class="page-header">
+                    <div>
+                        <h1>Profile</h1>
+                        <p class="subtitle">Manage your personal fitness profile.</p>
+                    </div>
+                </div>
+                <div class="card" style="max-width:600px;">
+                    <form id="profileForm">
+                        <div class="grid-2" style="gap:1.2rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="profileName">Name</label>
+                                <input type="text" class="form-input" id="profileName" placeholder="Your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profileAge">Age</label>
+                                <input type="number" class="form-input" id="profileAge" placeholder="Age" min="10" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profileWeight">Weight (kg)</label>
+                                <input type="number" class="form-input" id="profileWeight" placeholder="Weight in kg" step="0.1" min="30" max="300">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profileHeight">Height (cm)</label>
+                                <input type="number" class="form-input" id="profileHeight" placeholder="Height in cm" step="0.1" min="100" max="250">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="profileLevel">Fitness Level</label>
+                                <select class="form-select" id="profileLevel">
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="align-self:end;">
+                                <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="card" style="max-width:600px; margin-top: 1.5rem;">
+                    <div class="card-header"><span class="card-title">📊 Body Metrics Summary</span></div>
+                    <div id="profileSummary" style="color:var(--text-secondary);">
+                        <p>Complete your profile to see your metrics summary.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- MODAL OVERLAY (hidden by default) -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none;">
+        <div class="modal" id="modalContent"></div>
+    </div>
+
+    <script>
+        /* ============================================
+           FIT-SYNC: MODULAR JAVASCRIPT ARCHITECTURE
+           ============================================ */
+
+        (function() {
+            'use strict';
+
+            // ─────────────────────────────────────
+            // STATE MANAGEMENT
+            // ─────────────────────────────────────
+            const AppState = {
+                currentPage: 'dashboard',
+                profile: {
+                    name: '',
+                    age: '',
+                    weight: '',
+                    height: '',
+                    level: 'beginner',
+                },
+                workoutHistory: [], // { id, date, exercise, sets, reps, weight }
+                routines: [], // { id, name, exercises: [{name, sets, reps, weight}] }
+                goals: [], // { id, title, target, current, unit, type }
+                exercises: [], // loaded from embedded data
+                isOnline: navigator.onLine,
+            };
+
+            // ─────────────────────────────────────
+            // LOCAL STORAGE SERVICE
+            // ─────────────────────────────────────
+            const StorageService = {
+                KEYS: {
+                    PROFILE: 'fitsync_profile',
+                    HISTORY: 'fitsync_history',
+                    ROUTINES: 'fitsync_routines',
+                    GOALS: 'fitsync_goals',
+                },
+
+                save(key, data) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify(data));
+                        return true;
+                    } catch (e) {
+                        console.warn('Storage save failed:', e);
+                        return false;
+                    }
+                },
+
+                load(key, fallback = null) {
+                    try {
+                        const raw = localStorage.getItem(key);
+                        return raw ? JSON.parse(raw) : fallback;
+                    } catch (e) {
+                        console.warn('Storage load failed:', e);
+                        return fallback;
+                    }
+                },
+
+                loadAll() {
+                    AppState.profile = this.load(this.KEYS.PROFILE, AppState.profile);
+                    AppState.workoutHistory = this.load(this.KEYS.HISTORY, []);
+                    AppState.routines = this.load(this.KEYS.ROUTINES, []);
+                    AppState.goals = this.load(this.KEYS.GOALS, []);
+                },
+
+                saveAll() {
+                    this.save(this.KEYS.PROFILE, AppState.profile);
+                    this.save(this.KEYS.HISTORY, AppState.workoutHistory);
+                    this.save(this.KEYS.ROUTINES, AppState.routines);
+                    this.save(this.KEYS.GOALS, AppState.goals);
+                },
+
+                exportData() {
+                    const data = {
+                        profile: AppState.profile,
+                        workoutHistory: AppState.workoutHistory,
+                        routines: AppState.routines,
+                        goals: AppState.goals,
+                        exportedAt: new Date().toISOString(),
+                    };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `fitsync-backup-${new Date().toISOString().slice(0,10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    Toast.show('Data exported successfully! 📥', 'success');
+                },
+
+                resetAll() {
+                    if (confirm('Are you sure you want to reset ALL data? This cannot be undone.')) {
+                        Object.values(this.KEYS).forEach(k => localStorage.removeItem(k));
+                        AppState.profile = { name: '', age: '', weight: '', height: '', level: 'beginner' };
+                        AppState.workoutHistory = [];
+                        AppState.routines = [];
+                        AppState.goals = [];
+                        this.saveAll();
+                        Router.navigate('dashboard');
+                        Toast.show('All data has been reset.', 'info');
+                    }
+                },
+            };
+
+            // ─────────────────────────────────────
+            // API SERVICE (Fetch API)
+            // ─────────────────────────────────────
+            const ApiService = {
+                BASE_URL: 'https://jsonplaceholder.typicode.com',
+
+                async fetchWithTimeout(url, options = {}, timeout = 8000) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    try {
+                        const response = await fetch(url, {
+                            ...options,
+                            signal: controller.signal,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...(options.headers || {}),
+                            },
+                        });
+                        clearTimeout(timeoutId);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        clearTimeout(timeoutId);
+                        if (error.name === 'AbortError') {
+                            throw new Error('Request timed out. Please check your connection.');
+                        }
+                        throw error;
+                    }
+                },
+
+                async syncWorkoutData() {
+                    // Demonstrate Fetch API with a POST to JSONPlaceholder
+                    const payload = {
+                        title: 'FitSync Workout Sync',
+                        body: JSON.stringify({
+                            history: AppState.workoutHistory.slice(-5),
+                            routines: AppState.routines,
+                            timestamp: new Date().toISOString(),
+                        }),
+                        userId: 1,
+                    };
+                    const data = await this.fetchWithTimeout(`${this.BASE_URL}/posts`, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    });
+                    return data;
+                },
+
+                async fetchRemoteExercises() {
+                    // Attempt to fetch from a public API; fall back to local data
+                    try {
+                        const data = await this.fetchWithTimeout(
+                            'https://jsonplaceholder.typicode.com/users/1/todos?_limit=5', { method: 'GET' },
+                            5000
+                        );
+                        // Transform mock data into exercise-like objects for demo
+                        return data.map((item, i) => ({
+                            id: `remote-${item.id}`,
+                            name: `Remote Exercise ${i+1}: ${item.title.slice(0,20)}`,
+                            muscleGroup: ['Chest', 'Back', 'Legs', 'Arms', 'Core'][i % 5],
+                            difficulty: ['Beginner', 'Intermediate', 'Advanced'][i % 3],
+                            equipment: ['Bodyweight', 'Dumbbells', 'Barbell'][i % 3],
+                            description: 'Fetched from remote API (demo).',
+                        }));
+                    } catch (err) {
+                        console.warn('Remote fetch failed, using local exercises:', err.message);
+                        return null;
+                    }
+                },
+            };
+
+            // ─────────────────────────────────────
+            // TOAST NOTIFICATION SYSTEM
+            // ─────────────────────────────────────
+            const Toast = {
+                container: document.getElementById('toastContainer'),
+
+                show(message, type = 'info', duration = 3500) {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+                    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span> ${message}`;
+                    this.container.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.classList.add('removing');
+                        toast.addEventListener('animationend', () => toast.remove());
+                    }, duration);
+                },
+            };
+
+            // ─────────────────────────────────────
+            // MODAL SYSTEM
+            // ─────────────────────────────────────
+            const Modal = {
+                overlay: document.getElementById('modalOverlay'),
+                content: document.getElementById('modalContent'),
+
+                open(html) {
+                    this.content.innerHTML = html;
+                    this.overlay.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                },
+
+                close() {
+                    this.overlay.style.display = 'none';
+                    this.content.innerHTML = '';
+                    document.body.style.overflow = '';
+                },
+
+                init() {
+                    this.overlay.addEventListener('click', (e) => {
+                        if (e.target === this.overlay) this.close();
+                    });
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && this.overlay.style.display === 'flex') this.close();
+                    });
+                },
+            };
+
+            // ─────────────────────────────────────
+            // CHART RENDERER (Canvas API)
+            // ─────────────────────────────────────
+            const ChartRenderer = {
+                /**
+                 * Draw a bar chart on a canvas element
+                 * @param {HTMLCanvasElement} canvas
+                 * @param {Array<{label:string, value:number}>} data
+                 * @param {Object} options
+                 */
+                drawBarChart(canvas, data, options = {}) {
+                    if (!canvas || !data.length) return;
+                    const ctx = canvas.getContext('2d');
+                    const dpr = window.devicePixelRatio || 1;
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    const width = rect.width - 32 || 500;
+                    const height = options.height || 260;
+                    canvas.width = width * dpr;
+                    canvas.height = height * dpr;
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                    ctx.scale(dpr, dpr);
+
+                    const padding = { top: 20, right: 20, bottom: 40, left: 45 };
+                    const chartW = width - padding.left - padding.right;
+                    const chartH = height - padding.top - padding.bottom;
+                    const maxVal = Math.max(...data.map(d => d.value), 1);
+                    const barWidth = Math.min(chartW / data.length * 0.65, 55);
+                    const gap = chartW / data.length;
+
+                    // Background
+                    ctx.fillStyle = '#1e1e35';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Grid lines
+                    const gridLines = 5;
+                    ctx.strokeStyle = '#2a2a45';
+                    ctx.lineWidth = 0.5;
+                    for (let i = 0; i <= gridLines; i++) {
+                        const y = padding.top + (chartH / gridLines) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(padding.left, y);
+                        ctx.lineTo(width - padding.right, y);
+                        ctx.stroke();
+                        // Label
+                        const val = Math.round(maxVal - (maxVal / gridLines) * i);
+                        ctx.fillStyle = '#7a7a95';
+                        ctx.font = '11px system-ui';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(val, padding.left - 8, y + 4);
+                    }
+
+                    // Bars
+                    data.forEach((d, i) => {
+                        const barH = (d.value / maxVal) * chartH;
+                        const x = padding.left + gap * i + (gap - barWidth) / 2;
+                        const y = padding.top + chartH - barH;
+
+                        // Gradient
+                        const grad = ctx.createLinearGradient(x, y, x, padding.top + chartH);
+                        grad.addColorStop(0, '#4ade80');
+                        grad.addColorStop(1, '#3ab868');
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.roundRect(x, y, barWidth, barH, [6, 6, 0, 0]);
+                        ctx.fill();
+
+                        // Label
+                        ctx.fillStyle = '#b0b0c8';
+                        ctx.font = '10px system-ui';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(d.label, padding.left + gap * i + gap / 2, height -
+                            padding.bottom + 18);
+                    });
+                },
+
+                /**
+                 * Draw a line chart on a canvas element
+                 */
+                drawLineChart(canvas, dataPoints, options = {}) {
+                    if (!canvas || !dataPoints.length) return;
+                    const ctx = canvas.getContext('2d');
+                    const dpr = window.devicePixelRatio || 1;
+                    const rect = canvas.parentElement.getBoundingClientRect();
+                    const width = rect.width - 32 || 500;
+                    const height = options.height || 260;
+                    canvas.width = width * dpr;
+                    canvas.height = height * dpr;
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                    ctx.scale(dpr, dpr);
+
+                    const padding = { top: 25, right: 25, bottom: 45, left: 50 };
+                    const chartW = width - padding.left - padding.right;
+                    const chartH = height - padding.top - padding.bottom;
+                    const maxVal = Math.max(...dataPoints.map(d => d.value), 1);
+                    const minVal = Math.min(...dataPoints.map(d => d.value), 0);
+
+                    ctx.fillStyle = '#1e1e35';
+                    ctx.fillRect(0, 0, width, height);
+
+                    // Grid
+                    const gridLines = 5;
+                    ctx.strokeStyle = '#2a2a45';
+                    ctx.lineWidth = 0.5;
+                    for (let i = 0; i <= gridLines; i++) {
+                        const y = padding.top + (chartH / gridLines) * i;
+                        ctx.beginPath();
+                        ctx.moveTo(padding.left, y);
+                        ctx.lineTo(width - padding.right, y);
+                        ctx.stroke();
+                        const val = Math.round(maxVal - ((maxVal - minVal) / gridLines) * i);
+                        ctx.fillStyle = '#7a7a95';
+                        ctx.font = '11px system-ui';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(val, padding.left - 8, y + 4);
+                    }
+
+                    if (dataPoints.length < 2) {
+                        // Single point - draw a dot
+                        const x = padding.left + chartW / 2;
+                        const y = padding.top + chartH / 2;
+                        ctx.fillStyle = '#4ade80';
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#b0b0c8';
+                        ctx.font = '11px system-ui';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(dataPoints[0].label || '', x, height - padding.bottom + 18);
+                        return;
+                    }
+
+                    // Line
+                    const points = dataPoints.map((d, i) => ({
+                        x: padding.left + (chartW / (dataPoints.length - 1)) * i,
+                        y: padding.top + chartH - ((d.value - minVal) / (maxVal - minVal || 1)) *
+                            chartH,
+                        label: d.label,
+                    }));
+
+                    // Fill area
+                    ctx.beginPath();
+                    ctx.moveTo(points[0].x, padding.top + chartH);
+                    points.forEach(p => ctx.lineTo(p.x, p.y));
+                    ctx.lineTo(points[points.length - 1].x, padding.top + chartH);
+                    ctx.closePath();
+                    const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartH);
+                    grad.addColorStop(0, 'rgba(74,222,128,0.3)');
+                    grad.addColorStop(1, 'rgba(74,222,128,0.02)');
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+
+                    // Stroke
+                    ctx.strokeStyle = '#4ade80';
+                    ctx.lineWidth = 2.5;
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+                    ctx.stroke();
+
+                    // Dots
+                    points.forEach(p => {
+                        ctx.fillStyle = '#1e1e35';
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#4ade80';
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // X labels
+                    ctx.fillStyle = '#b0b0c8';
+                    ctx.font = '10px system-ui';
+                    ctx.textAlign = 'center';
+                    const step = Math.max(1, Math.floor(dataPoints.length / 6));
+                    points.forEach((p, i) => {
+                        if (i % step === 0 || i === points.length - 1) {
+                            ctx.fillText(p.label, p.x, height - padding.bottom + 18);
+                        }
+                    });
+                },
+            };
+
+            // ─────────────────────────────────────
+            // ROUTER
+            // ─────────────────────────────────────
+            const Router = {
+                navigate(page) {
+                    AppState.currentPage = page;
+                    // Update sections
+                    document.querySelectorAll('.page-section').forEach(s => s.classList.remove(
+                        'active'));
+                    const target = document.getElementById(`page-${page}`);
+                    if (target) target.classList.add('active');
+
+                    // Update nav links
+                    document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                        link.classList.toggle('active', link.dataset.page === page);
+                        if (link.dataset.page === page) link.setAttribute('aria-current', 'page');
+                        else link.removeAttribute('aria-current');
+                    });
+
+                    // Render page content
+                    switch (page) {
+                        case 'dashboard':
+                            renderDashboard();
+                            break;
+                        case 'exercises':
+                            renderExerciseLibrary();
+                            break;
+                        case 'planner':
+                            renderPlanner();
+                            break;
+                        case 'progress':
+                            renderProgress();
+                            break;
+                        case 'goals':
+                            renderGoals();
+                            break;
+                        case 'profile':
+                            renderProfile();
+                            break;
+                    }
+
+                    // Close sidebar on mobile
+                    document.getElementById('sidebar').classList.remove('open');
+                    document.getElementById('sidebarOverlay').classList.remove('active');
+                    document.getElementById('mainContent').scrollTop = 0;
+                },
+            };
+
+            // ─────────────────────────────────────
+            // EXERCISE DATA (Embedded Library)
+            // ─────────────────────────────────────
+            const EXERCISE_LIBRARY = [
+                { id: 'e1', name: 'Bench Press', muscleGroup: 'Chest', difficulty: 'Intermediate',
+                    equipment: 'Barbell', description: 'Compound chest exercise performed on a flat bench.' },
+                { id: 'e2', name: 'Push-Up', muscleGroup: 'Chest', difficulty: 'Beginner',
+                    equipment: 'Bodyweight',
+                    description: 'Classic bodyweight exercise targeting chest and triceps.' },
+                { id: 'e3', name: 'Incline Dumbbell Press', muscleGroup: 'Chest',
+                    difficulty: 'Intermediate', equipment: 'Dumbbells',
+                    description: 'Targets upper chest fibers with dumbbells on an incline bench.' },
+                { id: 'e4', name: 'Chest Fly (Cable)', muscleGroup: 'Chest', difficulty: 'Intermediate',
+                    equipment: 'Cable Machine', description: 'Isolation movement for chest using cable crossover.' },
+                { id: 'e5', name: 'Decline Bench Press', muscleGroup: 'Chest', difficulty: 'Advanced',
+                    equipment: 'Barbell', description: 'Targets lower chest on a decline bench.' },
+                { id: 'e6', name: 'Pull-Up', muscleGroup: 'Back', difficulty: 'Intermediate',
+                    equipment: 'Pull-Up Bar',
+                    description: 'Compound back exercise using bodyweight on a bar.' },
+                { id: 'e7', name: 'Deadlift', muscleGroup: 'Back', difficulty: 'Advanced', equipment: 'Barbell',
+                    description: 'Full-body compound lift emphasizing posterior chain.' },
+                { id: 'e8', name: 'Barbell Row', muscleGroup: 'Back', difficulty: 'Intermediate',
+                    equipment: 'Barbell', description: 'Bent-over row targeting mid-back and lats.' },
+                { id: 'e9', name: 'Lat Pulldown', muscleGroup: 'Back', difficulty: 'Beginner',
+                    equipment: 'Cable Machine', description: 'Machine exercise for lat engagement.' },
+                { id: 'e10', name: 'Dumbbell Single-Arm Row', muscleGroup: 'Back', difficulty: 'Intermediate',
+                    equipment: 'Dumbbells', description: 'Unilateral row for back development.' },
+                { id: 'e11', name: 'Overhead Press', muscleGroup: 'Shoulders', difficulty: 'Intermediate',
+                    equipment: 'Barbell', description: 'Standing press for shoulder strength.' },
+                { id: 'e12', name: 'Lateral Raise', muscleGroup: 'Shoulders', difficulty: 'Beginner',
+                    equipment: 'Dumbbells', description: 'Isolation exercise for lateral deltoids.' },
+                { id: 'e13', name: 'Front Raise', muscleGroup: 'Shoulders', difficulty: 'Beginner',
+                    equipment: 'Dumbbells', description: 'Targets anterior deltoids.' },
+                { id: 'e14', name: 'Face Pull', muscleGroup: 'Shoulders', difficulty: 'Intermediate',
+                    equipment: 'Cable Machine', description: 'Rear delt and rotator cuff exercise.' },
+                { id: 'e15', name: 'Squat', muscleGroup: 'Legs', difficulty: 'Intermediate',
+                equipment: 'Barbell', description: 'King of leg exercises for quad and glute development.' },
+                { id: 'e16', name: 'Leg Press', muscleGroup: 'Legs', difficulty: 'Beginner',
+                equipment: 'Machine', description: 'Machine-based compound leg movement.' },
+                { id: 'e17', name: 'Romanian Deadlift', muscleGroup: 'Legs', difficulty: 'Intermediate',
+                    equipment: 'Barbell', description: 'Hamstring-focused deadlift variation.' },
+                { id: 'e18', name: 'Bulgarian Split Squat', muscleGroup: 'Legs', difficulty: 'Advanced',
+                    equipment: 'Dumbbells', description: 'Unilateral leg exercise for balance and strength.' },
+                { id: 'e19', name: 'Calf Raise', muscleGroup: 'Legs', difficulty: 'Beginner',
+                    equipment: 'Machine',
+                    description: 'Isolation exercise for calf muscles.' },
+                { id: 'e20', name: 'Bicep Curl', muscleGroup: 'Arms', difficulty: 'Beginner',
+                equipment: 'Dumbbells', description: 'Classic bicep isolation exercise.' },
+                { id: 'e21', name: 'Tricep Dip', muscleGroup: 'Arms', difficulty: 'Intermediate',
+                    equipment: 'Parallel Bars', description: 'Compound arm exercise targeting triceps.' },
+                { id: 'e22', name: 'Hammer Curl', muscleGroup: 'Arms', difficulty: 'Beginner',
+                    equipment: 'Dumbbells', description: 'Bicep curl variation emphasizing brachialis.' },
+                { id: 'e23', name: 'Skull Crusher', muscleGroup: 'Arms', difficulty: 'Intermediate',
+                    equipment: 'EZ Bar', description: 'Lying tricep extension for tricep mass.' },
+                { id: 'e24', name: 'Preacher Curl', muscleGroup: 'Arms', difficulty: 'Intermediate',
+                    equipment: 'Barbell', description: 'Strict bicep curl using a preacher bench.' },
+                { id: 'e25', name: 'Plank', muscleGroup: 'Core', difficulty: 'Beginner',
+                equipment: 'Bodyweight', description: 'Isometric core stability exercise.' },
+                { id: 'e26', name: 'Hanging Leg Raise', muscleGroup: 'Core', difficulty: 'Advanced',
+                    equipment: 'Pull-Up Bar', description: 'Advanced abdominal exercise from a hanging position.' },
+                { id: 'e27', name: 'Russian Twist', muscleGroup: 'Core', difficulty: 'Beginner',
+                    equipment: 'Bodyweight', description: 'Rotational core exercise for obliques.' },
+                { id: 'e28', name: 'Ab Wheel Rollout', muscleGroup: 'Core', difficulty: 'Advanced',
+                    equipment: 'Ab Wheel', description: 'Full core engagement with an ab wheel.' },
+                { id: 'e29', name: 'Cable Crunch', muscleGroup: 'Core', difficulty: 'Intermediate',
+                    equipment: 'Cable Machine', description: 'Weighted crunch using a cable.' },
+                { id: 'e30', name: 'Running (Treadmill)', muscleGroup: 'Cardio', difficulty: 'Beginner',
+                    equipment: 'Treadmill', description: 'Steady-state or interval running.' },
+                { id: 'e31', name: 'Cycling', muscleGroup: 'Cardio', difficulty: 'Beginner',
+                equipment: 'Stationary Bike', description: 'Low-impact cardio on a bike.' },
+                { id: 'e32', name: 'Rowing Machine', muscleGroup: 'Cardio', difficulty: 'Intermediate',
+                    equipment: 'Rowing Machine', description: 'Full-body cardio and endurance.' },
+                { id: 'e33', name: 'Jump Rope', muscleGroup: 'Cardio', difficulty: 'Intermediate',
+                    equipment: 'Jump Rope', description: 'High-intensity cardio with a jump rope.' },
+                { id: 'e34', name: 'Burpee', muscleGroup: 'Cardio', difficulty: 'Advanced',
+                equipment: 'Bodyweight', description: 'Full-body explosive conditioning exercise.' },
+                { id: 'e35', name: 'Dumbbell Bench Press', muscleGroup: 'Chest', difficulty: 'Intermediate',
+                    equipment: 'Dumbbells', description: 'Chest press with dumbbells for greater ROM.' },
+                { id: 'e36', name: 'T-Bar Row', muscleGroup: 'Back', difficulty: 'Intermediate',
+                    equipment: 'T-Bar', description: 'Supported row for back thickness.' },
+                { id: 'e37', name: 'Arnold Press', muscleGroup: 'Shoulders', difficulty: 'Advanced',
+                    equipment: 'Dumbbells', description: 'Rotational shoulder press developed by Arnold.' },
+                { id: 'e38', name: 'Goblet Squat', muscleGroup: 'Legs', difficulty: 'Beginner',
+                    equipment: 'Dumbbell', description: 'Front-loaded squat variation.' },
+                { id: 'e39', name: 'Concentration Curl', muscleGroup: 'Arms', difficulty: 'Beginner',
+                    equipment: 'Dumbbell', description: 'Seated isolation curl for peak contraction.' },
+                { id: 'e40', name: 'Mountain Climber', muscleGroup: 'Core', difficulty: 'Beginner',
+                    equipment: 'Bodyweight', description: 'Dynamic core and cardio exercise.' },
+                { id: 'e41', name: 'Kettlebell Swing', muscleGroup: 'Cardio', difficulty: 'Intermediate',
+                    equipment: 'Kettlebell', description: 'Explosive hip-hinge cardio movement.' },
+                { id: 'e42', name: 'Dumbbell Pullover', muscleGroup: 'Back', difficulty: 'Intermediate',
+                    equipment: 'Dumbbell', description: 'Cross-benefit exercise for back and chest.' },
+            ];
+
+            // ─────────────────────────────────────
+            // PAGE RENDERERS
+            // ─────────────────────────────────────
+            function renderDashboard() {
+                AppState.exercises = EXERCISE_LIBRARY;
+                const totalWorkouts = AppState.workoutHistory.length;
+                const thisWeek = getWeekDates();
+                const weekWorkouts = AppState.workoutHistory.filter(w => thisWeek.includes(w.date));
+                const totalExercises = EXERCISE_LIBRARY.length;
+                const activeGoals = AppState.goals.filter(g => g.current < g.target).length;
+
+                // Stats
+                const statsHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon green">💪</div>
+                        <div><div class="stat-value">${totalWorkouts}</div><div class="stat-label">Total Workouts</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">📅</div>
+                        <div><div class="stat-value">${weekWorkouts.length}</div><div class="stat-label">This Week</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">🏋️</div>
+                        <div><div class="stat-value">${totalExercises}</div><div class="stat-label">Exercise Library</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon yellow">🎯</div>
+                        <div><div class="stat-value">${activeGoals}</div><div class="stat-label">Active Goals</div></div>
+                    </div>
+                `;
+                document.getElementById('dashboardStats').innerHTML = statsHTML;
+
+                // Weekly chart
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const weekData = dayNames.map((day, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - d.getDay() + i);
+                    const dateStr = d.toISOString().slice(0, 10);
+                    const count = AppState.workoutHistory.filter(w => w.date === dateStr).length;
+                    return { label: day, value: count };
+                });
+                setTimeout(() => {
+                    const canvas = document.getElementById('weeklyChart');
+                    if (canvas) ChartRenderer.drawBarChart(canvas, weekData);
+                }, 100);
+
+                // Recent workouts
+                const recent = [...AppState.workoutHistory].reverse().slice(0, 5);
+                const recentHTML = recent.length ? recent.map(w => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border-color);">
+                        <div>
+                            <strong>${w.exercise}</strong>
+                            <span style="color:var(--text-muted);font-size:0.8rem;margin-left:0.5rem;">${w.date}</span>
+                        </div>
+                        <span style="color:var(--accent);font-weight:600;">${w.sets}×${w.reps} @ ${w.weight}kg</span>
+                    </div>
+                `).join('') : '<p style="color:var(--text-muted);padding:1rem;">No recent workouts. Start your first workout!</p>';
+                document.getElementById('recentWorkouts').innerHTML = recentHTML;
+
+                updateBadges();
+            }
+
+            function renderExerciseLibrary(filter = 'all', search = '') {
+                let exercises = EXERCISE_LIBRARY;
+                if (filter !== 'all') {
+                    exercises = exercises.filter(e => e.muscleGroup === filter);
+                }
+                if (search) {
+                    const q = search.toLowerCase();
+                    exercises = exercises.filter(e => e.name.toLowerCase().includes(q) || e.muscleGroup
+                        .toLowerCase().includes(q) || e.equipment.toLowerCase().includes(q));
+                }
+                const container = document.getElementById('exerciseList');
+                const noResults = document.getElementById('noExerciseResults');
+
+                if (exercises.length === 0) {
+                    container.innerHTML = '';
+                    noResults.style.display = 'block';
+                } else {
+                    noResults.style.display = 'none';
+                    container.innerHTML = exercises.map(e => `
+                        <div class="exercise-card" data-id="${e.id}" tabindex="0" role="button" aria-label="${e.name} - ${e.muscleGroup}">
+                            <div class="ex-icon">${getMuscleEmoji(e.muscleGroup)}</div>
+                            <div class="ex-info">
+                                <div class="ex-name">${e.name}</div>
+                                <div class="ex-meta">
+                                    <span>${e.muscleGroup}</span> · 
+                                    <span>${e.difficulty}</span> · 
+                                    <span>${e.equipment}</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline add-to-routine-btn" data-exercise="${e.name}" title="Add to routine">+</button>
+                        </div>
+                    `).join('');
+
+                    // Click handlers for exercise cards
+                    container.querySelectorAll('.exercise-card').forEach(card => {
+                        card.addEventListener('click', function(e) {
+                            if (e.target.closest('.add-to-routine-btn')) return;
+                            const ex = EXERCISE_LIBRARY.find(e => e.id === this.dataset
+                                .id);
+                            if (ex) showExerciseDetail(ex);
+                        });
+                    });
+                    container.querySelectorAll('.add-to-routine-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            quickAddToRoutine(this.dataset.exercise);
+                        });
+                    });
+                }
+                document.getElementById('exerciseCount').textContent = EXERCISE_LIBRARY.length;
+            }
+
+            function showExerciseDetail(ex) {
+                Modal.open(`
+                    <h3>${getMuscleEmoji(ex.muscleGroup)} ${ex.name}</h3>
+                    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+                        <span class="chip active">${ex.muscleGroup}</span>
+                        <span class="chip">${ex.difficulty}</span>
+                        <span class="chip">${ex.equipment}</span>
+                    </div>
+                    <p style="color:var(--text-secondary);margin-bottom:1.5rem;">${ex.description}</p>
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="modalAddToRoutine">➕ Add to Current Routine</button>
+                        <button class="btn btn-outline" id="modalLogWorkout">📝 Log This Exercise</button>
+                        <button class="btn btn-outline" onclick="document.querySelector('#modalOverlay').style.display='none';document.body.style.overflow='';">Close</button>
+                    </div>
+                `);
+                document.getElementById('modalAddToRoutine').addEventListener('click', () => {
+                    quickAddToRoutine(ex.name);
+                    Modal.close();
+                });
+                document.getElementById('modalLogWorkout').addEventListener('click', () => {
+                    showLogWorkoutModal(ex.name);
+                });
+            }
+
+            function showLogWorkoutModal(exerciseName = '') {
+                Modal.open(`
+                    <h3>📝 Log Workout</h3>
+                    <form id="logWorkoutForm" style="display:flex;flex-direction:column;gap:1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Exercise</label>
+                            <select class="form-select" id="logExercise" required>
+                                <option value="">Select exercise...</option>
+                                ${EXERCISE_LIBRARY.map(e => `<option value="${e.name}" ${e.name===exerciseName?'selected':''}>${e.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;">
+                            <div class="form-group">
+                                <label class="form-label">Sets</label>
+                                <input type="number" class="form-input" id="logSets" value="3" min="1" max="20" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reps</label>
+                                <input type="number" class="form-input" id="logReps" value="10" min="1" max="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="number" class="form-input" id="logWeight" value="20" min="0" step="0.5" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="logDate" value="${new Date().toISOString().slice(0,10)}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">✅ Log Workout</button>
+                        <button type="button" class="btn btn-outline" onclick="document.querySelector('#modalOverlay').style.display='none';document.body.style.overflow='';">Cancel</button>
+                    </form>
+                `);
+                document.getElementById('logWorkoutForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const workout = {
+                        id: Date.now().toString(),
+                        date: document.getElementById('logDate').value,
+                        exercise: document.getElementById('logExercise').value,
+                        sets: parseInt(document.getElementById('logSets').value),
+                        reps: parseInt(document.getElementById('logReps').value),
+                        weight: parseFloat(document.getElementById('logWeight').value),
+                    };
+                    AppState.workoutHistory.push(workout);
+                    StorageService.save(StorageService.KEYS.HISTORY, AppState.workoutHistory);
+                    Modal.close();
+                    Toast.show('Workout logged successfully! 💪', 'success');
+                    Router.navigate(AppState.currentPage);
+                });
+            }
+
+            function quickAddToRoutine(exerciseName) {
+                if (AppState.routines.length === 0) {
+                    // Create a default routine
+                    const newRoutine = {
+                        id: Date.now().toString(),
+                        name: 'My Routine',
+                        exercises: [{ name: exerciseName, sets: 3, reps: 10, weight: 20 }],
+                    };
+                    AppState.routines.push(newRoutine);
+                    StorageService.save(StorageService.KEYS.ROUTINES, AppState.routines);
+                    Toast.show(`Created new routine with "${exerciseName}"! 📋`, 'success');
+                } else {
+                    // Add to the first routine
+                    if (!AppState.routines[0].exercises.find(e => e.name === exerciseName)) {
+                        AppState.routines[0].exercises.push({ name: exerciseName, sets: 3, reps: 10, weight: 20 });
+                        StorageService.save(StorageService.KEYS.ROUTINES, AppState.routines);
+                        Toast.show(`Added "${exerciseName}" to "${AppState.routines[0].name}"! ✅`, 'success');
+                    } else {
+                        Toast.show(`"${exerciseName}" is already in the routine.`, 'info');
+                    }
+                }
+                if (AppState.currentPage === 'planner') renderPlanner();
+                updateBadges();
+            }
+
+            function renderPlanner() {
+                const container = document.getElementById('routineList');
+                if (AppState.routines.length === 0) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-muted);grid-column:1/-1;">No routines yet. Create your first workout routine!</p>';
+                } else {
+                    container.innerHTML = AppState.routines.map((r, ri) => `
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📋 ${r.name}</span>
+                                <div style="display:flex;gap:0.4rem;">
+                                    <button class="btn btn-sm btn-outline start-routine-btn" data-routine-index="${ri}">▶ Start</button>
+                                    <button class="btn btn-sm btn-danger delete-routine-btn" data-routine-index="${ri}">🗑</button>
+                                </div>
+                            </div>
+                            ${r.exercises.length ? `
+                                <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                                    ${r.exercises.map((ex, ei) => `
+                                        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--border-color);">
+                                            <span style="font-weight:500;">${ex.name}</span>
+                                            <span style="color:var(--text-muted);font-size:0.85rem;">${ex.sets}×${ex.reps} @ ${ex.weight}kg</span>
+                                            <button class="btn btn-sm btn-icon remove-ex-btn" data-routine="${ri}" data-exercise="${ei}" style="font-size:0.7rem;width:26px;height:26px;">✕</button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '<p style="color:var(--text-muted);">No exercises added. Browse the library to add exercises.</p>'}
+                            <button class="btn btn-outline btn-sm add-ex-to-routine-btn" data-routine-index="${ri}" style="margin-top:0.8rem;">+ Add Exercise</button>
+                        </div>
+                    `).join('');
+
+                    // Event delegation for routine actions
+                    container.querySelectorAll('.delete-routine-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const idx = parseInt(this.dataset.routineIndex);
+                            if (confirm(
+                                    `Delete routine "${AppState.routines[idx].name}"?`
+                                    )) {
+                                AppState.routines.splice(idx, 1);
+                                StorageService.save(StorageService.KEYS.ROUTINES, AppState
+                                    .routines);
+                                renderPlanner();
+                                updateBadges();
+                                Toast.show('Routine deleted.', 'info');
+                            }
+                        });
+                    });
+                    container.querySelectorAll('.start-routine-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const routine = AppState.routines[parseInt(this.dataset
+                                .routineIndex)];
+                            routine.exercises.forEach(ex => {
+                                AppState.workoutHistory.push({
+                                    id: Date.now().toString() + Math.random(),
+                                    date: new Date().toISOString().slice(0, 10),
+                                    exercise: ex.name,
+                                    sets: ex.sets,
+                                    reps: ex.reps,
+                                    weight: ex.weight,
+                                });
+                            });
+                            StorageService.save(StorageService.KEYS.HISTORY, AppState
+                                .workoutHistory);
+                            Toast.show(
+                                `Completed routine "${routine.name}"! 🔥 ${routine.exercises.length} exercises logged.`,
+                                'success');
+                            Router.navigate('dashboard');
+                        });
+                    });
+                    container.querySelectorAll('.remove-ex-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const ri = parseInt(this.dataset.routine);
+                            const ei = parseInt(this.dataset.exercise);
+                            const removed = AppState.routines[ri].exercises.splice(ei,
+                                1)[0];
+                            StorageService.save(StorageService.KEYS.ROUTINES, AppState
+                                .routines);
+                            renderPlanner();
+                            Toast.show(`Removed "${removed.name}" from routine.`,
+                                'info');
+                        });
+                    });
+                    container.querySelectorAll('.add-ex-to-routine-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const ri = parseInt(this.dataset.routineIndex);
+                            showAddExerciseToRoutineModal(ri);
+                        });
+                    });
+                }
+                document.getElementById('planCount').textContent = AppState.routines.length;
+            }
+
+            function showAddExerciseToRoutineModal(routineIndex) {
+                const routine = AppState.routines[routineIndex];
+                const available = EXERCISE_LIBRARY.filter(e => !routine.exercises.find(re => re.name === e
+                    .name));
+                Modal.open(`
+                    <h3>Add Exercise to "${routine.name}"</h3>
+                    <div style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+                        ${available.map(e => `
+                            <button class="btn btn-outline btn-sm select-ex-for-routine-btn" data-exname="${e.name}" style="justify-content:flex-start;text-align:left;">
+                                ${getMuscleEmoji(e.muscleGroup)} ${e.name} <span style="color:var(--text-muted);font-size:0.7rem;margin-left:auto;">${e.muscleGroup}</span>
+                            </button>
+                        `).join('')}
+                        ${available.length === 0 ? '<p style="color:var(--text-muted);">All exercises already in this routine!</p>' : ''}
+                    </div>
+                    <button class="btn btn-outline" onclick="document.querySelector('#modalOverlay').style.display='none';document.body.style.overflow='';">Close</button>
+                `);
+                document.querySelectorAll('.select-ex-for-routine-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        AppState.routines[routineIndex].exercises.push({
+                            name: this.dataset.exname,
+                            sets: 3,
+                            reps: 10,
+                            weight: 20,
+                        });
+                        StorageService.save(StorageService.KEYS.ROUTINES, AppState.routines);
+                        Modal.close();
+                        renderPlanner();
+                        Toast.show(`Added "${this.dataset.exname}" to routine! ✅`, 'success');
+                    });
+                });
+            }
+
+            function renderProgress() {
+                // Populate exercise select
+                const select = document.getElementById('progressExerciseSelect');
+                const uniqueExercises = [...new Set(AppState.workoutHistory.map(w => w.exercise))];
+                select.innerHTML = '<option value="">Select an exercise...</option>' +
+                    uniqueExercises.map(e => `<option value="${e}">${e}</option>`).join('');
+
+                // Set last selected
+                const lastSelected = select.dataset.selected || '';
+                if (lastSelected && uniqueExercises.includes(lastSelected)) {
+                    select.value = lastSelected;
+                }
+
+                // Draw chart for selected exercise
+                const drawProgressChart = () => {
+                    const exercise = select.value;
+                    select.dataset.selected = exercise;
+                    const relevant = AppState.workoutHistory
+                        .filter(w => w.exercise === exercise)
+                        .sort((a, b) => a.date.localeCompare(b.date));
+                    const canvas = document.getElementById('progressChart');
+                    if (relevant.length && canvas) {
+                        const dataPoints = relevant.map(w => ({
+                            label: w.date.slice(5),
+                            value: w.weight,
+                        }));
+                        ChartRenderer.drawLineChart(canvas, dataPoints);
+                    } else if (canvas) {
+                        const ctx = canvas.getContext('2d');
+                        const dpr = window.devicePixelRatio || 1;
+                        canvas.width = 500 * dpr;
+                        canvas.height = 260 * dpr;
+                        canvas.style.width = '500px';
+                        canvas.style.height = '260px';
+                        ctx.scale(dpr, dpr);
+                        ctx.fillStyle = '#1e1e35';
+                        ctx.fillRect(0, 0, 500, 260);
+                        ctx.fillStyle = '#7a7a95';
+                        ctx.font = '14px system-ui';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Select an exercise to view progress', 250, 130);
+                    }
+                };
+
+                select.addEventListener('change', drawProgressChart);
+                // Initial draw with slight delay for DOM
+                setTimeout(drawProgressChart, 150);
+
+                // History table
+                const tbody = document.getElementById('historyTableBody');
+                const history = [...AppState.workoutHistory].reverse();
+                if (history.length) {
+                    tbody.innerHTML = history.map(w => `
+                        <tr>
+                            <td>${w.date}</td>
+                            <td>${w.exercise}</td>
+                            <td>${w.sets}</td>
+                            <td>${w.reps}</td>
+                            <td>${w.weight}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML =
+                        '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No workout history recorded yet.</td></tr>';
+                }
+            }
+
+            function renderGoals() {
+                const container = document.getElementById('goalsList');
+                if (AppState.goals.length === 0) {
+                    container.innerHTML =
+                        '<p style="color:var(--text-muted);grid-column:1/-1;">No goals set yet. Define your first fitness goal!</p>';
+                } else {
+                    container.innerHTML = AppState.goals.map((g, i) => {
+                        const pct = Math.min(100, Math.round((g.current / g.target) * 100));
+                        return `
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">🎯 ${g.title}</span>
+                                    <button class="btn btn-sm btn-danger delete-goal-btn" data-index="${i}">🗑</button>
+                                </div>
+                                <p style="color:var(--text-secondary);margin-bottom:0.5rem;">Target: ${g.target} ${g.unit} | Current: <strong>${g.current} ${g.unit}</strong></p>
+                                <div class="progress-bar-container" style="margin-bottom:0.5rem;">
+                                    <div class="progress-bar-fill" style="width:${pct}%;"></div>
+                                </div>
+                                <span style="font-size:0.8rem;color:var(--text-muted);">${pct}% complete</span>
+                                <div style="margin-top:0.8rem;display:flex;gap:0.5rem;">
+                                    <input type="number" class="form-input goal-update-input" data-index="${i}" placeholder="Update value" style="width:120px;" step="0.1" min="0">
+                                    <button class="btn btn-sm btn-primary update-goal-btn" data-index="${i}">Update</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    container.querySelectorAll('.delete-goal-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const idx = parseInt(this.dataset.index);
+                            AppState.goals.splice(idx, 1);
+                            StorageService.save(StorageService.KEYS.GOALS, AppState.goals);
+                            renderGoals();
+                            updateBadges();
+                            Toast.show('Goal removed.', 'info');
+                        });
+                    });
+                    container.querySelectorAll('.update-goal-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const idx = parseInt(this.dataset.index);
+                            const input = container.querySelector(
+                                `.goal-update-input[data-index="${idx}"]`);
+                            const val = parseFloat(input.value);
+                            if (!isNaN(val) && val >= 0) {
+                                AppState.goals[idx].current = val;
+                                StorageService.save(StorageService.KEYS.GOALS, AppState.goals);
+                                renderGoals();
+                                updateBadges();
+                                if (val >= AppState.goals[idx].target) {
+                                    Toast.show(
+                                        `🎉 Goal "${AppState.goals[idx].title}" achieved!`,
+                                        'success');
+                                } else {
+                                    Toast.show('Goal progress updated!', 'success');
+                                }
+                            }
+                        });
+                    });
+                }
+                document.getElementById('goalsActive').textContent = AppState.goals.filter(g => g.current < g
+                    .target).length;
+            }
+
+            function renderProfile() {
+                document.getElementById('profileName').value = AppState.profile.name || '';
+                document.getElementById('profileAge').value = AppState.profile.age || '';
+                document.getElementById('profileWeight').value = AppState.profile.weight || '';
+                document.getElementById('profileHeight').value = AppState.profile.height || '';
+                document.getElementById('profileLevel').value = AppState.profile.level || 'beginner';
+
+                const summary = document.getElementById('profileSummary');
+                const p = AppState.profile;
+                if (p.name || p.weight || p.height) {
+                    const bmi = p.weight && p.height ? (parseFloat(p.weight) / ((parseFloat(p.height) / 100) ** 2))
+                        .toFixed(1) : 'N/A';
+                    summary.innerHTML = `
+                        <p><strong>Name:</strong> ${p.name || '—'}</p>
+                        <p><strong>Age:</strong> ${p.age || '—'} years</p>
+                        <p><strong>Weight:</strong> ${p.weight || '—'} kg</p>
+                        <p><strong>Height:</strong> ${p.height || '—'} cm</p>
+                        <p><strong>BMI:</strong> ${bmi} ${bmi!=='N/A' ? `(${getBMICategory(parseFloat(bmi))})` : ''}</p>
+                        <p><strong>Fitness Level:</strong> ${p.level.charAt(0).toUpperCase() + p.level.slice(1)}</p>
+                    `;
+                } else {
+                    summary.innerHTML = '<p style="color:var(--text-muted);">Complete your profile to see your metrics summary.</p>';
+                }
+            }
+
+            function updateBadges() {
+                document.getElementById('exerciseCount').textContent = EXERCISE_LIBRARY.length;
+                document.getElementById('planCount').textContent = AppState.routines.length;
+                document.getElementById('goalsActive').textContent = AppState.goals.filter(g => g.current < g.target)
+                    .length;
+            }
+
+            // ─────────────────────────────────────
+            // NEW ROUTINE / NEW GOAL MODALS
+            // ─────────────────────────────────────
+            function showNewRoutineModal() {
+                Modal.open(`
+                    <h3>Create New Routine</h3>
+                    <form id="newRoutineForm" style="display:flex;flex-direction:column;gap:1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Routine Name</label>
+                            <input type="text" class="form-input" id="routineName" placeholder="e.g., Upper Body Day" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Routine</button>
+                        <button type="button" class="btn btn-outline" onclick="document.querySelector('#modalOverlay').style.display='none';document.body.style.overflow='';">Cancel</button>
+                    </form>
+                `);
+                document.getElementById('newRoutineForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('routineName').value.trim();
+                    if (name) {
+                        AppState.routines.push({ id: Date.now().toString(), name, exercises: [] });
+                        StorageService.save(StorageService.KEYS.ROUTINES, AppState.routines);
+                        Modal.close();
+                        renderPlanner();
+                        updateBadges();
+                        Toast.show(`Routine "${name}" created! 📋`, 'success');
+                    }
+                });
+            }
+
+            function showNewGoalModal() {
+                Modal.open(`
+                    <h3>Set New Goal</h3>
+                    <form id="newGoalForm" style="display:flex;flex-direction:column;gap:1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Goal Title</label>
+                            <input type="text" class="form-input" id="goalTitle" placeholder="e.g., Bench Press 100kg" required>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+                            <div class="form-group">
+                                <label class="form-label">Target Value</label>
+                                <input type="number" class="form-input" id="goalTarget" placeholder="100" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Unit</label>
+                                <select class="form-select" id="goalUnit">
+                                    <option value="kg">kg</option>
+                                    <option value="reps">reps</option>
+                                    <option value="workouts">workouts / week</option>
+                                    <option value="minutes">minutes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Set Goal</button>
+                        <button type="button" class="btn btn-outline" onclick="document.querySelector('#modalOverlay').style.display='none';document.body.style.overflow='';">Cancel</button>
+                    </form>
+                `);
+                document.getElementById('newGoalForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const goal = {
+                        id: Date.now().toString(),
+                        title: document.getElementById('goalTitle').value.trim(),
+                        target: parseFloat(document.getElementById('goalTarget').value),
+                        current: 0,
+                        unit: document.getElementById('goalUnit').value,
+                        type: 'custom',
+                    };
+                    AppState.goals.push(goal);
+                    StorageService.save(StorageService.KEYS.GOALS, AppState.goals);
+                    Modal.close();
+                    renderGoals();
+                    updateBadges();
+                    Toast.show(`Goal "${goal.title}" set! 🎯`, 'success');
+                });
+            }
+
+            // ─────────────────────────────────────
+            // HELPER FUNCTIONS
+            // ─────────────────────────────────────
+            function getWeekDates() {
+                const dates = [];
+                const now = new Date();
+                const dayOfWeek = now.getDay();
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(now);
+                    d.setDate(now.getDate() - dayOfWeek + i);
+                    dates.push(d.toISOString().slice(0, 10));
+                }
+                return dates;
+            }
+
+            function getMuscleEmoji(group) {
+                const map = {
+                    'Chest': '🏋️',
+                    'Back': '🔙',
+                    'Shoulders': '🦾',
+                    'Legs': '🦵',
+                    'Arms': '💪',
+                    'Core': '🔄',
+                    'Cardio': '🏃',
+                };
+                return map[group] || '🏋️';
+            }
+
+            function getBMICategory(bmi) {
+                if (bmi < 18.5) return 'Underweight';
+                if (bmi < 25) return 'Normal weight';
+                if (bmi < 30) return 'Overweight';
+                return 'Obese';
+            }
+
+            // ─────────────────────────────────────
+            // RESIZE HANDLER FOR CHARTS
+            // ─────────────────────────────────────
+            let resizeTimeout;
+            function handleResize() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (AppState.currentPage === 'dashboard') renderDashboard();
+                    if (AppState.currentPage === 'progress') renderProgress();
+                }, 300);
+            }
+
+            // ─────────────────────────────────────
+            // EVENT BINDINGS & INITIALIZATION
+            // ─────────────────────────────────────
+            function init() {
+                // Load persisted data
+                StorageService.loadAll();
+                AppState.exercises = EXERCISE_LIBRARY;
+
+                // Navigation
+                document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+                    link.addEventListener('click', function() {
+                        const page = this.dataset.page;
+                        if (page) Router.navigate(page);
+                    });
+                });
+
+                // Mobile toggle
+                const mobileToggle = document.getElementById('mobileToggle');
+                const sidebar = document.getElementById('sidebar');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                    sidebarOverlay.classList.toggle('active');
+                    mobileToggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+                });
+                sidebarOverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    sidebarOverlay.classList.remove('active');
+                    mobileToggle.textContent = '☰';
+                });
+
+                // Sync button
+                document.getElementById('btnSync').addEventListener('click', async function() {
+                    this.textContent = '⏳ Syncing...';
+                    this.disabled = true;
+                    Toast.show('Syncing data to server...', 'info');
+                    try {
+                        const result = await ApiService.syncWorkoutData();
+                        console.log('Sync result:', result);
+                        Toast.show('Data synced successfully! 🔄 (Demo: POST to JSONPlaceholder)',
+                            'success');
+                        // Also try fetching remote exercises
+                        const remote = await ApiService.fetchRemoteExercises();
+                        if (remote && remote.length) {
+                            Toast.show(`Fetched ${remote.length} remote exercises (demo).`,
+                            'info');
+                        }
+                    } catch (err) {
+                        Toast.show(`Sync failed: ${err.message}`, 'error');
+                    } finally {
+                        this.textContent = '🔄 Sync Data';
+                        this.disabled = false;
+                    }
+                });
+
+                // Export button
+                document.getElementById('btnExport').addEventListener('click', () => {
+                    StorageService.exportData();
+                });
+
+                // Reset button
+                document.getElementById('btnReset').addEventListener('click', () => {
+                    StorageService.resetAll();
+                    Router.navigate('dashboard');
+                });
+
+                // Quick workout button
+                document.getElementById('btnQuickWorkout').addEventListener('click', () => {
+                    showLogWorkoutModal();
+                });
+
+                // New routine button
+                document.getElementById('btnNewRoutine').addEventListener('click', () => {
+                    showNewRoutineModal();
+                });
+
+                // New goal button
+                document.getElementById('btnNewGoal').addEventListener('click', () => {
+                    showNewGoalModal();
+                });
+
+                // Profile form
+                document.getElementById('profileForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    AppState.profile = {
+                        name: document.getElementById('profileName').value.trim(),
+                        age: document.getElementById('profileAge').value,
+                        weight: document.getElementById('profileWeight').value,
+                        height: document.getElementById('profileHeight').value,
+                        level: document.getElementById('profileLevel').value,
+                    };
+                    StorageService.save(StorageService.KEYS.PROFILE, AppState.profile);
+                    renderProfile();
+                    Toast.show('Profile saved! 👤', 'success');
+                });
+
+                // Exercise search
+                const exerciseSearch = document.getElementById('exerciseSearch');
+                let searchDebounce;
+                exerciseSearch.addEventListener('input', function() {
+                    clearTimeout(searchDebounce);
+                    searchDebounce = setTimeout(() => {
+                        const activeFilter = document.querySelector(
+                            '#muscleFilterChips .chip.active');
+                        const filter = activeFilter ? activeFilter.dataset.filter : 'all';
+                        renderExerciseLibrary(filter, this.value);
+                    }, 250);
+                });
+
+                // Muscle filter chips
+                document.querySelectorAll('#muscleFilterChips .chip').forEach(chip => {
+                    chip.addEventListener('click', function() {
+                        document.querySelectorAll('#muscleFilterChips .chip').forEach(c =>
+                            c.classList.remove('active'));
+                        this.classList.add('active');
+                        const searchVal = document.getElementById('exerciseSearch').value;
+                        renderExerciseLibrary(this.dataset.filter, searchVal);
+                    });
+                });
+
+                // Initialize Modal
+                Modal.init();
+
+                // Handle online/offline
+                window.addEventListener('online', () => {
+                    AppState.isOnline = true;
+                    Toast.show('Back online! 📶', 'success');
+                });
+                window.addEventListener('offline', () => {
+                    AppState.isOnline = false;
+                    Toast.show('You are offline. Data will be saved locally.', 'warning');
+                });
+
+                // Resize handler
+                window.addEventListener('resize', handleResize);
+
+                // Keyboard navigation for sidebar
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        sidebar.classList.remove('open');
+                        sidebarOverlay.classList.remove('active');
+                        mobileToggle.textContent = '☰';
+                        Modal.close();
+                    }
+                });
+
+                // Initial render
+                Router.navigate('dashboard');
+                updateBadges();
+
+                console.log('🏋️ FitSync initialized successfully!');
+                console.log('📊 Dashboard ready at your service.');
+                console.log('💾 Local storage active for data persistence.');
+                console.log('🔄 Fetch API ready for AJAX operations.');
+            }
+
+            // ─────────────────────────────────────
+            // START THE APPLICATION
+            // ─────────────────────────────────────
+            document.addEventListener('DOMContentLoaded', init);
+
+            // Expose for debugging
+            if (typeof window !== 'undefined') {
+                window.FitSync = {
+                    AppState,
+                    StorageService,
+                    ApiService,
+                    Router,
+                    ChartRenderer,
+                    Toast,
+                    Modal,
+                    EXERCISE_LIBRARY,
+                };
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SkillSphere - Online Learning Platform. Discover courses, track progress, and grow your skills.">
+    <meta name="theme-color" content="#4F46E5">
+    <title>SkillSphere — Learn Without Limits</title>
+
+    <!-- Fonts: Inter for body, Poppins for headings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           CSS CUSTOM PROPERTIES — Design Tokens
+           ============================================================ */
+        :root {
+            /* Color Palette */
+            --color-primary: #4F46E5;
+            --color-primary-hover: #4338CA;
+            --color-primary-light: #EEF2FF;
+            --color-secondary: #7C3AED;
+            --color-accent: #F59E0B;
+            --color-accent-light: #FFFBEB;
+            --color-success: #10B981;
+            --color-success-light: #ECFDF5;
+            --color-danger: #EF4444;
+            --color-danger-light: #FEF2F2;
+            --color-warning: #F59E0B;
+
+            /* Surfaces */
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-surface-alt: #F1F5F9;
+            --color-border: #E2E8F0;
+            --color-border-light: #F1F5F9;
+
+            /* Text */
+            --color-text: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-text-tertiary: #94A3B8;
+            --color-text-inverse: #FFFFFF;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+            /* Typography */
+            --font-heading: 'Poppins', system-ui, -apple-system, sans-serif;
+            --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+            /* Spacing Scale */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Layout */
+            --header-height: 4.5rem;
+            --container-max: 1200px;
+            --sidebar-width: 260px;
+        }
+
+        /* ============================================================
+           CSS RESET & BASE STYLES
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Skip Link for Accessibility */
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: var(--space-md);
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            font-weight: 600;
+            text-decoration: none;
+            transition: top var(--transition-fast);
+        }
+        .skip-link:focus {
+            top: var(--space-md);
+            outline: 3px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 800;
+        }
+        h2 {
+            font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        p {
+            color: var(--color-text-secondary);
+            max-width: 65ch;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+            font-size: inherit;
+        }
+        input,
+        select {
+            font-family: inherit;
+            font-size: inherit;
+        }
+        ul,
+        ol {
+            list-style: none;
+        }
+
+        /* Focus Styles */
+        :focus-visible {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ============================================================
+           LAYOUT — Header, Main, Footer
+           ============================================================ */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--color-border);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-lg);
+            transition: box-shadow var(--transition-base);
+        }
+        .app-header.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-inner {
+            max-width: var(--container-max);
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--color-primary);
+            letter-spacing: -0.03em;
+            flex-shrink: 0;
+        }
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .nav-links a,
+        .nav-links button {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.925rem;
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            position: relative;
+        }
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: var(--color-text);
+            background: var(--color-surface-alt);
+        }
+        .nav-links a.active,
+        .nav-links button.active {
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+            font-weight: 600;
+        }
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: var(--color-primary);
+            border-radius: var(--radius-full);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            border: 2px solid var(--color-border);
+            color: var(--color-text);
+            background: var(--color-surface);
+        }
+        .btn-outline:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        .btn-ghost {
+            color: var(--color-text-secondary);
+            background: transparent;
+            padding: 0.5rem 0.75rem;
+        }
+        .btn-ghost:hover {
+            color: var(--color-text);
+            background: var(--color-surface-alt);
+        }
+        .btn-sm {
+            padding: 0.4rem 0.875rem;
+            font-size: 0.8rem;
+            border-radius: var(--radius-md);
+        }
+        .btn-lg {
+            padding: 0.875rem 1.75rem;
+            font-size: 1rem;
+            border-radius: var(--radius-xl);
+        }
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: var(--radius-full);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-size: 1.5rem;
+            color: var(--color-text);
+            background: var(--color-surface-alt);
+        }
+
+        /* Main Content */
+        .app-main {
+            flex: 1;
+            max-width: var(--container-max);
+            width: 100%;
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-lg);
+            animation: fadeSlideIn 0.4s ease;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Footer */
+        .app-footer {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-2xl) var(--space-lg);
+            text-align: center;
+            color: var(--color-text-tertiary);
+            font-size: 0.85rem;
+        }
+        .footer-inner {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .footer-links {
+            display: flex;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--color-text-secondary);
+            transition: color var(--transition-fast);
+        }
+        .footer-links a:hover {
+            color: var(--color-primary);
+        }
+
+        /* ============================================================
+           VIEWS — Shared Layout Patterns
+           ============================================================ */
+        .view {
+            display: none;
+            animation: fadeSlideIn 0.4s ease;
+        }
+        .view.active {
+            display: block;
+        }
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .section-subtitle {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .badge-primary {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .badge-success {
+            background: var(--color-success-light);
+            color: var(--color-success);
+        }
+        .badge-warning {
+            background: var(--color-accent-light);
+            color: var(--color-accent);
+        }
+
+        /* ============================================================
+           HERO SECTION (Home View)
+           ============================================================ */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            align-items: center;
+            padding: var(--space-2xl) 0;
+            min-height: 55vh;
+        }
+        .hero-content h1 {
+            margin-bottom: var(--space-md);
+            line-height: 1.1;
+        }
+        .hero-content h1 .highlight {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-content p {
+            font-size: 1.1rem;
+            margin-bottom: var(--space-xl);
+            color: var(--color-text-secondary);
+        }
+        .hero-actions {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+        .hero-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-illustration {
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 1;
+            background: linear-gradient(160deg, var(--color-primary-light), #F5F3FF, #EDE9FE);
+            border-radius: var(--radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+        .hero-illustration .floating-card {
+            position: absolute;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            box-shadow: var(--shadow-lg);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            animation: float 6s ease-in-out infinite;
+        }
+        .floating-card:nth-child(1) {
+            top: 12%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        .floating-card:nth-child(2) {
+            top: 55%;
+            right: 8%;
+            animation-delay: -2s;
+        }
+        .floating-card:nth-child(3) {
+            bottom: 15%;
+            left: 15%;
+            animation-delay: -4s;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+        .hero-icon-large {
+            font-size: 5rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-2xl);
+        }
+        .stat-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--color-border-light);
+            transition: transform var(--transition-base), box-shadow var(--transition-base);
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+        }
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            margin-top: var(--space-xs);
+        }
+
+        /* ============================================================
+           COURSE CARDS (Reusable)
+           ============================================================ */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-lg);
+        }
+        .course-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            border: 1px solid var(--color-border-light);
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .course-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--color-border);
+        }
+        .course-card:focus-within {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        .course-card-image {
+            height: 180px;
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE, #DDD6FE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .course-card-image.variant-2 {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A, #FCD34D);
+        }
+        .course-card-image.variant-3 {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0, #6EE7B7);
+        }
+        .course-card-image.variant-4 {
+            background: linear-gradient(135deg, #FCE7F3, #FBCFE8, #F9A8D4);
+        }
+        .course-card-image.variant-5 {
+            background: linear-gradient(135deg, #E0F2FE, #BAE6FD, #7DD3FC);
+        }
+        .course-card-badge {
+            position: absolute;
+            top: var(--space-sm);
+            right: var(--space-sm);
+            background: var(--color-surface);
+            padding: 0.2rem 0.65rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            box-shadow: var(--shadow-sm);
+        }
+        .course-card-body {
+            padding: var(--space-lg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        .course-card-body h3 {
+            font-size: 1.05rem;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .course-card-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: 0.8rem;
+            color: var(--color-text-tertiary);
+            flex-wrap: wrap;
+        }
+        .course-card-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .course-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md) var(--space-lg);
+            border-top: 1px solid var(--color-border-light);
+        }
+        .course-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--color-primary);
+        }
+        .course-price.free {
+            color: var(--color-success);
+        }
+        .rating-stars {
+            color: var(--color-accent);
+            letter-spacing: 1px;
+        }
+
+        /* ============================================================
+           SEARCH & FILTER BAR
+           ============================================================ */
+        .search-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            align-items: center;
+        }
+        .search-input-wrapper {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            background: var(--color-surface);
+            font-size: 0.95rem;
+            transition: all var(--transition-fast);
+            color: var(--color-text);
+        }
+        .search-input-wrapper input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+            outline: none;
+        }
+        .search-input-wrapper .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-tertiary);
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+        .filter-pills {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+        .filter-pill {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            color: var(--color-text-secondary);
+        }
+        .filter-pill:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .filter-pill.active {
+            background: var(--color-primary);
+            color: var(--color-text-inverse);
+            border-color: var(--color-primary);
+        }
+
+        /* ============================================================
+           PROGRESS CARDS (Dashboard)
+           ============================================================ */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-lg);
+        }
+        .progress-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            border: 1px solid var(--color-border-light);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            transition: all var(--transition-base);
+        }
+        .progress-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        .progress-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 8px;
+            background: var(--color-surface-alt);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            border-radius: var(--radius-full);
+            transition: width 0.6s ease;
+        }
+        .progress-percent {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--color-primary);
+            font-family: var(--font-heading);
+        }
+
+        /* ============================================================
+           DETAIL VIEW (Course Detail)
+           ============================================================ */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: var(--space-2xl);
+            align-items: start;
+        }
+        .detail-main {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+        .detail-sidebar {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            border: 1px solid var(--color-border-light);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: calc(var(--header-height) + var(--space-xl));
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+        .detail-hero-image {
+            width: 100%;
+            height: 240px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        .curriculum-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        .curriculum-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            background: var(--color-surface-alt);
+            font-size: 0.9rem;
+        }
+
+        /* ============================================================
+           MODALS
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+            animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(2px);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            max-width: 520px;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            animation: modalSlideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-close {
+            position: absolute;
+            top: var(--space-md);
+            right: var(--space-md);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-surface-alt);
+            font-size: 1.2rem;
+            transition: all var(--transition-fast);
+            color: var(--color-text-secondary);
+        }
+        .modal-close:hover {
+            background: var(--color-danger-light);
+            color: var(--color-danger);
+        }
+        .modal h2 {
+            margin-bottom: var(--space-md);
+        }
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--color-text);
+        }
+        .form-group input,
+        .form-group select {
+            padding: 0.7rem 1rem;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            transition: border-color var(--transition-fast);
+            background: var(--color-surface);
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.06);
+        }
+
+        /* ============================================================
+           TOAST NOTIFICATIONS
+           ============================================================ */
+        .toast-container {
+            position: fixed;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: var(--space-sm);
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md) var(--space-lg);
+            box-shadow: var(--shadow-xl);
+            border-left: 4px solid var(--color-success);
+            font-weight: 500;
+            font-size: 0.9rem;
+            pointer-events: all;
+            animation: toastIn 0.35s ease, toastOut 0.3s ease 3s forwards;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            max-width: 400px;
+        }
+        .toast.error {
+            border-left-color: var(--color-danger);
+        }
+        .toast.warning {
+            border-left-color: var(--color-warning);
+        }
+        @keyframes toastIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        /* ============================================================
+           SKELETON LOADING
+           ============================================================ */
+        .skeleton {
+            background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-md);
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        .skeleton-card {
+            height: 340px;
+            border-radius: var(--radius-xl);
+        }
+        .skeleton-text {
+            height: 1rem;
+            margin-bottom: 0.5rem;
+            width: 80%;
+        }
+        .skeleton-text.short {
+            width: 50%;
+        }
+
+        /* ============================================================
+           EMPTY & ERROR STATES
+           ============================================================ */
+        .empty-state,
+        .error-state {
+            text-align: center;
+            padding: var(--space-3xl) var(--space-lg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .empty-state .icon,
+        .error-state .icon {
+            font-size: 4rem;
+            opacity: 0.6;
+        }
+        .error-state {
+            color: var(--color-danger);
+        }
+        .error-state button {
+            margin-top: var(--space-md);
+        }
+
+        /* ============================================================
+           RESPONSIVE BREAKPOINTS
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                min-height: auto;
+                gap: var(--space-xl);
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .hero-illustration {
+                max-width: 350px;
+                margin: 0 auto;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .detail-sidebar {
+                position: static;
+            }
+            .progress-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0 var(--space-md);
+                height: 4rem;
+            }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                background: var(--color-surface);
+                flex-direction: column;
+                padding: var(--space-md);
+                border-bottom: 1px solid var(--color-border);
+                box-shadow: var(--shadow-lg);
+                gap: var(--space-xs);
+                z-index: 999;
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .app-main {
+                padding: var(--space-md);
+            }
+            .hero-illustration {
+                max-width: 280px;
+            }
+            .toast-container {
+                right: var(--space-md);
+                bottom: var(--space-md);
+                left: var(--space-md);
+            }
+            .toast {
+                max-width: 100%;
+            }
+            .detail-hero-image {
+                height: 160px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--space-sm);
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .hero-content h1 {
+                font-size: 1.6rem;
+            }
+            .btn-lg {
+                padding: 0.7rem 1.25rem;
+                font-size: 0.9rem;
+            }
+            .modal {
+                padding: var(--space-lg);
+                border-radius: var(--radius-xl);
+            }
+            .course-card-image {
+                height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Navigation Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ============================================================
+    HEADER / NAVIGATION
+    ============================================================ -->
+    <header class="app-header" id="appHeader" role="banner">
+        <div class="header-inner">
+            <a href="#home" class="logo" aria-label="SkillSphere Home">
+                <span class="logo-icon">🎓</span>
+                <span>SkillSphere</span>
+            </a>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                ☰
+            </button>
+            <nav class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
+                <a href="#home" class="active" data-view="home">Home</a>
+                <a href="#catalog" data-view="catalog">Catalog</a>
+                <a href="#dashboard" data-view="dashboard">My Learning</a>
+                <button id="btnEnrollNow" class="btn btn-primary btn-sm">Enroll Now</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============================================================
+    MAIN CONTENT AREA
+    ============================================================ -->
+    <main class="app-main" id="main-content" role="main">
+        <!-- HOME VIEW -->
+        <section class="view active" id="view-home" aria-label="Homepage">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Grow Your Skills with <span class="highlight">SkillSphere</span></h1>
+                    <p>Access 500+ expert-led courses in development, design, business, and more. Learn at your own pace and advance your career.</p>
+                    <div class="hero-actions">
+                        <a href="#catalog" class="btn btn-primary btn-lg" data-view="catalog">Explore Courses</a>
+                        <a href="#dashboard" class="btn btn-outline btn-lg" data-view="dashboard">View Dashboard</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-illustration" aria-hidden="true">
+                        <span class="hero-icon-large">📚</span>
+                        <div class="floating-card">🏆 Top Rated</div>
+                        <div class="floating-card">📈 50K+ Learners</div>
+                        <div class="floating-card">✨ New Courses</div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-row" id="homeStats">
+                <!-- Populated by JS -->
+            </div>
+            <div style="margin-top: var(--space-3xl);">
+                <div class="section-header">
+                    <h2 class="section-title">Featured Courses</h2>
+                    <a href="#catalog" class="btn btn-ghost" data-view="catalog">View All →</a>
+                </div>
+                <div class="course-grid" id="featuredCoursesGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CATALOG VIEW -->
+        <section class="view" id="view-catalog" aria-label="Course Catalog">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Course Catalog</h2>
+                    <p class="section-subtitle">Discover courses tailored to your goals</p>
+                </div>
+            </div>
+            <div class="search-filter-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon" aria-hidden="true">🔍</span>
+                    <input type="search" id="searchInput" placeholder="Search courses..." aria-label="Search courses">
+                </div>
+                <div class="filter-pills" id="filterPills">
+                    <button class="filter-pill active" data-category="all">All</button>
+                    <button class="filter-pill" data-category="development">Development</button>
+                    <button class="filter-pill" data-category="design">Design</button>
+                    <button class="filter-pill" data-category="business">Business</button>
+                    <button class="filter-pill" data-category="data-science">Data Science</button>
+                    <button class="filter-pill" data-category="marketing">Marketing</button>
+                </div>
+            </div>
+            <div class="course-grid" id="catalogGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div id="catalogLoading" style="display:none;" class="course-grid">
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            </div>
+            <div id="catalogEmpty" class="empty-state" style="display:none;">
+                <span class="icon">🔍</span>
+                <h3>No courses found</h3>
+                <p>Try adjusting your search or filters.</p>
+                <button class="btn btn-outline" id="clearSearchBtn">Clear Search</button>
+            </div>
+            <div id="catalogError" class="error-state" style="display:none;">
+                <span class="icon">⚠️</span>
+                <h3>Failed to load courses</h3>
+                <p>Please check your connection and try again.</p>
+                <button class="btn btn-primary" id="retryCatalogBtn">Retry</button>
+            </div>
+        </section>
+
+        <!-- COURSE DETAIL VIEW -->
+        <section class="view" id="view-detail" aria-label="Course Detail">
+            <button class="btn btn-ghost" id="backToCatalogBtn" style="margin-bottom:var(--space-lg);">← Back to Catalog</button>
+            <div id="detailContent">
+                <!-- Populated by JS -->
+            </div>
+            <div id="detailLoading" style="display:none;">
+                <div class="skeleton" style="height:240px;border-radius:var(--radius-xl);margin-bottom:var(--space-lg);"></div>
+                <div class="skeleton skeleton-text" style="height:2rem;width:60%;"></div>
+                <div class="skeleton skeleton-text short"></div>
+            </div>
+            <div id="detailError" class="error-state" style="display:none;">
+                <span class="icon">⚠️</span>
+                <h3>Failed to load course details</h3>
+                <button class="btn btn-primary" id="retryDetailBtn">Retry</button>
+            </div>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section class="view" id="view-dashboard" aria-label="My Learning Dashboard">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">My Learning</h2>
+                    <p class="section-subtitle">Track your progress and continue learning</p>
+                </div>
+            </div>
+            <div class="progress-grid" id="dashboardGrid">
+                <!-- Populated by JS -->
+            </div>
+            <div id="dashboardLoading" style="display:none;" class="progress-grid">
+                <div class="skeleton" style="height:160px;border-radius:var(--radius-xl);"></div>
+                <div class="skeleton" style="height:160px;border-radius:var(--radius-xl);"></div>
+            </div>
+            <div id="dashboardEmpty" class="empty-state" style="display:none;">
+                <span class="icon">📋</span>
+                <h3>No enrollments yet</h3>
+                <p>Start learning by enrolling in a course from the catalog.</p>
+                <a href="#catalog" class="btn btn-primary" data-view="catalog">Browse Courses</a>
+            </div>
+            <div id="dashboardError" class="error-state" style="display:none;">
+                <span class="icon">⚠️</span>
+                <h3>Failed to load your learning data</h3>
+                <button class="btn btn-primary" id="retryDashboardBtn">Retry</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================================
+    FOOTER
+    ============================================================ -->
+    <footer class="app-footer" role="contentinfo">
+        <div class="footer-inner">
+            <span>&copy; 2026 SkillSphere. All rights reserved.</span>
+            <div class="footer-links">
+                <a href="#home">Home</a>
+                <a href="#catalog">Catalog</a>
+                <a href="#dashboard">My Learning</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+    MODALS (Hidden by default)
+    ============================================================ -->
+    <!-- Enrollment Modal -->
+    <div class="modal-overlay" id="enrollModalOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="enrollModalTitle">
+        <div class="modal">
+            <button class="modal-close" id="closeEnrollModal" aria-label="Close enrollment modal">&times;</button>
+            <h2 id="enrollModalTitle">Enroll in Course</h2>
+            <div class="modal-body">
+                <p id="enrollCourseName" style="font-weight:600;"></p>
+                <form id="enrollForm" novalidate>
+                    <div class="form-group">
+                        <label for="enrollName">Full Name</label>
+                        <input type="text" id="enrollName" required placeholder="John Doe" autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="enrollEmail">Email Address</label>
+                        <input type="email" id="enrollEmail" required placeholder="john@example.com" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="enrollPlan">Plan</label>
+                        <select id="enrollPlan">
+                            <option value="monthly">Monthly — $29/mo</option>
+                            <option value="annual">Annual — $199/yr (Save 43%)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:var(--space-sm);">
+                        <span id="enrollSubmitText">Confirm Enrollment</span>
+                        <span id="enrollSpinner" style="display:none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ============================================================
+    JAVASCRIPT — Modular Architecture
+    ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // =====================================================
+            // MODULE: State Management
+            // =====================================================
+            const AppState = {
+                currentView: 'home',
+                currentDetailCourseId: null,
+                enrolledCourseIds: new Set([1, 3, 5]), // Pre-enrolled for demo
+                enrollmentProgress: {
+                    1: 65,
+                    3: 32,
+                    5: 89
+                },
+                catalogFilters: {
+                    search: '',
+                    category: 'all'
+                },
+                listeners: [],
+
+                subscribe(fn) {
+                    this.listeners.push(fn);
+                },
+                notify() {
+                    this.listeners.forEach(fn => fn(this));
+                },
+                setView(view) {
+                    if (this.currentView !== view) {
+                        this.currentView = view;
+                        this.notify();
+                    }
+                },
+                enrollCourse(courseId) {
+                    this.enrolledCourseIds.add(courseId);
+                    if (!this.enrollmentProgress[courseId]) {
+                        this.enrollmentProgress[courseId] = 0;
+                    }
+                    this.notify();
+                },
+                updateProgress(courseId, percent) {
+                    this.enrollmentProgress[courseId] = Math.min(100, Math.max(0, percent));
+                    this.notify();
+                },
+                setCatalogFilters(filters) {
+                    this.catalogFilters = { ...this.catalogFilters, ...filters };
+                    this.notify();
+                }
+            };
+
+            // =====================================================
+            // MODULE: Mock API Service (Fetch API simulation)
+            // =====================================================
+            const API_BASE = '/api'; // Symbolic; all calls are intercepted below
+
+            // Rich course dataset
+            const MOCK_COURSES = [
+                { id: 1, title: 'Modern JavaScript Mastery', category: 'development', instructor: 'Sarah Chen',
+                    rating: 4.8, reviewCount: 2340, duration: '28h', level: 'Intermediate', price: 49,
+                    imageVariant: 1, description: 'Master ES6+, async patterns, and modern JS frameworks. Build 15+ real-world projects.',
+                    curriculum: ['Variables & Scoping', 'Async/Await Deep Dive', 'Module Systems', 'Testing with Jest',
+                        'Performance Optimization'
+                    ] },
+                { id: 2, title: 'UI/UX Design Fundamentals', category: 'design', instructor: 'Alex Rivera', rating: 4.9,
+                    reviewCount: 1890, duration: '18h', level: 'Beginner', price: 39, imageVariant: 2,
+                    description: 'Learn design thinking, wireframing, prototyping, and user research methods.',
+                    curriculum: ['Design Principles', 'Wireframing', 'Prototyping in Figma', 'User Testing',
+                        'Design Systems'
+                    ] },
+                { id: 3, title: 'Python for Data Science', category: 'data-science', instructor: 'Dr. Maya Patel',
+                    rating: 4.7, reviewCount: 3100, duration: '35h', level: 'Beginner', price: 59, imageVariant: 3,
+                    description: 'From pandas to machine learning. Analyze datasets and build predictive models.',
+                    curriculum: ['Python Basics', 'NumPy & Pandas', 'Data Visualization', 'ML Fundamentals',
+                        'Capstone Project'
+                    ] },
+                { id: 4, title: 'Digital Marketing Strategy', category: 'marketing', instructor: 'James Okafor',
+                    rating: 4.6, reviewCount: 1450, duration: '12h', level: 'All Levels', price: 0, imageVariant: 4,
+                    description: 'SEO, content marketing, social media, and paid ads — all in one comprehensive course.',
+                    curriculum: ['SEO Fundamentals', 'Content Marketing', 'Social Media Strategy', 'PPC Advertising',
+                        'Analytics'
+                    ] },
+                { id: 5, title: 'React & TypeScript Pro', category: 'development', instructor: 'Emily Kowalski',
+                    rating: 4.9, reviewCount: 4200, duration: '40h', level: 'Advanced', price: 69, imageVariant: 5,
+                    description: 'Build enterprise-grade React applications with TypeScript, testing, and CI/CD.',
+                    curriculum: ['TypeScript Basics', 'React Hooks', 'State Management', 'Testing', 'Deployment'] },
+                { id: 6, title: 'Business Analytics 101', category: 'business', instructor: 'Robert Kim', rating: 4.5,
+                    reviewCount: 980, duration: '15h', level: 'Beginner', price: 29, imageVariant: 1,
+                    description: 'Make data-driven decisions. Learn Excel, SQL, and Tableau for business.',
+                    curriculum: ['Excel for Business', 'SQL Queries', 'Tableau Dashboards', 'Forecasting',
+                        'Case Studies'
+                    ] },
+                { id: 7, title: 'Graphic Design with Canva & Figma', category: 'design', instructor: 'Lena Müller',
+                    rating: 4.7, reviewCount: 2100, duration: '10h', level: 'Beginner', price: 0, imageVariant: 2,
+                    description: 'Create stunning visuals without prior design experience.',
+                    curriculum: ['Color Theory', 'Typography', 'Canva Basics', 'Figma Advanced', 'Branding'] },
+                { id: 8, title: 'Machine Learning A-Z', category: 'data-science', instructor: 'Dr. Patel', rating: 4.8,
+                    reviewCount: 5600, duration: '45h', level: 'Intermediate', price: 79, imageVariant: 3,
+                    description: 'Comprehensive ML course covering regression, classification, clustering, and deep learning.',
+                    curriculum: ['Regression', 'Classification', 'Clustering', 'Neural Networks', 'Model Deployment'] },
+                { id: 9, title: 'Agile Project Management', category: 'business', instructor: 'Catherine Ngo',
+                    rating: 4.4, reviewCount: 870, duration: '8h', level: 'All Levels', price: 19, imageVariant: 4,
+                    description: 'Scrum, Kanban, and agile methodologies for effective project delivery.',
+                    curriculum: ['Agile Principles', 'Scrum Framework', 'Kanban', 'Sprint Planning',
+                    'Stakeholder Management'] },
+                { id: 10, title: 'Social Media Growth Hacking', category: 'marketing', instructor: 'Diego Santos',
+                    rating: 4.6, reviewCount: 1650, duration: '9h', level: 'Intermediate', price: 34,
+                    imageVariant: 5, description: 'Grow your audience organically with proven social media strategies.',
+                    curriculum: ['Platform Algorithms', 'Content Calendars', 'Viral Strategies', 'Influencer Outreach',
+                        'Analytics'
+                    ] },
+                { id: 11, title: 'Full-Stack Node.js', category: 'development', instructor: 'Sarah Chen', rating: 4.8,
+                    reviewCount: 2900, duration: '32h', level: 'Advanced', price: 59, imageVariant: 1,
+                    description: 'Build REST APIs, GraphQL servers, and real-time apps with Node.js and Express.',
+                    curriculum: ['Node.js Core', 'Express.js', 'Database Integration', 'Authentication',
+                    'WebSocket'] },
+                { id: 12, title: 'Content Writing Masterclass', category: 'marketing', instructor: 'Aisha Bello',
+                    rating: 4.5, reviewCount: 1120, duration: '7h', level: 'Beginner', price: 0, imageVariant: 2,
+                    description: 'Write compelling copy that converts. Perfect for bloggers and marketers.',
+                    curriculum: ['Writing Foundations', 'SEO Writing', 'Copywriting', 'Storytelling',
+                    'Freelance Tips'] },
+            ];
+
+            // Simulate network delay
+            function simulateDelay(ms = 400) {
+                return new Promise(resolve => setTimeout(resolve, ms + Math.random() * 300));
+            }
+
+            // Mock Fetch API wrapper
+            async function mockFetch(endpoint, options = {}) {
+                await simulateDelay();
+                const url = new URL(endpoint, 'http://localhost');
+                const path = url.pathname;
+                const params = Object.fromEntries(url.searchParams);
+
+                // GET /api/courses
+                if (path === '/api/courses' && (!options.method || options.method === 'GET')) {
+                    let courses = [...MOCK_COURSES];
+                    if (params.category && params.category !== 'all') {
+                        courses = courses.filter(c => c.category === params.category);
+                    }
+                    if (params.search) {
+                        const q = params.search.toLowerCase();
+                        courses = courses.filter(c =>
+                            c.title.toLowerCase().includes(q) ||
+                            c.category.toLowerCase().includes(q) ||
+                            c.instructor.toLowerCase().includes(q)
+                        );
+                    }
+                    if (params.featured === 'true') {
+                        courses = courses.slice(0, 6);
+                    }
+                    return { ok: true, json: async () => ({ success: true, data: courses, total: courses.length }) };
+                }
+
+                // GET /api/courses/:id
+                const detailMatch = path.match(/^\/api\/courses\/(\d+)$/);
+                if (detailMatch && (!options.method || options.method === 'GET')) {
+                    const id = parseInt(detailMatch[1]);
+                    const course = MOCK_COURSES.find(c => c.id === id);
+                    if (!course) {
+                        return { ok: false, status: 404, json: async () => ({ success: false,
+                            message: 'Course not found' }) };
+                    }
+                    return { ok: true, json: async () => ({ success: true, data: course }) };
+                }
+
+                // POST /api/enrollments
+                if (path === '/api/enrollments' && options.method === 'POST') {
+                    const body = JSON.parse(options.body || '{}');
+                    if (!body.courseId || !body.name || !body.email) {
+                        return { ok: false, status: 400, json: async () => ({ success: false,
+                            message: 'Missing required fields' }) };
+                    }
+                    return { ok: true, json: async () => ({ success: true, data: { enrolled: true,
+                            courseId: body.courseId, timestamp: new Date().toISOString() } }) };
+                }
+
+                // GET /api/enrollments
+                if (path === '/api/enrollments' && (!options.method || options.method === 'GET')) {
+                    const enrolled = MOCK_COURSES.filter(c => AppState.enrolledCourseIds.has(c.id)).map(c => ({
+                        ...c,
+                        progress: AppState.enrollmentProgress[c.id] || 0
+                    }));
+                    return { ok: true, json: async () => ({ success: true, data: enrolled, total: enrolled
+                            .length }) };
+                }
+
+                // Fallback
+                return { ok: false, status: 404, json: async () => ({ success: false, message: 'Endpoint not found' }) };
+            }
+
+            // =====================================================
+            // MODULE: Toast Notification System
+            // =====================================================
+            const Toast = {
+                container: document.getElementById('toastContainer'),
+                show(message, type = 'success') {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    const icons = { success: '✅', error: '❌', warning: '⚠️' };
+                    toast.innerHTML = `${icons[type] || '📢'} ${message}`;
+                    this.container.appendChild(toast);
+                    // Auto-remove after animation
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 3500);
+                },
+                success(msg) { this.show(msg, 'success'); },
+                error(msg) { this.show(msg, 'error'); },
+                warning(msg) { this.show(msg, 'warning'); }
+            };
+
+            // =====================================================
+            // MODULE: UI Renderers
+            // =====================================================
+            const Renderers = {
+                /**
+                 * Render a single course card
+                 */
+                courseCard(course) {
+                    const isEnrolled = AppState.enrolledCourseIds.has(course.id);
+                    const card = document.createElement('article');
+                    card.className = 'course-card';
+                    card.setAttribute('data-course-id', course.id);
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('role', 'button');
+                    card.setAttribute('aria-label', `${course.title} by ${course.instructor}`);
+                    card.innerHTML = `
+                <div class="course-card-image variant-${course.imageVariant || 1}">
+                  <span aria-hidden="true">${course.category === 'development' ? '💻' : course.category === 'design' ? '🎨' : course.category === 'business' ? '📊' : course.category === 'data-science' ? '📈' : '📢'}</span>
+                  <span class="course-card-badge badge ${course.price === 0 ? 'badge-success' : 'badge-primary'}">${course.price === 0 ? 'Free' : '$' + course.price}</span>
+                </div>
+                <div class="course-card-body">
+                  <span class="badge badge-primary" style="align-self:flex-start;">${course.category}</span>
+                  <h3>${this.escapeHtml(course.title)}</h3>
+                  <p style="font-size:0.85rem;color:var(--color-text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${this.escapeHtml(course.description || '')}</p>
+                  <div class="course-card-meta">
+                    <span>👤 ${this.escapeHtml(course.instructor)}</span>
+                    <span>⭐ ${course.rating}</span>
+                    <span>⏱️ ${course.duration}</span>
+                  </div>
+                </div>
+                <div class="course-card-footer">
+                  <span class="course-price ${course.price === 0 ? 'free' : ''}">${course.price === 0 ? 'Free' : '$' + course.price}</span>
+                  ${isEnrolled ? '<span class="badge badge-success">Enrolled</span>' : '<button class="btn btn-primary btn-sm enroll-trigger" data-course-id="' + course.id + '">Enroll</button>'}
+                </div>`;
+                    return card;
+                },
+
+                /**
+                 * Render progress card for dashboard
+                 */
+                progressCard(course) {
+                    const progress = AppState.enrollmentProgress[course.id] || 0;
+                    const card = document.createElement('div');
+                    card.className = 'progress-card';
+                    card.setAttribute('data-course-id', course.id);
+                    card.innerHTML = `
+                <div class="progress-card-header">
+                  <div>
+                    <h3 style="font-size:1rem;">${this.escapeHtml(course.title)}</h3>
+                    <span style="font-size:0.8rem;color:var(--color-text-tertiary);">${this.escapeHtml(course.instructor)}</span>
+                  </div>
+                  <span class="progress-percent">${progress}%</span>
+                </div>
+                <div class="progress-bar-wrapper">
+                  <div class="progress-bar-fill" style="width:${progress}%;" role="progressbar" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:0.8rem;color:var(--color-text-tertiary);">${progress < 100 ? 'In Progress' : 'Completed 🎉'}</span>
+                  <button class="btn btn-outline btn-sm view-detail-trigger" data-course-id="${course.id}">Continue</button>
+                </div>`;
+                    return card;
+                },
+
+                escapeHtml(str) {
+                    if (!str) return '';
+                    const div = document.createElement('div');
+                    div.textContent = str;
+                    return div.innerHTML;
+                },
+
+                skeletonCards(count = 6) {
+                    let html = '';
+                    for (let i = 0; i < count; i++) {
+                        html +=
+                        '<div class="skeleton skeleton-card" style="height:340px;border-radius:var(--radius-xl);"></div>';
+                    }
+                    return html;
+                }
+            };
+
+            // =====================================================
+            // MODULE: View Controller
+            // =====================================================
+            const ViewController = {
+                views: {
+                    home: document.getElementById('view-home'),
+                    catalog: document.getElementById('view-catalog'),
+                    detail: document.getElementById('view-detail'),
+                    dashboard: document.getElementById('view-dashboard'),
+                },
+                navLinks: document.querySelectorAll('.nav-links a[data-view]'),
+
+                switchTo(viewName) {
+                    // Hide all views
+                    Object.values(this.views).forEach(v => v.classList.remove('active'));
+                    // Show target
+                    if (this.views[viewName]) {
+                        this.views[viewName].classList.add('active');
+                    }
+                    // Update nav active states
+                    this.navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('data-view') === viewName);
+                    });
+                    // Update state
+                    AppState.setView(viewName);
+                    // Update URL hash
+                    if (window.location.hash !== '#' + viewName) {
+                        history.pushState(null, '', '#' + viewName);
+                    }
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Trigger data load
+                    this.loadViewData(viewName);
+                },
+
+                loadViewData(viewName) {
+                    switch (viewName) {
+                        case 'home':
+                            this.loadHomeData();
+                            break;
+                        case 'catalog':
+                            this.loadCatalogData();
+                            break;
+                        case 'dashboard':
+                            this.loadDashboardData();
+                            break;
+                        case 'detail':
+                            // Detail is loaded via specific course selection
+                            break;
+                    }
+                },
+
+                async loadHomeData() {
+                    const statsRow = document.getElementById('homeStats');
+                    const featuredGrid = document.getElementById('featuredCoursesGrid');
+                    try {
+                        const resp = await mockFetch('/api/courses?featured=true');
+                        if (!resp.ok) throw new Error('Failed to fetch');
+                        const { data } = await resp.json();
+                        featuredGrid.innerHTML = '';
+                        data.forEach(course => {
+                            featuredGrid.appendChild(Renderers.courseCard(course));
+                        });
+                        statsRow.innerHTML = `
+                  <div class="stat-card"><div class="stat-value">500+</div><div class="stat-label">Expert-Led Courses</div></div>
+                  <div class="stat-card"><div class="stat-value">50K+</div><div class="stat-label">Active Learners</div></div>
+                  <div class="stat-card"><div class="stat-value">4.8</div><div class="stat-label">Average Rating</div></div>
+                  <div class="stat-card"><div class="stat-value">98%</div><div class="stat-label">Satisfaction Rate</div></div>`;
+                    } catch (err) {
+                        featuredGrid.innerHTML =
+                            '<div class="error-state"><span class="icon">⚠️</span><p>Could not load featured courses.</p></div>';
+                        console.error('Home data load error:', err);
+                    }
+                },
+
+                async loadCatalogData() {
+                    const grid = document.getElementById('catalogGrid');
+                    const loadingEl = document.getElementById('catalogLoading');
+                    const emptyEl = document.getElementById('catalogEmpty');
+                    const errorEl = document.getElementById('catalogError');
+                    const { search, category } = AppState.catalogFilters;
+
+                    // Show loading
+                    grid.innerHTML = '';
+                    loadingEl.style.display = 'grid';
+                    emptyEl.style.display = 'none';
+                    errorEl.style.display = 'none';
+
+                    try {
+                        const params = new URLSearchParams();
+                        if (category && category !== 'all') params.set('category', category);
+                        if (search) params.set('search', search);
+                        const resp = await mockFetch(`/api/courses?${params.toString()}`);
+                        if (!resp.ok) throw new Error('Failed to fetch');
+                        const { data } = await resp.json();
+                        loadingEl.style.display = 'none';
+                        if (data.length === 0) {
+                            emptyEl.style.display = 'flex';
+                        } else {
+                            grid.innerHTML = '';
+                            data.forEach(course => grid.appendChild(Renderers.courseCard(course)));
+                        }
+                    } catch (err) {
+                        loadingEl.style.display = 'none';
+                        errorEl.style.display = 'flex';
+                        console.error('Catalog load error:', err);
+                    }
+                },
+
+                async loadDashboardData() {
+                    const grid = document.getElementById('dashboardGrid');
+                    const loadingEl = document.getElementById('dashboardLoading');
+                    const emptyEl = document.getElementById('dashboardEmpty');
+                    const errorEl = document.getElementById('dashboardError');
+
+                    grid.innerHTML = '';
+                    loadingEl.style.display = 'grid';
+                    emptyEl.style.display = 'none';
+                    errorEl.style.display = 'none';
+
+                    try {
+                        const resp = await mockFetch('/api/enrollments');
+                        if (!resp.ok) throw new Error('Failed to fetch');
+                        const { data } = await resp.json();
+                        loadingEl.style.display = 'none';
+                        if (data.length === 0) {
+                            emptyEl.style.display = 'flex';
+                        } else {
+                            grid.innerHTML = '';
+                            data.forEach(course => grid.appendChild(Renderers.progressCard(course)));
+                        }
+                    } catch (err) {
+                        loadingEl.style.display = 'none';
+                        errorEl.style.display = 'flex';
+                        console.error('Dashboard load error:', err);
+                    }
+                },
+
+                async showCourseDetail(courseId) {
+                    AppState.currentDetailCourseId = courseId;
+                    this.switchTo('detail');
+                    const contentEl = document.getElementById('detailContent');
+                    const loadingEl = document.getElementById('detailLoading');
+                    const errorEl = document.getElementById('detailError');
+
+                    contentEl.innerHTML = '';
+                    loadingEl.style.display = 'block';
+                    errorEl.style.display = 'none';
+
+                    try {
+                        const resp = await mockFetch(`/api/courses/${courseId}`);
+                        if (!resp.ok) throw new Error('Course not found');
+                        const { data: course } = await resp.json();
+                        loadingEl.style.display = 'none';
+                        const isEnrolled = AppState.enrolledCourseIds.has(course.id);
+                        const progress = AppState.enrollmentProgress[course.id] || 0;
+                        contentEl.innerHTML = `
+                  <div class="detail-grid">
+                    <div class="detail-main">
+                      <div class="detail-hero-image variant-${course.imageVariant || 1}" aria-hidden="true">
+                        ${course.category === 'development' ? '💻' : course.category === 'design' ? '🎨' : course.category === 'business' ? '📊' : course.category === 'data-science' ? '📈' : '📢'}
+                      </div>
+                      <span class="badge badge-primary" style="align-self:flex-start;">${course.category}</span>
+                      <h2>${Renderers.escapeHtml(course.title)}</h2>
+                      <div class="course-card-meta">
+                        <span>👤 ${Renderers.escapeHtml(course.instructor)}</span>
+                        <span>⭐ ${course.rating} (${course.reviewCount.toLocaleString()} reviews)</span>
+                        <span>⏱️ ${course.duration}</span>
+                        <span>📊 ${course.level}</span>
+                      </div>
+                      <p style="font-size:1rem;">${Renderers.escapeHtml(course.description)}</p>
+                      ${isEnrolled ? `
+                        <div style="background:var(--color-success-light);padding:var(--space-lg);border-radius:var(--radius-xl);">
+                          <p style="font-weight:600;color:var(--color-success);">✅ You are enrolled</p>
+                          <div class="progress-bar-wrapper" style="margin-top:var(--space-sm);">
+                            <div class="progress-bar-fill" style="width:${progress}%;"></div>
+                          </div>
+                          <span style="font-size:0.85rem;">${progress}% complete</span>
+                        </div>` : ''}
+                      <h3>Curriculum</h3>
+                      <div class="curriculum-list">
+                        ${(course.curriculum || []).map((item, i) => `
+                          <div class="curriculum-item">
+                            <span style="color:var(--color-primary);font-weight:700;">${String(i+1).padStart(2,'0')}</span>
+                            <span>${Renderers.escapeHtml(item)}</span>
+                          </div>`).join('')}
+                      </div>
+                    </div>
+                    <div class="detail-sidebar">
+                      <div style="text-align:center;">
+                        <span style="font-size:2.5rem;font-weight:800;color:var(--color-primary);">${course.price === 0 ? 'Free' : '$' + course.price}</span>
+                        ${course.price > 0 ? '<span style="color:var(--color-text-tertiary);"> / one-time</span>' : ''}
+                      </div>
+                      ${isEnrolled ? `
+                        <button class="btn btn-primary btn-lg" style="width:100%;" onclick="document.querySelector('[data-view=dashboard]').click();">Go to Dashboard</button>
+                      ` : `
+                        <button class="btn btn-primary btn-lg enroll-trigger" data-course-id="${course.id}" style="width:100%;">Enroll Now</button>
+                      `}
+                      <button class="btn btn-outline" style="width:100%;" id="backToCatalogFromDetail">← Back to Catalog</button>
+                      <p style="font-size:0.75rem;color:var(--color-text-tertiary);text-align:center;">30-day money-back guarantee</p>
+                    </div>
+                  </div>`;
+                        // Re-bind back button inside detail
+                        document.getElementById('backToCatalogFromDetail')?.addEventListener('click', () => {
+                            ViewController.switchTo('catalog');
+                        });
+                    } catch (err) {
+                        loadingEl.style.display = 'none';
+                        errorEl.style.display = 'flex';
+                        console.error('Detail load error:', err);
+                    }
+                }
+            };
+
+            // =====================================================
+            // MODULE: Event Handling & App Initialization
+            // =====================================================
+            function initApp() {
+                // --- Navigation ---
+                document.querySelectorAll('[data-view]').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const viewName = this.getAttribute('data-view');
+                        if (viewName) {
+                            ViewController.switchTo(viewName);
+                            // Close mobile menu
+                            document.getElementById('navLinks').classList.remove('open');
+                            document.getElementById('mobileMenuToggle').setAttribute(
+                                'aria-expanded', 'false');
+                        }
+                    });
+                });
+
+                // Mobile menu toggle
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                const navLinks = document.getElementById('navLinks');
+                mobileToggle.addEventListener('click', () => {
+                    const isOpen = navLinks.classList.toggle('open');
+                    mobileToggle.setAttribute('aria-expanded', isOpen);
+                    mobileToggle.textContent = isOpen ? '✕' : '☰';
+                });
+
+                // --- Header scroll shadow ---
+                const header = document.getElementById('appHeader');
+                window.addEventListener('scroll', () => {
+                    header.classList.toggle('scrolled', window.scrollY > 10);
+                }, { passive: true });
+
+                // --- Course card click delegation ---
+                document.addEventListener('click', function(e) {
+                    const card = e.target.closest('.course-card');
+                    const enrollBtn = e.target.closest('.enroll-trigger');
+                    const detailBtn = e.target.closest('.view-detail-trigger');
+
+                    if (enrollBtn && !enrollBtn.closest('.course-card')?.querySelector(
+                            '.badge-success')) {
+                        const courseId = parseInt(enrollBtn.getAttribute('data-course-id'));
+                        openEnrollModal(courseId);
+                        return;
+                    }
+                    if (detailBtn) {
+                        const courseId = parseInt(detailBtn.getAttribute('data-course-id'));
+                        ViewController.showCourseDetail(courseId);
+                        return;
+                    }
+                    if (card && !e.target.closest('button') && !e.target.closest('.enroll-trigger')) {
+                        const courseId = parseInt(card.getAttribute('data-course-id'));
+                        if (courseId) ViewController.showCourseDetail(courseId);
+                    }
+                });
+
+                // Keyboard support for course cards
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && e.target.closest('.course-card') && !e.target.closest(
+                            'button')) {
+                        const card = e.target.closest('.course-card');
+                        const courseId = parseInt(card.getAttribute('data-course-id'));
+                        if (courseId) ViewController.showCourseDetail(courseId);
+                    }
+                });
+
+                // --- Search input with debounce ---
+                const searchInput = document.getElementById('searchInput');
+                let searchDebounce;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchDebounce);
+                    searchDebounce = setTimeout(() => {
+                        AppState.setCatalogFilters({ search: this.value.trim() });
+                        if (AppState.currentView === 'catalog') {
+                            ViewController.loadCatalogData();
+                        }
+                    }, 350);
+                });
+
+                // --- Filter pills ---
+                document.getElementById('filterPills').addEventListener('click', function(e) {
+                    const pill = e.target.closest('.filter-pill');
+                    if (!pill) return;
+                    // Update active pill
+                    this.querySelectorAll('.filter-pill').forEach(p => p.classList.remove(
+                        'active'));
+                    pill.classList.add('active');
+                    const category = pill.getAttribute('data-category');
+                    AppState.setCatalogFilters({ category });
+                    if (AppState.currentView === 'catalog') {
+                        ViewController.loadCatalogData();
+                    }
+                });
+
+                // --- Clear search ---
+                document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
+                    searchInput.value = '';
+                    AppState.setCatalogFilters({ search: '' });
+                    ViewController.loadCatalogData();
+                });
+
+                // --- Retry buttons ---
+                document.getElementById('retryCatalogBtn')?.addEventListener('click', () => ViewController
+                    .loadCatalogData());
+                document.getElementById('retryDetailBtn')?.addEventListener('click', () => {
+                    if (AppState.currentDetailCourseId) {
+                        ViewController.showCourseDetail(AppState.currentDetailCourseId);
+                    }
+                });
+                document.getElementById('retryDashboardBtn')?.addEventListener('click', () => ViewController
+                    .loadDashboardData());
+
+                // --- Back to catalog button (in detail view) ---
+                document.getElementById('backToCatalogBtn')?.addEventListener('click', () => {
+                    ViewController.switchTo('catalog');
+                });
+
+                // --- Enrollment Modal ---
+                const enrollModal = document.getElementById('enrollModalOverlay');
+                const closeEnrollBtn = document.getElementById('closeEnrollModal');
+                const enrollForm = document.getElementById('enrollForm');
+                let pendingEnrollCourseId = null;
+
+                function openEnrollModal(courseId) {
+                    pendingEnrollCourseId = courseId;
+                    const course = MOCK_COURSES.find(c => c.id === courseId);
+                    if (course) {
+                        document.getElementById('enrollCourseName').textContent = course.title;
+                    }
+                    enrollModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    document.getElementById('enrollName').focus();
+                }
+
+                function closeEnrollModal() {
+                    enrollModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    enrollForm.reset();
+                    pendingEnrollCourseId = null;
+                }
+
+                closeEnrollBtn.addEventListener('click', closeEnrollModal);
+                enrollModal.addEventListener('click', function(e) {
+                    if (e.target === enrollModal) closeEnrollModal();
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && enrollModal.style.display === 'flex') {
+                        closeEnrollModal();
+                    }
+                });
+
+                // Enrollment form submission
+                enrollForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    if (!pendingEnrollCourseId) return;
+                    const submitText = document.getElementById('enrollSubmitText');
+                    const spinner = document.getElementById('enrollSpinner');
+                    const submitBtn = enrollForm.querySelector('button[type="submit"]');
+
+                    submitText.style.display = 'none';
+                    spinner.style.display = 'inline';
+                    submitBtn.disabled = true;
+
+                    const payload = {
+                        courseId: pendingEnrollCourseId,
+                        name: document.getElementById('enrollName').value.trim(),
+                        email: document.getElementById('enrollEmail').value.trim(),
+                        plan: document.getElementById('enrollPlan').value,
+                    };
+
+                    try {
+                        const resp = await mockFetch('/api/enrollments', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+                        const result = await resp.json();
+                        if (!resp.ok || !result.success) throw new Error(result.message ||
+                            'Enrollment failed');
+                        AppState.enrollCourse(pendingEnrollCourseId);
+                        Toast.success('Successfully enrolled! 🎉');
+                        closeEnrollModal();
+                        // Refresh current view
+                        ViewController.loadViewData(AppState.currentView);
+                    } catch (err) {
+                        Toast.error(err.message || 'Enrollment failed. Please try again.');
+                        console.error('Enrollment error:', err);
+                    } finally {
+                        submitText.style.display = 'inline';
+                        spinner.style.display = 'none';
+                        submitBtn.disabled = false;
+                    }
+                });
+
+                // --- Global Enroll Now button in nav ---
+                document.getElementById('btnEnrollNow')?.addEventListener('click', () => {
+                    ViewController.switchTo('catalog');
+                });
+
+                // --- Handle browser back/forward ---
+                window.addEventListener('popstate', () => {
+                    const hash = window.location.hash.replace('#', '') || 'home';
+                    if (ViewController.views[hash]) {
+                        ViewController.switchTo(hash);
+                    }
+                });
+
+                // --- Initial load ---
+                const initialHash = window.location.hash.replace('#', '') || 'home';
+                if (ViewController.views[initialHash]) {
+                    ViewController.switchTo(initialHash);
+                } else {
+                    ViewController.switchTo('home');
+                }
+
+                // Log ready state
+                console.log('%c🚀 SkillSphere %cReady',
+                    'font-weight:bold;color:#4F46E5;font-size:1.2rem;',
+                    'color:#10B981;font-weight:bold;');
+                console.log('%c📁 Architecture: Modular SPA with Mock API',
+                'color:#64748B;font-style:italic;');
+                console.log('%c🔗 Views: Home | Catalog | Detail | Dashboard', 'color:#64748B;');
+            }
+
+            // --- Boot the application when DOM is ready ---
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initApp);
+            } else {
+                initApp();
+            }
+        })();
+    </script>
+</body>
+</html>

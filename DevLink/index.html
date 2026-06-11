@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DevLink – Developer Community</title>
+    <meta name="description" content="Connect, share projects, and discuss code with developers worldwide.">
+    <meta name="theme-color" content="#0f0f13">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Custom Properties */
+        :root {
+            --bg: #0f0f13;
+            --surface: #1a1a23;
+            --surface-hover: #252533;
+            --text: #e4e4e7;
+            --text-secondary: #a1a1aa;
+            --primary: #00d4ff;
+            --primary-soft: rgba(0,212,255,0.12);
+            --secondary: #a855f7;
+            --success: #10b981;
+            --error: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+            --transition: 0.2s ease;
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Accessibility */
+        :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+        /* Layout */
+        .app-header {
+            background: var(--surface);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-weight: 700; font-size: 1.5rem; color: var(--primary); text-decoration: none; }
+        .nav-actions { display: flex; gap: 1rem; align-items: center; }
+        .icon-btn {
+            background: transparent; border: none; color: var(--text-secondary); font-size: 1.3rem;
+            cursor: pointer; padding: 0.3rem; border-radius: 8px; transition: var(--transition);
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--primary-soft); color: var(--primary); }
+        .badge {
+            position: absolute; top: -4px; right: -6px; background: var(--error); color: white;
+            font-size: 0.7rem; border-radius: 10px; padding: 0.1rem 0.4rem; font-weight: 600;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .main-grid { grid-template-columns: 240px 1fr; }
+        }
+        @media (min-width: 1200px) {
+            .main-grid { grid-template-columns: 260px 1fr 280px; }
+        }
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sidebar-left { order: -1; }
+        .sidebar-right { display: none; }
+        @media (min-width: 1200px) {
+            .sidebar-right { display: flex; }
+        }
+
+        /* Cards & Components */
+        .card {
+            background: var(--surface); border-radius: var(--radius); padding: 1.25rem;
+            transition: transform var(--transition), box-shadow var(--transition);
+            border: 1px solid transparent;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-soft);
+            box-shadow: 0 8px 24px rgba(0,212,255,0.06);
+        }
+        .section-title {
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--text-secondary); margin-bottom: 1rem; font-weight: 600;
+        }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; border: none;
+            cursor: pointer; font-family: var(--font); transition: var(--transition);
+            background: var(--primary); color: #0f0f13;
+        }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-ghost { background: transparent; color: var(--primary); }
+        .btn-ghost:hover { background: var(--primary-soft); }
+
+        /* Post Feed */
+        .post { margin-bottom: 1.5rem; }
+        .post-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.8rem; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-soft); }
+        .post-meta { font-size: 0.85rem; color: var(--text-secondary); }
+        .post-username { font-weight: 600; color: var(--text); }
+        .post-content { margin-bottom: 1rem; white-space: pre-wrap; }
+        .post-actions { display: flex; gap: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+        .post-actions button { background: none; border: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
+        .post-actions button:hover { color: var(--primary); }
+
+        /* Comments */
+        .comment-thread { margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.8rem; }
+        .comment { display: flex; gap: 0.75rem; margin-bottom: 0.8rem; }
+        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--secondary); flex-shrink: 0; }
+        .comment-body { background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 8px; font-size: 0.9rem; }
+        .comment-input { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .comment-input input {
+            flex: 1; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            padding: 0.5rem; color: var(--text);
+        }
+
+        /* Skeleton Loader */
+        .skeleton { background: linear-gradient(90deg, #1a1a23 25%, #252533 50%, #1a1a23 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius); }
+        @keyframes shimmer { 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
+        .skeleton-text { height: 1rem; margin-bottom: 0.5rem; width: 80%; }
+        .skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal { background: var(--surface); padding: 2rem; border-radius: var(--radius); max-width: 500px; width: 90%; }
+
+        .fab {
+            position: fixed; bottom: 1.5rem; right: 1.5rem; width: 56px; height: 56px;
+            border-radius: 50%; background: var(--primary); color: #0f0f13; border: none;
+            font-size: 2rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: var(--shadow); z-index: 50;
+        }
+        .fab:hover { transform: scale(1.05); }
+        .toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+            background: var(--error); color: white; padding: 0.8rem 1.5rem; border-radius: 8px;
+            z-index: 1100; display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="index.html" class="logo" aria-label="DevLink home">DevLink</a>
+        <div class="nav-actions">
+            <button class="icon-btn" id="searchToggle" aria-label="Search">🔍</button>
+            <button class="icon-btn" id="notificationsBtn" aria-label="Notifications">
+                🔔<span class="badge" id="notifCount">0</span>
+            </button>
+            <div id="profileMini" aria-label="Your profile">
+                <img src="https://i.pravatar.cc/36?u=current" alt="Your avatar" class="avatar" style="width:36px; height:36px;">
+            </div>
+        </div>
+    </header>
+
+    <main class="main-grid">
+        <!-- Left Sidebar: Profile & Trending Tags -->
+        <aside class="sidebar sidebar-left">
+            <section class="card" id="profileCard">
+                <div class="section-title">Your Profile</div>
+                <div class="skeleton skeleton-avatar" style="margin-bottom:0.5rem;" id="profileAvatarSkeleton"></div>
+                <div class="skeleton skeleton-text" style="width:60%;" id="profileNameSkeleton"></div>
+                <div id="profileContent" style="display:none;">
+                    <img src="https://i.pravatar.cc/80?u=current" alt="Your avatar" class="avatar" style="width:60px; height:60px;">
+                    <h3>Alex Chen</h3>
+                    <p style="color:var(--text-secondary);">Full-stack developer</p>
+                </div>
+            </section>
+            <section class="card" id="trendingTags">
+                <div class="section-title">Trending Tags</div>
+                <div class="skeleton skeleton-text" style="width:40%;"></div>
+                <div class="skeleton skeleton-text" style="width:60%;"></div>
+                <div id="tagsContainer" style="display:none; display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+            </section>
+        </aside>
+
+        <!-- Main Feed -->
+        <section id="feed" aria-label="Developer posts feed">
+            <!-- Skeleton loader placeholder -->
+            <div id="feedSkeleton">
+                <div class="card post"><div class="skeleton skeleton-text" style="width:30%;"></div><div class="skeleton skeleton-text" style="width:90%;"></div><div class="skeleton skeleton-text" style="width:70%;"></div></div>
+                <div class="card post"><div class="skeleton skeleton-text" style="width:30%;"></div><div class="skeleton skeleton-text" style="width:90%;"></div><div class="skeleton skeleton-text" style="width:70%;"></div></div>
+            </div>
+            <div id="feedContainer" style="display:none;"></div>
+        </section>
+
+        <!-- Right Sidebar: Projects & Trending Posts -->
+        <aside class="sidebar sidebar-right">
+            <section class="card" id="projectsShowcase">
+                <div class="section-title">🔥 Featured Projects</div>
+                <div id="projectsSkeleton"><div class="skeleton skeleton-text" style="width:80%;"></div></div>
+                <div id="projectsContainer" style="display:none;"></div>
+            </section>
+            <section class="card" id="trendingPosts">
+                <div class="section-title">📈 Trending Discussions</div>
+                <div id="trendingPostsSkeleton"><div class="skeleton skeleton-text"></div></div>
+                <div id="trendingPostsContainer" style="display:none;"></div>
+            </section>
+        </aside>
+    </main>
+
+    <!-- Floating Action Button for new post -->
+    <button class="fab" id="createPostFab" aria-label="Create new post">+</button>
+
+    <!-- Toast notification for errors -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modals (hidden by default) -->
+    <div class="modal-overlay" id="postModal" style="display:none;">
+        <div class="modal">
+            <h2 style="margin-bottom:1rem;">New Post</h2>
+            <form id="postForm">
+                <textarea id="postContent" rows="4" placeholder="What's on your mind, developer?" style="width:100%; background:var(--bg); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0.8rem; color:var(--text); resize:vertical;"></textarea>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+                    <button type="button" class="btn btn-ghost" id="cancelPost">Cancel</button>
+                    <button type="submit" class="btn">Post</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="notificationsPanel" style="display:none;">
+        <div class="modal" style="max-height:80vh; overflow-y:auto;">
+            <h2 style="margin-bottom:1rem;">Notifications</h2>
+            <div id="notificationsList"></div>
+            <button class="btn btn-ghost" id="closeNotifications" style="margin-top:1rem;">Close</button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // ---------- Mock API ----------
+        const MOCK_DELAY = 800;
+        function delay(ms = MOCK_DELAY) { return new Promise(r => setTimeout(r, ms)); }
+
+        const mockData = {
+            posts: [
+                { id:1, userId:2, username:'jordan_flex', avatar:'https://i.pravatar.cc/40?u=jordan', content:'Just shipped a new micro-frontend architecture using Module Federation. Performance improved by 40%! 🚀', likes:24, liked:false, comments:[{id:101, user:'alex_dev', avatar:'https://i.pravatar.cc/28?u=alex', text:'Would love to see the repo!'}], timestamp:Date.now()-3600000 },
+                { id:2, userId:3, username:'alex_dev', avatar:'https://i.pravatar.cc/40?u=alex', content:'Anyone using Bun as a drop-in replacement for Node? Production experiences?', likes:18, liked:true, comments:[], timestamp:Date.now()-7200000 },
+                { id:3, userId:1, username:'techie_sam', avatar:'https://i.pravatar.cc/40?u=sam', content:'Open-sourced my Rust-based CLI for managing Docker containers. Check it out: github.com/techie-sam/dockrust', likes:42, liked:false, comments:[{id:102, user:'jordan_flex', avatar:'https://i.pravatar.cc/28?u=jordan', text:'Starred! Clean code.'}], timestamp:Date.now()-10800000 },
+                { id:4, userId:4, username:'code_ninja', avatar:'https://i.pravatar.cc/40?u=ninja', content:'TIL: CSS container queries are finally usable everywhere. Goodbye media-query-only nightmares.', likes:35, liked:false, comments:[], timestamp:Date.now()-14400000 }
+            ],
+            projects: [
+                { id:1, name:'DevLink UI', desc:'Community platform built with vanilla JS', stars:128, url:'#' },
+                { id:2, name:'RustyDock', desc:'Docker CLI in Rust', stars:89, url:'#' }
+            ],
+            trendingTags: ['#rust', '#webperf', '#microfrontends', '#css', '#bun'],
+            trendingPosts: [
+                { id:2, title:'Bun in production?', replies:18 },
+                { id:4, title:'Container queries everywhere', replies:35 }
+            ],
+            notifications: [
+                { id:'n1', text:'jordan_flex liked your post', time:'2m ago' },
+                { id:'n2', text:'alex_dev commented on your project', time:'15m ago' },
+                { id:'n3', text:'code_ninja started following you', time:'1h ago' }
+            ],
+            currentUser: { id:99, username:'alex_dev', avatar:'https://i.pravatar.cc/80?u=current' }
+        };
+
+        const api = {
+            async getPosts() { await delay(); return [...mockData.posts]; },
+            async getProjects() { await delay(400); return mockData.projects; },
+            async getTrendingTags() { await delay(300); return mockData.trendingTags; },
+            async getTrendingPosts() { await delay(300); return mockData.trendingPosts; },
+            async getNotifications() { await delay(200); return mockData.notifications; },
+            async createPost(content) {
+                await delay(600);
+                const newPost = {
+                    id: Date.now(), userId: mockData.currentUser.id,
+                    username: mockData.currentUser.username,
+                    avatar: mockData.currentUser.avatar,
+                    content, likes:0, liked:false, comments:[], timestamp: Date.now()
+                };
+                mockData.posts.unshift(newPost);
+                return newPost;
+            },
+            async toggleLike(postId) {
+                await delay(200);
+                const post = mockData.posts.find(p => p.id === postId);
+                if (post) {
+                    post.liked = !post.liked;
+                    post.likes += post.liked ? 1 : -1;
+                }
+                return post;
+            },
+            async addComment(postId, text) {
+                await delay(300);
+                const post = mockData.posts.find(p => p.id === postId);
+                const comment = {
+                    id: Date.now(), user: mockData.currentUser.username,
+                    avatar: mockData.currentUser.avatar, text
+                };
+                post.comments.push(comment);
+                return post;
+            }
+        };
+
+        // ---------- State ----------
+        const state = {
+            posts: [],
+            projects: [],
+            trendingTags: [],
+            trendingPosts: [],
+            notifications: [],
+            user: mockData.currentUser,
+            feedLoaded: false
+        };
+
+        // ---------- Helpers ----------
+        function showToast(msg, isError=true) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            toast.style.background = isError ? 'var(--error)' : 'var(--success)';
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function timeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'just now';
+            const mins = Math.floor(seconds / 60);
+            if (mins < 60) return `${mins}m ago`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return new Date(timestamp).toLocaleDateString();
+        }
+
+        // ---------- Rendering ----------
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            const skeleton = document.getElementById('feedSkeleton');
+            if (!state.feedLoaded) {
+                skeleton.style.display = 'block'; container.style.display = 'none'; return;
+            }
+            skeleton.style.display = 'none'; container.style.display = 'block';
+            container.innerHTML = state.posts.map(post => `
+                <article class="card post" data-post-id="${post.id}">
+                    <div class="post-header">
+                        <img src="${post.avatar}" alt="${post.username}'s avatar" class="avatar" loading="lazy">
+                        <div>
+                            <span class="post-username">${post.username}</span>
+                            <div class="post-meta">${timeAgo(post.timestamp)}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                    <div class="post-actions">
+                        <button class="like-btn" data-id="${post.id}">
+                            ${post.liked ? '❤️' : '🤍'} <span>${post.likes}</span>
+                        </button>
+                        <button class="comment-toggle" data-id="${post.id}">💬 ${post.comments.length}</button>
+                    </div>
+                    <div class="comment-thread" id="comments-${post.id}" style="display:none;">
+                        ${post.comments.map(c => `
+                            <div class="comment">
+                                <img src="${c.avatar}" class="comment-avatar" alt="${c.user}">
+                                <div class="comment-body"><strong>${c.user}</strong> ${escapeHtml(c.text)}</div>
+                            </div>
+                        `).join('')}
+                        <div class="comment-input">
+                            <input type="text" placeholder="Write a comment..." id="commentInput-${post.id}">
+                            <button class="btn" style="padding:0.3rem 0.8rem;" data-post-id="${post.id}">Send</button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+
+            // Event delegation for like and comment toggle
+            container.querySelectorAll('.like-btn').forEach(btn => btn.addEventListener('click', handleLike));
+            container.querySelectorAll('.comment-toggle').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const postId = e.currentTarget.dataset.id;
+                    const thread = document.getElementById(`comments-${postId}`);
+                    thread.style.display = thread.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+            container.querySelectorAll('.comment-input button').forEach(btn => {
+                btn.addEventListener('click', handleAddComment);
+            });
+            container.querySelectorAll('.comment-input input').forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleAddComment.call(e.target.nextElementSibling, {currentTarget: e.target.nextElementSibling});
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        async function handleLike(e) {
+            const btn = e.currentTarget;
+            const postId = parseInt(btn.dataset.id);
+            try {
+                const updatedPost = await api.toggleLike(postId);
+                const postIndex = state.posts.findIndex(p => p.id === postId);
+                if (postIndex !== -1) state.posts[postIndex] = updatedPost;
+                renderFeed();
+            } catch (err) { showToast('Failed to update like'); }
+        }
+
+        async function handleAddComment(e) {
+            const btn = e.currentTarget;
+            const postId = parseInt(btn.dataset.postId || btn.getAttribute('data-post-id'));
+            const input = document.getElementById(`commentInput-${postId}`);
+            if (!input || !input.value.trim()) return;
+            try {
+                const updatedPost = await api.addComment(postId, input.value.trim());
+                const idx = state.posts.findIndex(p => p.id === postId);
+                if (idx !== -1) state.posts[idx] = updatedPost;
+                renderFeed();
+            } catch (err) { showToast('Comment failed'); }
+        }
+
+        function renderProfile() {
+            document.getElementById('profileContent').style.display = 'block';
+            document.getElementById('profileAvatarSkeleton').style.display = 'none';
+            document.getElementById('profileNameSkeleton').style.display = 'none';
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            document.getElementById('projectsSkeleton').style.display = 'none';
+            container.style.display = 'block';
+            container.innerHTML = state.projects.map(p => `
+                <div style="margin-bottom:1rem;">
+                    <strong>${p.name}</strong> ⭐ ${p.stars}
+                    <p style="color:var(--text-secondary); font-size:0.9rem;">${p.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderTrendingTags() {
+            const container = document.getElementById('tagsContainer');
+            container.style.display = 'flex';
+            container.innerHTML = state.trendingTags.map(tag => `
+                <span class="badge" style="position:static; background:var(--primary-soft); color:var(--primary); padding:0.2rem 0.6rem;">${tag}</span>
+            `).join('');
+        }
+
+        function renderTrendingPosts() {
+            const container = document.getElementById('trendingPostsContainer');
+            document.getElementById('trendingPostsSkeleton').style.display = 'none';
+            container.style.display = 'block';
+            container.innerHTML = state.trendingPosts.map(tp => `
+                <div style="margin-bottom:0.8rem;">
+                    <div>${escapeHtml(tp.title)}</div>
+                    <small style="color:var(--text-secondary);">${tp.replies} replies</small>
+                </div>
+            `).join('');
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = state.notifications.length ? state.notifications.map(n => `
+                <div style="padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">${n.text} <small style="color:var(--text-secondary);">${n.time}</small></div>
+            `).join('') : '<p>No new notifications</p>';
+            document.getElementById('notifCount').textContent = state.notifications.length;
+        }
+
+        // ---------- Initial Load ----------
+        async function loadAppData() {
+            try {
+                const [posts, projects, tags, trending, notifs] = await Promise.all([
+                    api.getPosts(), api.getProjects(), api.getTrendingTags(),
+                    api.getTrendingPosts(), api.getNotifications()
+                ]);
+                state.posts = posts;
+                state.projects = projects;
+                state.trendingTags = tags;
+                state.trendingPosts = trending;
+                state.notifications = notifs;
+                state.feedLoaded = true;
+                renderFeed();
+                renderProjects();
+                renderTrendingTags();
+                renderTrendingPosts();
+                renderNotifications();
+                renderProfile();
+            } catch (e) {
+                showToast('Could not load feed. Please retry.');
+                document.getElementById('feedSkeleton').style.display = 'none';
+            }
+        }
+
+        // ---------- Post Creation Modal ----------
+        const postModal = document.getElementById('postModal');
+        document.getElementById('createPostFab').addEventListener('click', () => postModal.style.display = 'flex');
+        document.getElementById('cancelPost').addEventListener('click', () => { postModal.style.display = 'none'; document.getElementById('postContent').value = ''; });
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('postContent').value.trim();
+            if (!content) return;
+            try {
+                const newPost = await api.createPost(content);
+                state.posts = [newPost, ...state.posts];
+                renderFeed();
+                postModal.style.display = 'none';
+                document.getElementById('postContent').value = '';
+                showToast('Post published!', false);
+            } catch (err) { showToast('Failed to post'); }
+        });
+
+        // ---------- Notifications Panel ----------
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            document.getElementById('notificationsPanel').style.display = 'flex';
+            renderNotifications();
+        });
+        document.getElementById('closeNotifications').addEventListener('click', () => document.getElementById('notificationsPanel').style.display = 'none');
+
+        // ---------- Search (basic highlight) ----------
+        document.getElementById('searchToggle').addEventListener('click', () => {
+            const query = prompt('Search posts:');
+            if (query) {
+                const filtered = state.posts.filter(p => p.content.toLowerCase().includes(query.toLowerCase()) || p.username.includes(query));
+                document.getElementById('feedContainer').innerHTML = filtered.length
+                    ? filtered.map(p => `<div class="card post">...${escapeHtml(p.content.substring(0,100))}...</div>`).join('')
+                    : '<p>No results found.</p>';
+            }
+        });
+
+        // Kick off
+        loadAppData();
+    })();
+    </script>
+</body>
+</html>

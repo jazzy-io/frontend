@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="EventPulse - Discover exciting events near you. Search, filter, and RSVP to the best events in your area.">
+    <meta name="theme-color" content="#6C5CE7">
+    <title>EventPulse | Discover Events Near You</title>
+    <style>
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #6C5CE7;
+            --primary-light: #8B7CF0;
+            --primary-dark: #5541C8;
+            --primary-glow: rgba(108, 92, 231, 0.25);
+            --secondary: #FF6B6B;
+            --accent: #00D2D3;
+            --dark: #1E1E2E;
+            --dark-secondary: #2D2D44;
+            --gray-700: #4A4A62;
+            --gray-500: #7C7C94;
+            --gray-300: #B8B8CC;
+            --gray-200: #DCDCE8;
+            --gray-100: #F0F0F7;
+            --gray-50: #F8F8FC;
+            --white: #FFFFFF;
+            --success: #27AE60;
+            --error: #E74C3C;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+            --shadow-xl: 0 20px 48px rgba(0,0,0,0.18);
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --max-width: 1280px;
+            --header-height: 72px;
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--gray-50);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+            font-size: inherit;
+            outline: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        input,
+        select {
+            font-family: inherit;
+            font-size: inherit;
+            border: none;
+            outline: none;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Skip Link */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 1rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: var(--radius-full);
+            z-index: 10000;
+            font-weight: 600;
+            transition: top 0.2s;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            height: var(--header-height);
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition);
+        }
+        .header.scrolled {
+            box-shadow: var(--shadow-md);
+        }
+        .header__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            transition: all var(--transition);
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+            background: var(--gray-100);
+        }
+        .favorites-btn {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            background: #FFF5F5;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            border: 1px solid transparent;
+        }
+        .favorites-btn:hover {
+            background: #FFEBEB;
+            border-color: #FFD4D4;
+        }
+        .favorites-count {
+            background: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            z-index: 1001;
+        }
+        .menu-toggle span {
+            width: 24px;
+            height: 2.5px;
+            background: var(--dark);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(170deg, #F0EDFF 0%, #FAFAFF 40%, #FFF5F5 100%);
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before,
+        .hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .hero::before {
+            top: -80px;
+            right: -120px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(108,92,231,0.08) 0%, transparent 70%);
+        }
+        .hero::after {
+            bottom: -60px;
+            left: -100px;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(255,107,107,0.06) 0%, transparent 70%);
+        }
+        .hero__inner {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .hero__title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        .hero__title span {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero__subtitle {
+            font-size: 1.125rem;
+            color: var(--gray-500);
+            margin-bottom: 2rem;
+        }
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid transparent;
+            transition: all var(--transition);
+            flex-wrap: wrap;
+        }
+        .search-bar:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-xl), 0 0 0 4px var(--primary-glow);
+        }
+        .search-bar__input {
+            flex: 1;
+            min-width: 180px;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-full);
+            background: var(--gray-50);
+            font-size: 1rem;
+            color: var(--dark);
+        }
+        .search-bar__btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            box-shadow: 0 4px 14px var(--primary-glow);
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .search-bar__btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(108,92,231,0.35);
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .filter-label {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+        .filter-chip {
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: white;
+            color: var(--gray-700);
+            border: 1.5px solid var(--gray-200);
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .filter-chip:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+            background: #F8F7FF;
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+        .filter-select {
+            padding: 0.4rem 2rem 0.4rem 1rem;
+            border-radius: var(--radius-full);
+            border: 1.5px solid var(--gray-200);
+            background: white;
+            font-size: 0.875rem;
+            color: var(--dark);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237C7C94' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            min-width: 140px;
+            transition: all var(--transition);
+        }
+        .filter-select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .filter-clear {
+            padding: 0.4rem 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-weight: 500;
+            transition: color var(--transition);
+        }
+        .filter-clear:hover {
+            color: var(--error);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+            width: 100%;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .main-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .main-count {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+        .event-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--gray-100);
+        }
+        .event-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--gray-200);
+        }
+        .event-card__img-wrap {
+            position: relative;
+            width: 100%;
+            padding-top: 56%;
+            background: linear-gradient(135deg, #E8E5FF, #F0F0F7, #FFE8E8);
+            overflow: hidden;
+        }
+        .event-card__img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .event-card:hover .event-card__img {
+            transform: scale(1.06);
+        }
+        .event-card__date-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 0.25rem 0.75rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--primary);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            line-height: 1.3;
+            z-index: 2;
+        }
+        .event-card__date-badge .day {
+            font-size: 1.25rem;
+            display: block;
+        }
+        .event-card__fav-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all var(--transition);
+            z-index: 2;
+            border: 2px solid transparent;
+        }
+        .event-card__fav-btn:hover {
+            transform: scale(1.1);
+            border-color: #FFD4D4;
+        }
+        .event-card__fav-btn.favorited {
+            background: #FFF0F0;
+            border-color: var(--secondary);
+        }
+        .event-card__body {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .event-card__category {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: fit-content;
+        }
+        .category-music { background: #EDE7F6; color: #5E35B1; }
+        .category-tech { background: #E3F2FD; color: #1565C0; }
+        .category-food { background: #FFF3E0; color: #E65100; }
+        .category-art { background: #FCE4EC; color: #C62828; }
+        .category-sports { background: #E8F5E9; color: #2E7D32; }
+        .category-business { background: #E8EAF6; color: #283593; }
+        .event-card__title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .event-card__meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: auto;
+        }
+        .event-card__footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--gray-100);
+            margin-top: 0.5rem;
+        }
+        .event-card__price {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        .event-card__price.free { color: var(--success); }
+        .event-card__rsvp-badge {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        /* ===== SKELETON ===== */
+        .skeleton-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+        }
+        .skeleton-img {
+            width: 100%;
+            padding-top: 56%;
+            background: linear-gradient(90deg, #E8E8F0 25%, #F0F0F8 50%, #E8E8F0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s infinite;
+        }
+        .skeleton-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .skeleton-line {
+            height: 14px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(90deg, #E8E8F0 25%, #F0F0F8 50%, #E8E8F0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s infinite;
+        }
+        .skeleton-line--short { width: 30%; height: 10px; }
+        .skeleton-line--medium { width: 60%; }
+        .skeleton-line--long { width: 90%; }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== EMPTY / ERROR ===== */
+        .empty-state, .error-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1.5rem;
+        }
+        .empty-state__icon, .error-state__icon { font-size: 3rem; margin-bottom: 1rem; }
+        .empty-state__title, .error-state__title { font-weight: 700; margin-bottom: 0.5rem; }
+        .error-state { background: #FFF5F5; border: 2px dashed #FFD4D4; border-radius: var(--radius-lg); }
+        .error-state__title { color: var(--error); }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn--primary { background: var(--primary); color: white; box-shadow: 0 4px 14px var(--primary-glow); }
+        .btn--primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn--error { background: var(--error); color: white; }
+        .btn--error:hover { background: #C0392B; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal {
+            background: white;
+            border-radius: var(--radius-xl);
+            max-width: 620px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal__close {
+            position: sticky;
+            top: 1rem;
+            float: right;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-right: 1rem;
+            margin-top: 1rem;
+            transition: all var(--transition);
+        }
+        .modal__close:hover { background: #F5F5F5; transform: scale(1.08); }
+        .modal__img-wrap {
+            width: 100%;
+            padding-top: 50%;
+            position: relative;
+            background: linear-gradient(135deg, #E8E5FF, #F0F0F7, #FFE8E8);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            overflow: hidden;
+        }
+        .modal__img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .modal__body { padding: 2rem; }
+        .modal__category { display: inline-block; padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .modal__title { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 1rem; }
+        .modal__info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1rem; margin-bottom: 1.5rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius-md); }
+        .modal__info-item { display: flex; flex-direction: column; gap: 2px; }
+        .modal__info-label { font-size: 0.75rem; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal__info-value { font-weight: 600; }
+        .modal__desc { color: var(--gray-700); line-height: 1.7; margin-bottom: 1.5rem; }
+        .modal__actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn--rsvp { background: var(--success); color: white; box-shadow: 0 4px 14px rgba(39,174,96,0.25); }
+        .btn--rsvp:hover { background: #219A52; }
+        .btn--rsvp.rsvpd { background: #E8F5E9; color: var(--success); border: 2px solid var(--success); box-shadow: none; }
+        .btn--secondary { background: white; color: var(--primary); border: 2px solid var(--primary-light); }
+        .btn--secondary:hover { background: #F8F7FF; }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast {
+            background: var(--dark);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.4s ease, toastOut 0.3s ease 2.5s forwards;
+            max-width: 380px;
+        }
+        .toast--success { background: var(--success); }
+        .toast--error { background: var(--error); }
+        @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(120%); opacity: 0; } }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: var(--gray-300);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .footer__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: center;
+        }
+        .footer__brand { font-weight: 700; font-size: 1.125rem; color: white; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .menu-toggle { display: flex; }
+            .nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                padding: 5rem 1.5rem 2rem;
+                box-shadow: var(--shadow-xl);
+                transition: right var(--transition);
+                z-index: 999;
+                gap: 0.5rem;
+            }
+            .nav.open { right: 0; }
+            .event-grid { grid-template-columns: 1fr; }
+            .hero__title { font-size: 2rem; }
+            .search-bar { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="header" id="header">
+        <div class="header__inner">
+            <a href="index.html" class="logo">
+                <span class="logo-icon" aria-hidden="true">⚡</span> EventPulse
+            </a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <nav class="nav" id="headerNav" aria-label="Main navigation">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#events" class="nav-link">All Events</a>
+                <button class="favorites-btn" id="favoritesToggle" aria-label="View favorites">
+                    ❤️ Favorites <span class="favorites-count" id="favoritesCount">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero__inner">
+            <h1 class="hero__title">Discover <span>Amazing Events</span> Near You</h1>
+            <p class="hero__subtitle">Find concerts, workshops, festivals, and more. Your next great experience starts here.</p>
+            <form class="search-bar" id="searchForm" role="search">
+                <input type="search" class="search-bar__input" id="searchInput" placeholder="🔍 Search events, venues, or keywords..." aria-label="Search events" autocomplete="off">
+                <button type="submit" class="search-bar__btn">🔎 Search Events</button>
+            </form>
+        </div>
+    </section>
+
+    <div class="filter-bar" id="filterBar">
+        <span class="filter-label">Category:</span>
+        <div class="filter-chips" id="categoryChips">
+            <button class="filter-chip active" data-category="all">All</button>
+            <button class="filter-chip" data-category="music">🎵 Music</button>
+            <button class="filter-chip" data-category="tech">💻 Tech</button>
+            <button class="filter-chip" data-category="food">🍴 Food</button>
+            <button class="filter-chip" data-category="art">🎨 Art</button>
+            <button class="filter-chip" data-category="sports">⚽ Sports</button>
+            <button class="filter-chip" data-category="business">💼 Business</button>
+        </div>
+        <span class="filter-label">Location:</span>
+        <select class="filter-select" id="locationFilter" aria-label="Filter by location">
+            <option value="all">All Locations</option>
+            <option value="new-york">New York</option>
+            <option value="san-francisco">San Francisco</option>
+            <option value="chicago">Chicago</option>
+            <option value="austin">Austin</option>
+            <option value="seattle">Seattle</option>
+            <option value="los-angeles">Los Angeles</option>
+        </select>
+        <span class="filter-label">Date:</span>
+        <select class="filter-select" id="dateFilter" aria-label="Filter by date">
+            <option value="all">Any Date</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="weekend">This Weekend</option>
+        </select>
+        <button class="filter-clear" id="clearFilters">✕ Clear All</button>
+    </div>
+
+    <main class="main-content" id="main-content">
+        <div class="main-header">
+            <h2 class="main-title" id="resultsTitle">Upcoming Events</h2>
+            <span class="main-count" id="resultsCount"></span>
+        </div>
+        <div class="event-grid" id="eventGrid" role="list"></div>
+    </main>
+
+    <div id="modalContainer" aria-hidden="true"></div>
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <footer class="footer">
+        <div class="footer__inner">
+            <span class="footer__brand">⚡ EventPulse</span>
+            <span>© 2026 EventPulse. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // ========================
+            // STATE MANAGEMENT
+            // ========================
+            const state = {
+                events: [],
+                filteredEvents: [],
+                favorites: new Set(),
+                rsvps: new Set(),
+                activeCategory: 'all',
+                activeLocation: 'all',
+                activeDateFilter: 'all',
+                searchQuery: '',
+                isLoading: false,
+                hasError: false,
+                errorMessage: '',
+                currentModalEvent: null,
+            };
+
+            // Load persisted data
+            try {
+                const fav = localStorage.getItem('eventpulse_favorites');
+                if (fav) state.favorites = new Set(JSON.parse(fav));
+                const rsvp = localStorage.getItem('eventpulse_rsvps');
+                if (rsvp) state.rsvps = new Set(JSON.parse(rsvp));
+            } catch (e) {}
+
+            function persist() {
+                try {
+                    localStorage.setItem('eventpulse_favorites', JSON.stringify([...state.favorites]));
+                    localStorage.setItem('eventpulse_rsvps', JSON.stringify([...state.rsvps]));
+                } catch (e) {}
+            }
+
+            function isFav(id) { return state.favorites.has(id); }
+
+            function isRsvpd(id) { return state.rsvps.has(id); }
+
+            function toggleFav(id) {
+                if (state.favorites.has(id)) state.favorites.delete(id);
+                else state.favorites.add(id);
+                persist();
+            }
+
+            function toggleRsvpLocally(id) {
+                if (state.rsvps.has(id)) state.rsvps.delete(id);
+                else state.rsvps.add(id);
+                persist();
+            }
+
+            // ========================
+            // MOCK API SERVICE
+            // ========================
+            const MOCK_EVENTS = [
+                { id: 'evt_001', title: 'Summer Jazz Festival', category: 'music', date: '2026-06-20',
+                    time: '7:00 PM', location: 'New York', venue: 'Central Park Arena', price: 45,
+                    description: 'Experience an unforgettable evening of smooth jazz under the stars.',
+                    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=340&fit=crop',
+                    rsvpCount: 342, capacity: 2000 },
+                { id: 'evt_002', title: 'TechCrunch AI Summit 2026', category: 'tech', date: '2026-07-15',
+                    time: '9:00 AM', location: 'San Francisco', venue: 'Moscone Center', price: 299,
+                    description: 'The premier AI conference bringing together industry leaders and startups.',
+                    imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=340&fit=crop',
+                    rsvpCount: 1200, capacity: 5000 },
+                { id: 'evt_003', title: 'Street Food Fiesta', category: 'food', date: '2026-06-25',
+                    time: '12:00 PM', location: 'Austin', venue: 'Zilker Park', price: 0,
+                    description: 'A celebration of diverse street food from around the world. Free entry!',
+                    imageUrl: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=340&fit=crop',
+                    rsvpCount: 890, capacity: 3000 },
+                { id: 'evt_004', title: 'Modern Art Exhibition', category: 'art', date: '2026-08-01',
+                    time: '10:00 AM', location: 'Chicago', venue: 'Art Institute of Chicago', price: 25,
+                    description: 'Explore groundbreaking contemporary artworks.',
+                    imageUrl: 'https://images.unsplash.com/photo-1531913764164-f85c3e1e6b87?w=600&h=340&fit=crop',
+                    rsvpCount: 156, capacity: 800 },
+                { id: 'evt_005', title: 'NBA Summer League Finals', category: 'sports', date: '2026-07-20',
+                    time: '6:30 PM', location: 'Los Angeles', venue: 'Staples Center', price: 85,
+                    description: 'Catch the rising basketball stars battle it out.',
+                    imageUrl: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=600&h=340&fit=crop',
+                    rsvpCount: 4500, capacity: 18000 },
+                { id: 'evt_006', title: 'Startup Founders Meetup', category: 'business', date: '2026-06-28',
+                    time: '5:00 PM', location: 'Seattle', venue: 'Galvanize Campus', price: 15,
+                    description: 'Network with fellow entrepreneurs and share insights.',
+                    imageUrl: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=340&fit=crop',
+                    rsvpCount: 78, capacity: 200 },
+                { id: 'evt_007', title: 'EDM Night', category: 'music', date: '2026-07-04', time: '9:00 PM',
+                    location: 'San Francisco', venue: 'The Midway', price: 35,
+                    description: 'High-energy night featuring top EDM DJs.',
+                    imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop',
+                    rsvpCount: 560, capacity: 1500 },
+                { id: 'evt_008', title: 'React Conference 2026', category: 'tech', date: '2026-08-10',
+                    time: '8:00 AM', location: 'New York', venue: 'Javits Center', price: 499,
+                    description: 'Two days of deep dives into React and the modern frontend ecosystem.',
+                    imageUrl: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=600&h=340&fit=crop',
+                    rsvpCount: 2100, capacity: 4000 },
+                { id: 'evt_009', title: 'Wine & Dine Gala', category: 'food', date: '2026-07-10', time: '6:00 PM',
+                    location: 'Chicago', venue: 'The Peninsula Hotel', price: 150,
+                    description: 'An exquisite evening of fine dining paired with award-winning wines.',
+                    imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=340&fit=crop',
+                    rsvpCount: 95, capacity: 300 },
+                { id: 'evt_010', title: 'Urban Sketching Workshop', category: 'art', date: '2026-06-22',
+                    time: '2:00 PM', location: 'Austin', venue: 'East Austin Studio', price: 40,
+                    description: 'Learn urban sketching from professional artists.',
+                    imageUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=340&fit=crop',
+                    rsvpCount: 34, capacity: 50 },
+                { id: 'evt_011', title: 'Marathon City Run', category: 'sports', date: '2026-09-05',
+                    time: '6:00 AM', location: 'Seattle', venue: 'Seattle Waterfront', price: 60,
+                    description: 'Join thousands for a scenic marathon along the waterfront.',
+                    imageUrl: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=340&fit=crop',
+                    rsvpCount: 3200, capacity: 10000 },
+                { id: 'evt_012', title: 'Product Management Summit', category: 'business', date: '2026-07-25',
+                    time: '10:00 AM', location: 'San Francisco', venue: 'Hotel Nikko', price: 199,
+                    description: 'Learn product strategy from industry-leading PMs.',
+                    imageUrl: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&h=340&fit=crop',
+                    rsvpCount: 180, capacity: 500 },
+                { id: 'evt_013', title: 'Indie Film Festival', category: 'art', date: '2026-08-15',
+                    time: '4:00 PM', location: 'Los Angeles', venue: 'Hollywood Theatre', price: 30,
+                    description: 'Showcasing the best independent films from emerging directors.',
+                    imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&h=340&fit=crop',
+                    rsvpCount: 420, capacity: 1200 },
+                { id: 'evt_014', title: 'K-Pop Dance Party', category: 'music', date: '2026-06-30',
+                    time: '8:00 PM', location: 'Los Angeles', venue: 'The Wiltern', price: 55,
+                    description: 'Dance the night away to the hottest K-Pop hits.',
+                    imageUrl: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=340&fit=crop',
+                    rsvpCount: 780, capacity: 2200 },
+            ];
+
+            async function fetchEvents(filters = {}) {
+                // Simulate network
+                await new Promise(r => setTimeout(r, 400 + Math.random() * 400));
+                // Simulate very rare error (1%) – you can adjust for testing
+                if (Math.random() < 0.01) throw new Error('Network hiccup. Please try again.');
+
+                let events = [...MOCK_EVENTS];
+                if (filters.category && filters.category !== 'all')
+                    events = events.filter(e => e.category === filters.category);
+                if (filters.location && filters.location !== 'all') {
+                    const locMap = {
+                        'new-york': 'New York',
+                        'san-francisco': 'San Francisco',
+                        'chicago': 'Chicago',
+                        'austin': 'Austin',
+                        'seattle': 'Seattle',
+                        'los-angeles': 'Los Angeles'
+                    };
+                    const city = locMap[filters.location];
+                    events = events.filter(e => e.location === city);
+                }
+                if (filters.searchQuery?.trim()) {
+                    const q = filters.searchQuery.toLowerCase();
+                    events = events.filter(e =>
+                        e.title.toLowerCase().includes(q) ||
+                        e.venue.toLowerCase().includes(q) ||
+                        e.category.toLowerCase().includes(q) ||
+                        e.location.toLowerCase().includes(q) ||
+                        e.description.toLowerCase().includes(q)
+                    );
+                }
+                if (filters.dateFilter && filters.dateFilter !== 'all') {
+                    const now = new Date();
+                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const weekEnd = new Date(today.getTime() + 7 * 86400000);
+                    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    const dayOfWeek = today.getDay();
+                    const saturday = new Date(today.getTime() + ((6 - dayOfWeek + 7) % 7) * 86400000);
+                    const sunday = new Date(saturday.getTime() + 86400000);
+                    events = events.filter(e => {
+                        const d = new Date(e.date + 'T00:00:00');
+                        switch (filters.dateFilter) {
+                            case 'today':
+                                return d.toDateString() === today.toDateString();
+                            case 'week':
+                                return d >= today && d <= weekEnd;
+                            case 'month':
+                                return d >= today && d <= monthEnd;
+                            case 'weekend':
+                                return d >= saturday && d <= sunday;
+                            default:
+                                return true;
+                        }
+                    });
+                }
+                events.sort((a, b) => new Date(a.date) - new Date(b.date));
+                return { success: true, data: events };
+            }
+
+            async function submitRsvpToServer(eventId, action) {
+                await new Promise(r => setTimeout(r, 200));
+                if (Math.random() < 0.05) throw new Error('RSVP failed. Please retry.');
+                return { success: true };
+            }
+
+            // ========================
+            // UI HELPERS
+            // ========================
+            const escapeHTML = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+            const categoryEmoji = {
+                music: '🎵',
+                tech: '💻',
+                food: '🍴',
+                art: '🎨',
+                sports: '⚽',
+                business: '💼'
+            };
+
+            function createEventCard(event) {
+                const card = document.createElement('article');
+                card.className = 'event-card';
+                card.setAttribute('role', 'listitem');
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-label', `${event.title} on ${event.date}`);
+                card.dataset.eventId = event.id;
+
+                const catClass = `category-${event.category}`;
+                const priceDisplay = event.price === 0 ? 'Free' : `$${event.price}`;
+                const priceClass = event.price === 0 ? 'free' : '';
+                const favClass = isFav(event.id) ? 'favorited' : '';
+                const date = new Date(event.date + 'T00:00:00');
+                const day = date.getDate();
+                const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                const favIcon = isFav(event.id) ? '❤️' : '🤍';
+
+                card.innerHTML = `
+              <div class="event-card__img-wrap">
+                <img class="event-card__img" src="${event.imageUrl}" alt="${escapeHTML(event.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="event-card__date-badge"><span class="day">${day}</span> ${month}</div>
+                <button class="event-card__fav-btn ${favClass}" data-event-id="${event.id}" aria-label="${isFav(event.id)?'Remove from':'Add to'} favorites">${favIcon}</button>
+              </div>
+              <div class="event-card__body">
+                <span class="event-card__category ${catClass}">${event.category}</span>
+                <h3 class="event-card__title">${escapeHTML(event.title)}</h3>
+                <div class="event-card__meta">
+                  <span>📍 ${escapeHTML(event.location)}</span>
+                  <span>🏛️ ${escapeHTML(event.venue)}</span>
+                </div>
+                <div class="event-card__footer">
+                  <span class="event-card__price ${priceClass}">${priceDisplay}</span>
+                  <span class="event-card__rsvp-badge">👥 ${event.rsvpCount} RSVPs</span>
+                </div>
+              </div>`;
+
+                // Favorite button
+                card.querySelector('.event-card__fav-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFav(e.currentTarget.dataset.eventId);
+                    updateUI();
+                });
+                // Open modal on card click
+                card.addEventListener('click', () => openModal(event.id));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault();
+                        openModal(event.id); }
+                });
+                return card;
+            }
+
+            function createSkeletons(count = 6) {
+                const frag = document.createDocumentFragment();
+                for (let i = 0; i < count; i++) {
+                    const skel = document.createElement('div');
+                    skel.className = 'skeleton-card';
+                    skel.setAttribute('aria-hidden', 'true');
+                    skel.innerHTML = `
+                <div class="skeleton-img"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line skeleton-line--short"></div>
+                  <div class="skeleton-line skeleton-line--long"></div>
+                  <div class="skeleton-line skeleton-line--medium"></div>
+                </div>`;
+                    frag.appendChild(skel);
+                }
+                return frag;
+            }
+
+            function createEmptyState(msg = 'No events found.') {
+                const div = document.createElement('div');
+                div.className = 'empty-state';
+                div.innerHTML = `
+              <div class="empty-state__icon">📭</div>
+              <h3 class="empty-state__title">Nothing Here</h3>
+              <p>${escapeHTML(msg)}</p>
+              <button class="btn btn--primary" id="resetFiltersBtn">Reset All Filters</button>`;
+                div.querySelector('#resetFiltersBtn').addEventListener('click', clearAllFilters);
+                return div;
+            }
+
+            function createErrorState(msg = 'Something went wrong.') {
+                const div = document.createElement('div');
+                div.className = 'error-state';
+                div.innerHTML = `
+              <div class="error-state__icon">⚠️</div>
+              <h3 class="error-state__title">Oops! Connection Issue</h3>
+              <p>${escapeHTML(msg)}</p>
+              <button class="btn btn--error" id="retryBtn">🔄 Retry</button>`;
+                div.querySelector('#retryBtn').addEventListener('click', applyFilters);
+                return div;
+            }
+
+            function openModal(eventId) {
+                const event = state.events.find(e => e.id === eventId);
+                if (!event) return;
+                state.currentModalEvent = event;
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                overlay.setAttribute('role', 'dialog');
+                overlay.setAttribute('aria-modal', 'true');
+                overlay.setAttribute('aria-labelledby', 'modal-title');
+                const date = new Date(event.date + 'T00:00:00');
+                const formattedDate = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric',
+                    month: 'long', day: 'numeric' });
+                const rsvpd = isRsvpd(event.id);
+                const fav = isFav(event.id);
+                overlay.innerHTML = `
+              <div class="modal" role="document">
+                <button class="modal__close" aria-label="Close">✕</button>
+                <div class="modal__img-wrap">
+                  <img class="modal__img" src="${event.imageUrl}" alt="${escapeHTML(event.title)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                </div>
+                <div class="modal__body">
+                  <span class="modal__category category-${event.category}">${event.category}</span>
+                  <h2 class="modal__title" id="modal-title">${escapeHTML(event.title)}</h2>
+                  <div class="modal__info-grid">
+                    <div><span class="modal__info-label">📅 Date</span><span class="modal__info-value">${formattedDate}</span></div>
+                    <div><span class="modal__info-label">⏰ Time</span><span class="modal__info-value">${event.time}</span></div>
+                    <div><span class="modal__info-label">📍 Location</span><span class="modal__info-value">${escapeHTML(event.location)}</span></div>
+                    <div><span class="modal__info-label">🏛️ Venue</span><span class="modal__info-value">${escapeHTML(event.venue)}</span></div>
+                    <div><span class="modal__info-label">💰 Price</span><span class="modal__info-value">${event.price===0?'Free':'$'+event.price}</span></div>
+                    <div><span class="modal__info-label">👥 Capacity</span><span class="modal__info-value">${event.rsvpCount}/${event.capacity}</span></div>
+                  </div>
+                  <p class="modal__desc">${escapeHTML(event.description)}</p>
+                  <div class="modal__actions">
+                    <button class="btn btn--rsvp${rsvpd?' rsvpd':''}" id="modalRsvpBtn">${rsvpd?'✅ You\'re Going!':'🎟️ RSVP Now'}</button>
+                    <button class="btn btn--secondary" id="modalFavBtn">${fav?'❤️ Saved':'🤍 Save to Favorites'}</button>
+                  </div>
+                </div>
+              </div>`;
+
+                const close = () => {
+                    document.body.style.overflow = '';
+                    modalContainer.innerHTML = '';
+                    modalContainer.setAttribute('aria-hidden', 'true');
+                    state.currentModalEvent = null;
+                };
+                overlay.querySelector('.modal__close').addEventListener('click', close);
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+                document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close();
+                        document.removeEventListener('keydown', esc); } });
+
+                overlay.querySelector('#modalRsvpBtn').addEventListener('click', async () => {
+                    const wasRsvpd = isRsvpd(event.id);
+                    toggleRsvpLocally(event.id); // optimistic
+                    updateUI();
+                    updateModalButtons();
+                    try {
+                        await submitRsvpToServer(event.id, wasRsvpd ? 'remove' : 'add');
+                        showToast(wasRsvpd ? 'RSVP cancelled' : 'RSVP confirmed! 🎉', wasRsvpd ? 'info' :
+                            'success');
+                    } catch (err) {
+                        // rollback
+                        toggleRsvpLocally(event.id);
+                        updateUI();
+                        updateModalButtons();
+                        showToast('RSVP failed. Please try again.', 'error');
+                    }
+                });
+                overlay.querySelector('#modalFavBtn').addEventListener('click', () => {
+                    toggleFav(event.id);
+                    updateUI();
+                    updateModalButtons();
+                });
+
+                modalContainer.innerHTML = '';
+                modalContainer.appendChild(overlay);
+                modalContainer.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                overlay.querySelector('.modal__close').focus();
+            }
+
+            function updateModalButtons() {
+                const event = state.currentModalEvent;
+                if (!event) return;
+                const rsvpBtn = document.getElementById('modalRsvpBtn');
+                const favBtn = document.getElementById('modalFavBtn');
+                if (rsvpBtn) {
+                    const rsvpd = isRsvpd(event.id);
+                    rsvpBtn.className = `btn btn--rsvp${rsvpd?' rsvpd':''}`;
+                    rsvpBtn.innerHTML = rsvpd ? '✅ You\'re Going!' : '🎟️ RSVP Now';
+                }
+                if (favBtn) {
+                    favBtn.innerHTML = isFav(event.id) ? '❤️ Saved' : '🤍 Save to Favorites';
+                }
+            }
+
+            function showToast(msg, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast--${type}`;
+                toast.setAttribute('role', 'status');
+                toast.textContent = msg;
+                document.getElementById('toastContainer').appendChild(toast);
+                setTimeout(() => toast.remove(), 2800);
+            }
+
+            // ========================
+            // RENDER & FILTER LOGIC
+            // ========================
+            const eventGrid = document.getElementById('eventGrid');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsCount = document.getElementById('resultsCount');
+            const favoritesCountEl = document.getElementById('favoritesCount');
+            const modalContainer = document.getElementById('modalContainer');
+            const searchInput = document.getElementById('searchInput');
+            const locationSelect = document.getElementById('locationFilter');
+            const dateSelect = document.getElementById('dateFilter');
+            const categoryChips = document.getElementById('categoryChips');
+            let debounceTimer;
+
+            function updateUI() {
+                favoritesCountEl.textContent = state.favorites.size;
+                if (state.isLoading) {
+                    resultsTitle.textContent = 'Loading Events...';
+                    resultsCount.textContent = '';
+                } else if (state.hasError) {
+                    resultsTitle.textContent = 'Error';
+                    resultsCount.textContent = '';
+                } else {
+                    const count = state.filteredEvents.length;
+                    resultsCount.textContent = `${count} event${count!==1?'s':''} found`;
+                    resultsTitle.textContent = state.searchQuery ? `Results for "${state.searchQuery}"` :
+                        state.activeCategory !== 'all' ? `${state.activeCategory.charAt(0).toUpperCase()+state.activeCategory.slice(1)} Events` :
+                        'Upcoming Events';
+                }
+
+                eventGrid.innerHTML = '';
+                if (state.isLoading) {
+                    eventGrid.appendChild(createSkeletons(6));
+                    return;
+                }
+                if (state.hasError) {
+                    eventGrid.appendChild(createErrorState(state.errorMessage));
+                    return;
+                }
+                if (state.filteredEvents.length === 0) {
+                    const msg = state.searchQuery ? `No events match "${state.searchQuery}".` :
+                        'No events found with current filters.';
+                    eventGrid.appendChild(createEmptyState(msg));
+                    return;
+                }
+                const frag = document.createDocumentFragment();
+                state.filteredEvents.forEach(e => frag.appendChild(createEventCard(e)));
+                eventGrid.appendChild(frag);
+            }
+
+            async function applyFilters() {
+                state.isLoading = true;
+                state.hasError = false;
+                state.errorMessage = '';
+                updateUI();
+                try {
+                    const res = await fetchEvents({
+                        category: state.activeCategory,
+                        location: state.activeLocation,
+                        dateFilter: state.activeDateFilter,
+                        searchQuery: state.searchQuery,
+                    });
+                    state.events = res.data;
+                    state.filteredEvents = res.data;
+                } catch (err) {
+                    state.hasError = true;
+                    state.errorMessage = err.message;
+                    state.filteredEvents = [];
+                }
+                state.isLoading = false;
+                updateUI();
+            }
+
+            function clearAllFilters() {
+                state.activeCategory = 'all';
+                state.activeLocation = 'all';
+                state.activeDateFilter = 'all';
+                state.searchQuery = '';
+                searchInput.value = '';
+                locationSelect.value = 'all';
+                dateSelect.value = 'all';
+                document.querySelectorAll('#categoryChips .filter-chip').forEach(c => c.classList.toggle('active', c
+                    .dataset.category === 'all'));
+                applyFilters();
+            }
+
+            // Event bindings
+            document.getElementById('searchForm').addEventListener('submit', e => {
+                e.preventDefault();
+                state.searchQuery = searchInput.value.trim();
+                applyFilters();
+            });
+            searchInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    state.searchQuery = searchInput.value.trim();
+                    applyFilters();
+                }, 350);
+            });
+            categoryChips.addEventListener('click', e => {
+                const chip = e.target.closest('.filter-chip');
+                if (!chip) return;
+                state.activeCategory = chip.dataset.category;
+                document.querySelectorAll('#categoryChips .filter-chip').forEach(c => c.classList.toggle(
+                    'active', c.dataset.category === state.activeCategory));
+                applyFilters();
+            });
+            locationSelect.addEventListener('change', () => {
+                state.activeLocation = locationSelect.value;
+                applyFilters();
+            });
+            dateSelect.addEventListener('change', () => {
+                state.activeDateFilter = dateSelect.value;
+                applyFilters();
+            });
+            document.getElementById('clearFilters').addEventListener('click', clearAllFilters);
+            document.getElementById('favoritesToggle').addEventListener('click', () => {
+                if (state.favorites.size === 0) return showToast('No favorites yet! Click the heart on any event.',
+                    'info');
+                state.filteredEvents = state.events.filter(e => state.favorites.has(e.id));
+                state.searchQuery = '';
+                state.activeCategory = 'all';
+                state.activeLocation = 'all';
+                state.activeDateFilter = 'all';
+                searchInput.value = '';
+                locationSelect.value = 'all';
+                dateSelect.value = 'all';
+                document.querySelectorAll('#categoryChips .filter-chip').forEach(c => c.classList.toggle('active',
+                    c.dataset.category === 'all'));
+                updateUI();
+                window.scrollTo({ top: document.getElementById('main-content').offsetTop - 80, behavior: 'smooth' });
+            });
+
+            // Mobile menu
+            const menuToggle = document.getElementById('menuToggle');
+            const headerNav = document.getElementById('headerNav');
+            menuToggle.addEventListener('click', () => {
+                const open = headerNav.classList.toggle('open');
+                menuToggle.setAttribute('aria-expanded', open);
+                document.body.style.overflow = open ? 'hidden' : '';
+            });
+            headerNav.addEventListener('click', e => {
+                if (e.target.closest('.nav-link') || e.target.closest('.favorites-btn')) {
+                    headerNav.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                document.getElementById('header').classList.toggle('scrolled', window.scrollY > 10);
+            });
+
+            // Init
+            state.isLoading = true;
+            updateUI();
+            applyFilters();
+        })();
+    </script>
+</body>
+</html>

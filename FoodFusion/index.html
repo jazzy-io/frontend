@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FoodFusion - Discover delicious recipes from around the world. Search, filter, save favorites, and plan your meals.">
+    <meta name="theme-color" content="#E85D04">
+    <title>FoodFusion | Recipe Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #E85D04;
+            --color-primary-light: #FAA307;
+            --color-primary-dark: #BF3100;
+            --color-primary-soft: #FFF0E5;
+            --color-bg: #FFF8F3;
+            --color-surface: #FFFFFF;
+            --color-surface-alt: #FFFBF8;
+            --color-text: #1E1B18;
+            --color-text-secondary: #5C5652;
+            --color-text-light: #8B827C;
+            --color-accent: #2D8B5E;
+            --color-accent-soft: #E8F5EF;
+            --color-danger: #C1121F;
+            --color-danger-soft: #FDE8EA;
+            --color-border: #E8DDD4;
+            --color-border-light: #F2EBE4;
+            --color-shadow: rgba(30, 27, 24, 0.06);
+            --color-shadow-strong: rgba(30, 27, 24, 0.12);
+            --color-overlay: rgba(18, 16, 14, 0.55);
+            --color-skeleton: #F0E8DF;
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.25rem;
+            --radius-full: 9999px;
+            --shadow-card: 0 1px 3px var(--color-shadow), 0 4px 12px var(--color-shadow);
+            --shadow-card-hover: 0 2px 6px var(--color-shadow), 0 10px 28px var(--color-shadow-strong);
+            --shadow-modal: 0 8px 32px rgba(18, 16, 14, 0.18), 0 2px 8px rgba(18, 16, 14, 0.08);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            --max-width: 1280px;
+            --header-height: 4rem;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ── SKIP LINK ── */
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 1rem;
+            background: var(--color-primary);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            z-index: 1000;
+            font-weight: 600;
+            text-decoration: none;
+            transition: top var(--transition-fast);
+        }
+        .skip-link:focus {
+            top: 0.75rem;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header-height);
+            box-shadow: 0 1px 4px var(--color-shadow);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .header__inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .header__logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--color-text);
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+        .header__logo-icon {
+            font-size: 1.6rem;
+            line-height: 1;
+        }
+        .header__logo span {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header__nav {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            list-style: none;
+        }
+        .header__nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 0.9rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            border-radius: var(--radius-full);
+            transition: all var(--transition-fast);
+            font-family: inherit;
+            white-space: nowrap;
+            position: relative;
+        }
+        .header__nav-btn:hover {
+            background: var(--color-primary-soft);
+            color: var(--color-primary-dark);
+        }
+        .header__nav-btn--active {
+            background: var(--color-primary-soft);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+        }
+        .header__nav-btn .badge {
+            background: var(--color-primary);
+            color: #fff;
+            font-size: 0.7rem;
+            min-width: 1.25rem;
+            height: 1.25rem;
+            border-radius: var(--radius-full);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            padding: 0 0.35rem;
+            line-height: 1;
+        }
+        .header__nav-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        @media (max-width: 640px) {
+            .header__nav-btn span:not(.header__nav-icon):not(.badge) {
+                display: none;
+            }
+            .header__nav-btn {
+                padding: 0.55rem 0.65rem;
+                font-size: 0.85rem;
+            }
+            .header__logo {
+                font-size: 1.15rem;
+            }
+            .header__inner {
+                padding: 0 0.75rem;
+            }
+        }
+
+        /* ── MAIN ── */
+        .main {
+            flex: 1;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 1.5rem 1.25rem 3rem;
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .main {
+                padding: 1rem 0.75rem 2.5rem;
+            }
+        }
+
+        /* ── HERO / SEARCH ── */
+        .search-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .search-section__title {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+        .search-section__subtitle {
+            color: var(--color-text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-bar {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: var(--shadow-card);
+            border-radius: var(--radius-full);
+            transition: box-shadow var(--transition-fast);
+        }
+        .search-bar:focus-within {
+            box-shadow: var(--shadow-card-hover);
+        }
+        .search-bar__input {
+            flex: 1;
+            padding: 0.9rem 1.25rem;
+            border: 2px solid var(--color-border);
+            border-right: none;
+            border-radius: var(--radius-full) 0 0 var(--radius-full);
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--color-surface);
+            color: var(--color-text);
+            outline: none;
+            transition: border-color var(--transition-fast);
+            min-width: 0;
+        }
+        .search-bar__input:focus {
+            border-color: var(--color-primary);
+        }
+        .search-bar__input::placeholder {
+            color: var(--color-text-light);
+        }
+        .search-bar__btn {
+            padding: 0.9rem 1.5rem;
+            background: var(--color-primary);
+            color: #fff;
+            border: 2px solid var(--color-primary);
+            border-radius: 0 var(--radius-full) var(--radius-full) 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .search-bar__btn:hover {
+            background: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+        }
+        .search-bar__btn:active {
+            transform: scale(0.97);
+        }
+        @media (max-width: 480px) {
+            .search-section__title {
+                font-size: 1.5rem;
+            }
+            .search-bar__input {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            .search-bar__btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* ── FILTER CHIPS ── */
+        .filter-section {
+            margin-bottom: 1.75rem;
+        }
+        .filter-section__label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-text-light);
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            display: block;
+        }
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            border: 1.5px solid var(--color-border);
+            background: var(--color-surface);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+            font-family: inherit;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .filter-chip:hover {
+            border-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            background: var(--color-primary-soft);
+        }
+        .filter-chip--active {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+            font-weight: 600;
+        }
+        .filter-chip--active:hover {
+            background: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+            color: #fff;
+        }
+        .filter-chip--clear {
+            background: transparent;
+            border-style: dashed;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+        .filter-chip--clear:hover {
+            background: var(--color-danger-soft);
+            border-color: var(--color-danger);
+            color: var(--color-danger);
+        }
+
+        /* ── RECIPE GRID ── */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        @media (max-width: 600px) {
+            .recipe-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 0.85rem;
+            }
+        }
+
+        /* ── RECIPE CARD ── */
+        .recipe-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid transparent;
+            animation: fadeInUp 0.4s ease both;
+        }
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card-hover);
+            border-color: var(--color-border-light);
+        }
+        .recipe-card:active {
+            transform: scale(0.98);
+        }
+        .recipe-card__image-wrap {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background: var(--color-skeleton);
+        }
+        .recipe-card__image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-smooth);
+            display: block;
+        }
+        .recipe-card:hover .recipe-card__image {
+            transform: scale(1.06);
+        }
+        .recipe-card__fav-btn {
+            position: absolute;
+            top: 0.65rem;
+            right: 0.65rem;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-bounce);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 2;
+            line-height: 1;
+        }
+        .recipe-card__fav-btn:hover {
+            background: #fff;
+            transform: scale(1.12);
+        }
+        .recipe-card__fav-btn--active {
+            color: var(--color-danger);
+            animation: heartPop 0.4s ease;
+        }
+        .recipe-card__body {
+            padding: 0.85rem 1rem 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .recipe-card__title {
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--color-text);
+        }
+        .recipe-card__meta {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+        .recipe-card__tag {
+            font-size: 0.72rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-full);
+            background: var(--color-primary-soft);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .recipe-card__tag--area {
+            background: var(--color-accent-soft);
+            color: var(--color-accent);
+        }
+
+        /* ── SKELETON ── */
+        .skeleton-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        .skeleton-card__image {
+            aspect-ratio: 4 / 3;
+            background: var(--color-skeleton);
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-card__body {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .skeleton-line {
+            height: 0.85rem;
+            border-radius: var(--radius-full);
+            background: var(--color-skeleton);
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-line--title {
+            width: 75%;
+            height: 1rem;
+        }
+        .skeleton-line--meta {
+            width: 50%;
+            height: 0.7rem;
+        }
+
+        @keyframes shimmer {
+            0% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.5;
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes heartPop {
+            0% {
+                transform: scale(1);
+            }
+            35% {
+                transform: scale(1.35);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--color-overlay);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: modalFadeIn 0.25s ease;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        .modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            max-width: 720px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-modal);
+            animation: modalSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        .modal__close {
+            position: sticky;
+            top: 0.75rem;
+            float: right;
+            z-index: 10;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            transition: all var(--transition-fast);
+            margin-right: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .modal__close:hover {
+            background: #fff;
+            transform: scale(1.08);
+        }
+        .modal__image {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            object-fit: cover;
+            display: block;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+        .modal__content {
+            padding: 1.5rem 1.75rem 2rem;
+        }
+        .modal__title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        .modal__tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+        .modal__tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--color-primary-soft);
+            color: var(--color-primary-dark);
+        }
+        .modal__section-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.6rem;
+            color: var(--color-text);
+        }
+        .modal__ingredients {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            list-style: none;
+        }
+        @media (max-width: 480px) {
+            .modal__ingredients {
+                grid-template-columns: 1fr;
+            }
+            .modal__content {
+                padding: 1rem 1.1rem 1.5rem;
+            }
+            .modal__title {
+                font-size: 1.3rem;
+            }
+        }
+        .modal__ingredient {
+            padding: 0.45rem 0.7rem;
+            background: var(--color-surface-alt);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            border: 1px solid var(--color-border-light);
+        }
+        .modal__ingredient-name {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+        .modal__ingredient-measure {
+            color: var(--color-text-light);
+            text-align: right;
+        }
+        .modal__instructions {
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+            white-space: pre-line;
+            margin-bottom: 1.5rem;
+        }
+        .modal__actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.7rem 1.3rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn--primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .btn--primary:hover {
+            background: var(--color-primary-dark);
+        }
+        .btn--outline {
+            background: transparent;
+            border: 2px solid var(--color-border);
+            color: var(--color-text-secondary);
+        }
+        .btn--outline:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary-dark);
+            background: var(--color-primary-soft);
+        }
+        .btn--accent {
+            background: var(--color-accent);
+            color: #fff;
+        }
+        .btn--accent:hover {
+            background: #237a4d;
+        }
+        .btn--sm {
+            padding: 0.4rem 0.85rem;
+            font-size: 0.8rem;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--color-text-light);
+        }
+        .empty-state__icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .empty-state__title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.35rem;
+        }
+        .empty-state__text {
+            font-size: 0.95rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* ── MEAL PLANNER ── */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 900px) {
+            .planner-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+            }
+        }
+        @media (max-width: 500px) {
+            .planner-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.4rem;
+            }
+        }
+        .planner-day {
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 0.6rem;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            border: 2px solid transparent;
+            transition: all var(--transition-fast);
+            cursor: default;
+        }
+        .planner-day--drop-target {
+            border-color: var(--color-primary-light);
+            background: var(--color-primary-soft);
+        }
+        .planner-day__name {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .planner-day__meals {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            flex: 1;
+        }
+        .planner-meal-chip {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.5rem;
+            background: var(--color-accent-soft);
+            color: var(--color-accent);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.3rem;
+            word-break: break-word;
+        }
+        .planner-meal-chip:hover {
+            background: #d0ebe0;
+        }
+        .planner-meal-chip__remove {
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity var(--transition-fast);
+            background: none;
+            border: none;
+            color: inherit;
+            line-height: 1;
+            padding: 0;
+        }
+        .planner-meal-chip__remove:hover {
+            opacity: 1;
+            color: var(--color-danger);
+        }
+        .planner-add-hint {
+            font-size: 0.68rem;
+            color: var(--color-text-light);
+            font-style: italic;
+            margin-top: auto;
+        }
+
+        /* ── TOAST ── */
+        .toast-container {
+            position: fixed;
+            top: 5rem;
+            right: 1rem;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--color-text);
+            color: #fff;
+            padding: 0.75rem 1.2rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-modal);
+            animation: toastIn 0.35s ease forwards;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toast--removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+        .toast--success {
+            background: var(--color-accent);
+        }
+        .toast--info {
+            background: var(--color-primary);
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            color: var(--color-text-light);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--color-border-light);
+            background: var(--color-surface);
+            margin-top: auto;
+        }
+        .footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ccc0b5;
+        }
+
+        /* ── UTILITY ── */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- ── HEADER ── -->
+    <header class="header" role="banner">
+        <div class="header__inner">
+            <a href="index.html" class="header__logo" aria-label="FoodFusion Home">
+                <span class="header__logo-icon">🍽️</span> <span>FoodFusion</span>
+            </a>
+            <nav aria-label="Main navigation">
+                <ul class="header__nav">
+                    <li>
+                        <button class="header__nav-btn header__nav-btn--active" data-view="discover" aria-pressed="true">
+                            <span class="header__nav-icon">🔍</span> <span>Discover</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="header__nav-btn" data-view="favorites" aria-pressed="false">
+                            <span class="header__nav-icon">❤️</span> <span>Favorites</span>
+                            <span class="badge" id="fav-count-badge" aria-live="polite">0</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="header__nav-btn" data-view="planner" aria-pressed="false">
+                            <span class="header__nav-icon">📅</span> <span>Planner</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main" id="main-content">
+        <!-- Discover View -->
+        <section id="view-discover" class="view">
+            <div class="search-section">
+                <h1 class="search-section__title">Discover Delicious Recipes</h1>
+                <p class="search-section__subtitle">Search thousands of recipes from around the world</p>
+                <form class="search-bar" id="search-form" role="search" aria-label="Recipe search">
+                    <input
+                    type="search"
+                    class="search-bar__input"
+                    id="search-input"
+                    placeholder="Search recipes... (e.g., pasta, chicken, curry)"
+                    aria-label="Search recipes"
+                    autocomplete="off"
+                    >
+                    <button type="submit" class="search-bar__btn">🔍 Search</button>
+                </form>
+            </div>
+
+            <!-- Category Filters -->
+            <div class="filter-section">
+                <span class="filter-section__label" id="category-label">Categories</span>
+                <ul class="filter-chips" id="category-chips" role="group" aria-labelledby="category-label"></ul>
+            </div>
+
+            <!-- Area Filters -->
+            <div class="filter-section">
+                <span class="filter-section__label" id="area-label">Cuisines</span>
+                <ul class="filter-chips" id="area-chips" role="group" aria-labelledby="area-label"></ul>
+            </div>
+
+            <!-- Active Filter Indicator -->
+            <div class="filter-section hidden" id="active-filter-indicator">
+                <ul class="filter-chips">
+                    <li><button class="filter-chip filter-chip--clear" id="clear-filters-btn">✕ Clear Filters</button></li>
+                </ul>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div class="recipe-grid" id="recipe-grid" role="feed" aria-label="Recipe results"></div>
+
+            <!-- Loading State -->
+            <div class="recipe-grid hidden" id="skeleton-grid" aria-hidden="true">
+                <!-- JS-populated skeletons -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state hidden" id="empty-state">
+                <span class="empty-state__icon">🍳</span>
+                <h2 class="empty-state__title">No recipes found</h2>
+                <p class="empty-state__text">Try a different search term or browse by category above.</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="empty-state hidden" id="error-state">
+                <span class="empty-state__icon">⚠️</span>
+                <h2 class="empty-state__title">Something went wrong</h2>
+                <p class="empty-state__text">We couldn't load recipes right now. Please check your connection and try again.</p>
+                <button class="btn btn--primary" id="retry-btn" style="margin-top:1rem;">Try Again</button>
+            </div>
+        </section>
+
+        <!-- Favorites View -->
+        <section id="view-favorites" class="view hidden">
+            <h2 style="font-weight:800;font-size:1.5rem;margin-bottom:1.25rem;">❤️ Your Favorites</h2>
+            <div class="recipe-grid" id="favorites-grid" role="feed" aria-label="Favorite recipes"></div>
+            <div class="empty-state hidden" id="favorites-empty">
+                <span class="empty-state__icon">💝</span>
+                <h2 class="empty-state__title">No favorites yet</h2>
+                <p class="empty-state__text">Tap the heart on any recipe to save it here for quick access.</p>
+            </div>
+        </section>
+
+        <!-- Meal Planner View -->
+        <section id="view-planner" class="view hidden">
+            <h2 style="font-weight:800;font-size:1.5rem;margin-bottom:0.5rem;">📅 Weekly Meal Planner</h2>
+            <p style="color:var(--color-text-secondary);margin-bottom:1rem;font-size:0.9rem;">
+                Open a recipe and click <strong>"Add to Planner"</strong> to plan your meals.
+            </p>
+            <div class="planner-grid" id="planner-grid" role="region" aria-label="Weekly meal plan"></div>
+            <div class="empty-state hidden" id="planner-empty">
+                <span class="empty-state__icon">📋</span>
+                <h2 class="empty-state__title">Your planner is empty</h2>
+                <p class="empty-state__text">Browse recipes and add them to your weekly meal plan.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ── RECIPE DETAIL MODAL ── -->
+    <div class="modal-overlay hidden" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal" id="modal" role="document">
+            <button class="modal__close" id="modal-close" aria-label="Close recipe details">✕</button>
+            <img class="modal__image" id="modal-image" src="" alt="" loading="lazy">
+            <div class="modal__content">
+                <h2 class="modal__title" id="modal-title"></h2>
+                <div class="modal__tags" id="modal-tags"></div>
+                <h3 class="modal__section-title">📝 Ingredients</h3>
+                <ul class="modal__ingredients" id="modal-ingredients"></ul>
+                <h3 class="modal__section-title">👨‍🍳 Instructions</h3>
+                <p class="modal__instructions" id="modal-instructions"></p>
+                <div class="modal__actions">
+                    <button class="btn btn--outline" id="modal-fav-btn">❤️ Save Favorite</button>
+                    <button class="btn btn--accent" id="modal-planner-btn">📅 Add to Planner</button>
+                    <a class="btn btn--primary hidden" id="modal-video-link" href="#" target="_blank" rel="noopener noreferrer">▶️ Watch Video</a>
+                </div>
+                <!-- Planner day selector (hidden by default) -->
+                <div class="hidden" id="planner-selector" style="margin-top:1rem;">
+                    <p style="font-weight:600;margin-bottom:0.5rem;">Select a day:</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.4rem;" id="planner-day-options"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST CONTAINER ── -->
+    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer" role="contentinfo">
+        <p>Powered by <a href="https://www.themealdb.com/api.php" target="_blank" rel="noopener noreferrer">TheMealDB API</a> •
+            Built with ❤️ for food lovers • FoodFusion &copy; 2026</p>
+    </footer>
+
+    <script>
+        (function() {
+            /* ──────────────────────────────────────────────
+               FOODFUSION — Recipe Finder Application
+               Modular JavaScript Architecture
+               ────────────────────────────────────────────── */
+
+            // ── CONFIGURATION ──
+            const CONFIG = {
+                API_BASE: 'https://www.themealdb.com/api/json/v1/1',
+                SKELETON_COUNT: 8,
+                TOAST_DURATION: 2800,
+                POPULAR_INGREDIENTS: [
+                    'Chicken', 'Beef', 'Pork', 'Salmon', 'Shrimp', 'Pasta',
+                    'Rice', 'Potato', 'Tomato', 'Cheese', 'Egg', 'Mushroom',
+                    'Onion', 'Garlic', 'Lemon', 'Butter', 'Milk', 'Chocolate'
+                ],
+                DAYS: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                STORAGE_KEYS: {
+                    FAVORITES: 'foodfusion_favorites',
+                    PLANNER: 'foodfusion_planner'
+                }
+            };
+
+            // ── STATE MANAGEMENT ──
+            const State = {
+                currentView: 'discover',
+                activeFilter: { type: null, value: null }, // { type: 'category'|'area'|'ingredient'|'search', value: string }
+                recipes: [],
+                favorites: [],
+                planner: {}, // { monday: { breakfast: null, lunch: null, dinner: null }, ... }
+                currentModalRecipe: null,
+                isLoading: false,
+                categories: [],
+                areas: [],
+            };
+
+            // ── DOM REFS ──
+            const DOM = {
+                searchForm: document.getElementById('search-form'),
+                searchInput: document.getElementById('search-input'),
+                recipeGrid: document.getElementById('recipe-grid'),
+                skeletonGrid: document.getElementById('skeleton-grid'),
+                emptyState: document.getElementById('empty-state'),
+                errorState: document.getElementById('error-state'),
+                retryBtn: document.getElementById('retry-btn'),
+                categoryChips: document.getElementById('category-chips'),
+                areaChips: document.getElementById('area-chips'),
+                activeFilterIndicator: document.getElementById('active-filter-indicator'),
+                clearFiltersBtn: document.getElementById('clear-filters-btn'),
+                modalOverlay: document.getElementById('modal-overlay'),
+                modal: document.getElementById('modal'),
+                modalClose: document.getElementById('modal-close'),
+                modalImage: document.getElementById('modal-image'),
+                modalTitle: document.getElementById('modal-title'),
+                modalTags: document.getElementById('modal-tags'),
+                modalIngredients: document.getElementById('modal-ingredients'),
+                modalInstructions: document.getElementById('modal-instructions'),
+                modalFavBtn: document.getElementById('modal-fav-btn'),
+                modalPlannerBtn: document.getElementById('modal-planner-btn'),
+                modalVideoLink: document.getElementById('modal-video-link'),
+                plannerSelector: document.getElementById('planner-selector'),
+                plannerDayOptions: document.getElementById('planner-day-options'),
+                favoritesGrid: document.getElementById('favorites-grid'),
+                favoritesEmpty: document.getElementById('favorites-empty'),
+                plannerGrid: document.getElementById('planner-grid'),
+                plannerEmpty: document.getElementById('planner-empty'),
+                favCountBadge: document.getElementById('fav-count-badge'),
+                toastContainer: document.getElementById('toast-container'),
+                navButtons: document.querySelectorAll('.header__nav-btn'),
+                views: {
+                    discover: document.getElementById('view-discover'),
+                    favorites: document.getElementById('view-favorites'),
+                    planner: document.getElementById('view-planner'),
+                },
+            };
+
+            // ── UTILITY FUNCTIONS ──
+            const debounce = (fn, delay) => {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn(...args), delay);
+                };
+            };
+
+            const showToast = (message, type = 'info') => {
+                const toast = document.createElement('div');
+                toast.className = `toast toast--${type}`;
+                const icons = { success: '✅', info: 'ℹ️', error: '❌' };
+                toast.innerHTML = `${icons[type] || 'ℹ️'} ${message}`;
+                DOM.toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.add('toast--removing');
+                    toast.addEventListener('animationend', () => toast.remove());
+                }, CONFIG.TOAST_DURATION);
+            };
+
+            const generateId = () => Math.random().toString(36).substring(2, 10);
+
+            // ── STORAGE ──
+            const Storage = {
+                load(key) {
+                    try {
+                        const data = localStorage.getItem(key);
+                        return data ? JSON.parse(data) : null;
+                    } catch {
+                        return null;
+                    }
+                },
+                save(key, value) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify(value));
+                    } catch {
+                        showToast('Storage limit reached. Please clear some data.', 'error');
+                    }
+                },
+                loadFavorites() {
+                    return this.load(CONFIG.STORAGE_KEYS.FAVORITES) || [];
+                },
+                saveFavorites(favorites) {
+                    this.save(CONFIG.STORAGE_KEYS.FAVORITES, favorites);
+                },
+                loadPlanner() {
+                    const defaultPlanner = {};
+                    CONFIG.DAYS.forEach(d => {
+                        defaultPlanner[d.toLowerCase()] = { breakfast: null, lunch: null, dinner: null };
+                    });
+                    return this.load(CONFIG.STORAGE_KEYS.PLANNER) || defaultPlanner;
+                },
+                savePlanner(planner) {
+                    this.save(CONFIG.STORAGE_KEYS.PLANNER, planner);
+                },
+            };
+
+            // ── API SERVICE ──
+            const API = {
+                async fetchJSON(endpoint) {
+                    const url = `${CONFIG.API_BASE}/${endpoint}`;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                },
+                async searchByName(query) {
+                    return this.fetchJSON(`search.php?s=${encodeURIComponent(query)}`);
+                },
+                async filterByCategory(category) {
+                    return this.fetchJSON(`filter.php?c=${encodeURIComponent(category)}`);
+                },
+                async filterByArea(area) {
+                    return this.fetchJSON(`filter.php?a=${encodeURIComponent(area)}`);
+                },
+                async filterByIngredient(ingredient) {
+                    return this.fetchJSON(`filter.php?i=${encodeURIComponent(ingredient)}`);
+                },
+                async lookupById(id) {
+                    return this.fetchJSON(`lookup.php?i=${encodeURIComponent(id)}`);
+                },
+                async getRandomRecipes(count = 8) {
+                    const promises = Array(count).fill().map(() =>
+                        this.fetchJSON('random.php')
+                    );
+                    const results = await Promise.allSettled(promises);
+                    const meals = [];
+                    const seen = new Set();
+                    results.forEach(r => {
+                        if (r.status === 'fulfilled' && r.value.meals && r.value.meals[0]) {
+                            const meal = r.value.meals[0];
+                            if (!seen.has(meal.idMeal)) {
+                                seen.add(meal.idMeal);
+                                meals.push(meal);
+                            }
+                        }
+                    });
+                    return { meals };
+                },
+                async getCategories() {
+                    return this.fetchJSON('categories.php');
+                },
+                async getAreas() {
+                    return this.fetchJSON('list.php?a=list');
+                },
+            };
+
+            // ── RENDER FUNCTIONS ──
+            function renderSkeletons(count = CONFIG.SKELETON_COUNT) {
+                DOM.skeletonGrid.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const skel = document.createElement('div');
+                    skel.className = 'skeleton-card';
+                    skel.innerHTML = `
+                        <div class="skeleton-card__image"></div>
+                        <div class="skeleton-card__body">
+                            <div class="skeleton-line skeleton-line--title"></div>
+                            <div class="skeleton-line skeleton-line--meta"></div>
+                        </div>`;
+                    DOM.skeletonGrid.appendChild(skel);
+                }
+                DOM.skeletonGrid.classList.remove('hidden');
+                DOM.recipeGrid.classList.add('hidden');
+                DOM.emptyState.classList.add('hidden');
+                DOM.errorState.classList.add('hidden');
+            }
+
+            function hideSkeletons() {
+                DOM.skeletonGrid.classList.add('hidden');
+                DOM.recipeGrid.classList.remove('hidden');
+            }
+
+            function createRecipeCard(meal) {
+                const card = document.createElement('article');
+                card.className = 'recipe-card';
+                card.setAttribute('data-id', meal.idMeal);
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'article');
+                card.setAttribute('aria-label', `Recipe: ${meal.strMeal}`);
+                const isFav = State.favorites.includes(meal.idMeal);
+                card.innerHTML = `
+                    <div class="recipe-card__image-wrap">
+                        <img class="recipe-card__image" src="${meal.strMealThumb || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22><rect fill=%22%23f0e8df%22 width=%22400%22 height=%22300%22/><text x=%22200%22 y=%22155%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2230%22>🍽️</text></svg>'}" alt="${meal.strMeal}" loading="lazy">
+                        <button class="recipe-card__fav-btn ${isFav ? 'recipe-card__fav-btn--active' : ''}" data-id="${meal.idMeal}" aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${isFav}">
+                            ${isFav ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                    <div class="recipe-card__body">
+                        <h3 class="recipe-card__title">${escapeHTML(meal.strMeal)}</h3>
+                        <div class="recipe-card__meta">
+                            ${meal.strCategory ? `<span class="recipe-card__tag">${escapeHTML(meal.strCategory)}</span>` : ''}
+                            ${meal.strArea ? `<span class="recipe-card__tag recipe-card__tag--area">🌍 ${escapeHTML(meal.strArea)}</span>` : ''}
+                        </div>
+                    </div>`;
+                // Click to open modal
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.recipe-card__fav-btn')) {
+                        openRecipeModal(meal.idMeal);
+                    }
+                });
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.target.closest('.recipe-card__fav-btn')) {
+                        openRecipeModal(meal.idMeal);
+                    }
+                });
+                // Fav button
+                const favBtn = card.querySelector('.recipe-card__fav-btn');
+                favBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(meal.idMeal, favBtn);
+                });
+                return card;
+            }
+
+            function renderRecipes(meals) {
+                hideSkeletons();
+                DOM.recipeGrid.innerHTML = '';
+                DOM.emptyState.classList.add('hidden');
+                DOM.errorState.classList.add('hidden');
+
+                if (!meals || meals.length === 0) {
+                    DOM.recipeGrid.classList.add('hidden');
+                    DOM.emptyState.classList.remove('hidden');
+                    return;
+                }
+                DOM.recipeGrid.classList.remove('hidden');
+                const fragment = document.createDocumentFragment();
+                meals.forEach((meal, index) => {
+                    const card = createRecipeCard(meal);
+                    card.style.animationDelay = `${index * 0.05}s`;
+                    fragment.appendChild(card);
+                });
+                DOM.recipeGrid.appendChild(fragment);
+            }
+
+            function renderFavorites() {
+                DOM.favoritesGrid.innerHTML = '';
+                if (State.favorites.length === 0) {
+                    DOM.favoritesEmpty.classList.remove('hidden');
+                    DOM.favoritesGrid.classList.add('hidden');
+                    return;
+                }
+                DOM.favoritesEmpty.classList.add('hidden');
+                DOM.favoritesGrid.classList.remove('hidden');
+                // We need full recipe data; fetch each favorite
+                renderSkeletons(Math.min(State.favorites.length, CONFIG.SKELETON_COUNT));
+                DOM.skeletonGrid.classList.add('hidden'); // we'll use the favorites grid for skeletons
+                DOM.favoritesGrid.innerHTML = '';
+                const skeletonCards = Array.from({ length: Math.min(State.favorites.length, CONFIG.SKELETON_COUNT) },
+                    () => {
+                        const skel = document.createElement('div');
+                        skel.className = 'skeleton-card';
+                        skel.innerHTML =
+                            '<div class="skeleton-card__image"></div><div class="skeleton-card__body"><div class="skeleton-line skeleton-line--title"></div><div class="skeleton-line skeleton-line--meta"></div></div>';
+                        return skel;
+                    });
+                skeletonCards.forEach(s => DOM.favoritesGrid.appendChild(s));
+
+                // Fetch all favorites in parallel
+                const fetchPromises = State.favorites.map(id => API.lookupById(id));
+                Promise.allSettled(fetchPromises).then(results => {
+                    DOM.favoritesGrid.innerHTML = '';
+                    const loadedMeals = [];
+                    results.forEach(r => {
+                        if (r.status === 'fulfilled' && r.value.meals && r.value.meals[0]) {
+                            loadedMeals.push(r.value.meals[0]);
+                        }
+                    });
+                    if (loadedMeals.length === 0) {
+                        DOM.favoritesEmpty.classList.remove('hidden');
+                        DOM.favoritesGrid.classList.add('hidden');
+                    } else {
+                        loadedMeals.forEach((meal, i) => {
+                            const card = createRecipeCard(meal);
+                            card.style.animationDelay = `${i * 0.04}s`;
+                            DOM.favoritesGrid.appendChild(card);
+                        });
+                    }
+                }).catch(() => {
+                    DOM.favoritesGrid.innerHTML = '';
+                    DOM.favoritesEmpty.classList.remove('hidden');
+                });
+            }
+
+            function renderPlanner() {
+                DOM.plannerGrid.innerHTML = '';
+                let hasAnyMeal = false;
+                CONFIG.DAYS.forEach(day => {
+                    const dayKey = day.toLowerCase();
+                    const dayData = State.planner[dayKey] || { breakfast: null, lunch: null, dinner: null };
+                    const dayCol = document.createElement('div');
+                    dayCol.className = 'planner-day';
+                    dayCol.setAttribute('data-day', dayKey);
+                    dayCol.innerHTML = `<span class="planner-day__name">${day.substring(0,3)}</span>`;
+                    const mealsContainer = document.createElement('div');
+                    mealsContainer.className = 'planner-day__meals';
+
+                    ['breakfast', 'lunch', 'dinner'].forEach(slot => {
+                        const mealId = dayData[slot];
+                        if (mealId) {
+                            hasAnyMeal = true;
+                            const chip = document.createElement('div');
+                            chip.className = 'planner-meal-chip';
+                            chip.innerHTML =
+                                `<span>${slot === 'breakfast' ? '🌅' : slot === 'lunch' ? '☀️' : '🌙'} ${mealId.title || 'Recipe'} <button class="planner-meal-chip__remove" data-day="${dayKey}" data-slot="${slot}" aria-label="Remove from ${day} ${slot}">✕</button></span>`;
+                            chip.querySelector('.planner-meal-chip__remove').addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                removeFromPlanner(dayKey, slot);
+                            });
+                            chip.addEventListener('click', () => {
+                                if (mealId.id) openRecipeModal(mealId.id);
+                            });
+                            mealsContainer.appendChild(chip);
+                        }
+                    });
+
+                    if (mealsContainer.children.length === 0) {
+                        const hint = document.createElement('span');
+                        hint.className = 'planner-add-hint';
+                        hint.textContent = 'Empty';
+                        mealsContainer.appendChild(hint);
+                    }
+
+                    dayCol.appendChild(mealsContainer);
+                    DOM.plannerGrid.appendChild(dayCol);
+                });
+
+                if (!hasAnyMeal) {
+                    DOM.plannerEmpty.classList.remove('hidden');
+                } else {
+                    DOM.plannerEmpty.classList.add('hidden');
+                }
+            }
+
+            function renderCategoryChips() {
+                DOM.categoryChips.innerHTML = '';
+                State.categories.forEach(cat => {
+                    const chip = document.createElement('li');
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-chip';
+                    btn.textContent = cat.strCategory;
+                    btn.setAttribute('data-category', cat.strCategory);
+                    btn.addEventListener('click', () => filterByCategory(cat.strCategory));
+                    if (State.activeFilter.type === 'category' && State.activeFilter.value === cat
+                        .strCategory) {
+                        btn.classList.add('filter-chip--active');
+                    }
+                    chip.appendChild(btn);
+                    DOM.categoryChips.appendChild(chip);
+                });
+            }
+
+            function renderAreaChips() {
+                DOM.areaChips.innerHTML = '';
+                // Show first 15 areas for cleanliness
+                const displayAreas = State.areas.slice(0, 18);
+                displayAreas.forEach(area => {
+                    const chip = document.createElement('li');
+                    const btn = document.createElement('button');
+                    btn.className = 'filter-chip';
+                    btn.textContent = area.strArea;
+                    btn.setAttribute('data-area', area.strArea);
+                    btn.addEventListener('click', () => filterByArea(area.strArea));
+                    if (State.activeFilter.type === 'area' && State.activeFilter.value === area.strArea) {
+                        btn.classList.add('filter-chip--active');
+                    }
+                    chip.appendChild(btn);
+                    DOM.areaChips.appendChild(chip);
+                });
+            }
+
+            function updateActiveFilterUI() {
+                if (State.activeFilter.type) {
+                    DOM.activeFilterIndicator.classList.remove('hidden');
+                } else {
+                    DOM.activeFilterIndicator.classList.add('hidden');
+                }
+                // Re-render chips to update active states
+                renderCategoryChips();
+                renderAreaChips();
+            }
+
+            // ── RECIPE MODAL ──
+            async function openRecipeModal(mealId) {
+                DOM.modalOverlay.classList.remove('hidden');
+                DOM.modal.classList.add('hidden'); // hide until loaded
+                DOM.modalImage.src = '';
+                DOM.modalTitle.textContent = 'Loading...';
+                DOM.modalTags.innerHTML = '';
+                DOM.modalIngredients.innerHTML = '<li>Loading ingredients...</li>';
+                DOM.modalInstructions.textContent = '';
+                DOM.modalFavBtn.textContent = '❤️ Save Favorite';
+                DOM.modalVideoLink.classList.add('hidden');
+                DOM.plannerSelector.classList.add('hidden');
+                State.currentModalRecipe = null;
+                document.body.style.overflow = 'hidden';
+
+                try {
+                    const data = await API.lookupById(mealId);
+                    if (!data.meals || !data.meals[0]) {
+                        throw new Error('Recipe not found');
+                    }
+                    const meal = data.meals[0];
+                    State.currentModalRecipe = meal;
+                    populateModal(meal);
+                    DOM.modal.classList.remove('hidden');
+                    DOM.modal.scrollTop = 0;
+                    DOM.modalTitle.focus();
+                } catch (err) {
+                    showToast('Failed to load recipe details.', 'error');
+                    closeModal();
+                }
+            }
+
+            function populateModal(meal) {
+                DOM.modalImage.src = meal.strMealThumb || '';
+                DOM.modalImage.alt = meal.strMeal;
+                DOM.modalTitle.textContent = meal.strMeal;
+                // Tags
+                DOM.modalTags.innerHTML = '';
+                if (meal.strCategory) {
+                    const tag = document.createElement('span');
+                    tag.className = 'modal__tag';
+                    tag.textContent = meal.strCategory;
+                    DOM.modalTags.appendChild(tag);
+                }
+                if (meal.strArea) {
+                    const tag = document.createElement('span');
+                    tag.className = 'modal__tag';
+                    tag.textContent = `🌍 ${meal.strArea}`;
+                    tag.style.background = 'var(--color-accent-soft)';
+                    tag.style.color = 'var(--color-accent)';
+                    DOM.modalTags.appendChild(tag);
+                }
+                // Ingredients
+                DOM.modalIngredients.innerHTML = '';
+                for (let i = 1; i <= 20; i++) {
+                    const ingredient = meal[`strIngredient${i}`];
+                    const measure = meal[`strMeasure${i}`];
+                    if (ingredient && ingredient.trim()) {
+                        const li = document.createElement('li');
+                        li.className = 'modal__ingredient';
+                        li.innerHTML =
+                            `<span class="modal__ingredient-name">${escapeHTML(ingredient)}</span><span class="modal__ingredient-measure">${escapeHTML(measure || '')}</span>`;
+                        DOM.modalIngredients.appendChild(li);
+                    }
+                }
+                // Instructions
+                DOM.modalInstructions.textContent = meal.strInstructions || 'No instructions available.';
+                // Video
+                if (meal.strYoutube && meal.strYoutube.trim()) {
+                    DOM.modalVideoLink.href = meal.strYoutube;
+                    DOM.modalVideoLink.classList.remove('hidden');
+                } else {
+                    DOM.modalVideoLink.classList.add('hidden');
+                }
+                // Fav button state
+                const isFav = State.favorites.includes(meal.idMeal);
+                DOM.modalFavBtn.textContent = isFav ? '❤️ Remove Favorite' : '🤍 Save Favorite';
+                DOM.modalFavBtn.setAttribute('aria-pressed', isFav);
+                // Planner selector
+                DOM.plannerSelector.classList.add('hidden');
+                DOM.plannerDayOptions.innerHTML = '';
+            }
+
+            function closeModal() {
+                DOM.modalOverlay.classList.add('hidden');
+                DOM.modal.classList.add('hidden');
+                document.body.style.overflow = '';
+                State.currentModalRecipe = null;
+                DOM.plannerSelector.classList.add('hidden');
+            }
+
+            // ── FAVORITES ──
+            function toggleFavorite(mealId, favBtnElement) {
+                const index = State.favorites.indexOf(mealId);
+                let isNowFav;
+                if (index > -1) {
+                    State.favorites.splice(index, 1);
+                    isNowFav = false;
+                    showToast('Removed from favorites', 'info');
+                } else {
+                    State.favorites.push(mealId);
+                    isNowFav = true;
+                    showToast('Added to favorites! ❤️', 'success');
+                }
+                Storage.saveFavorites(State.favorites);
+                updateFavCountBadge();
+                // Update the specific button
+                if (favBtnElement) {
+                    favBtnElement.classList.toggle('recipe-card__fav-btn--active', isNowFav);
+                    favBtnElement.innerHTML = isNowFav ? '❤️' : '🤍';
+                    favBtnElement.setAttribute('aria-label', isNowFav ? 'Remove from favorites' : 'Add to favorites');
+                    favBtnElement.setAttribute('aria-pressed', isNowFav);
+                }
+                // Update modal button if open
+                if (State.currentModalRecipe && State.currentModalRecipe.idMeal === mealId) {
+                    DOM.modalFavBtn.textContent = isNowFav ? '❤️ Remove Favorite' : '🤍 Save Favorite';
+                    DOM.modalFavBtn.setAttribute('aria-pressed', isNowFav);
+                }
+                // Refresh favorites view if visible
+                if (State.currentView === 'favorites') {
+                    renderFavorites();
+                }
+                // Update all cards for this meal
+                document.querySelectorAll(`.recipe-card__fav-btn[data-id="${mealId}"]`).forEach(btn => {
+                    if (btn !== favBtnElement) {
+                        btn.classList.toggle('recipe-card__fav-btn--active', isNowFav);
+                        btn.innerHTML = isNowFav ? '❤️' : '🤍';
+                        btn.setAttribute('aria-label', isNowFav ? 'Remove from favorites' : 'Add to favorites');
+                        btn.setAttribute('aria-pressed', isNowFav);
+                    }
+                });
+            }
+
+            function updateFavCountBadge() {
+                DOM.favCountBadge.textContent = State.favorites.length;
+                DOM.favCountBadge.style.display = State.favorites.length > 0 ? 'inline-flex' : 'none';
+            }
+
+            // ── MEAL PLANNER ──
+            function addToPlanner(day, slot, mealId, mealTitle) {
+                if (!State.planner[day]) {
+                    State.planner[day] = { breakfast: null, lunch: null, dinner: null };
+                }
+                // Check if meal already in another slot on same day
+                const existingSlot = Object.entries(State.planner[day]).find(([, v]) =>
+                    v && v.id === mealId
+                );
+                if (existingSlot) {
+                    showToast(`Already in ${day} (${existingSlot[0]})`, 'info');
+                    return;
+                }
+                State.planner[day][slot] = { id: mealId, title: mealTitle };
+                Storage.savePlanner(State.planner);
+                showToast(`Added to ${day} ${slot}! 📅`, 'success');
+                renderPlanner();
+                DOM.plannerSelector.classList.add('hidden');
+            }
+
+            function removeFromPlanner(day, slot) {
+                if (State.planner[day]) {
+                    State.planner[day][slot] = null;
+                }
+                Storage.savePlanner(State.planner);
+                showToast('Removed from planner', 'info');
+                renderPlanner();
+            }
+
+            function showPlannerDaySelector() {
+                if (!State.currentModalRecipe) return;
+                DOM.plannerDayOptions.innerHTML = '';
+                CONFIG.DAYS.forEach(day => {
+                    const dayKey = day.toLowerCase();
+                    const dayGroup = document.createElement('div');
+                    dayGroup.style.cssText =
+                        'display:flex;flex-direction:column;gap:0.25rem;padding:0.4rem;border:1px solid var(--color-border-light);border-radius:var(--radius-md);min-width:90px;';
+                    dayGroup.innerHTML = `<strong style="font-size:0.75rem;text-align:center;">${day.substring(0,3)}</strong>`;
+                    ['breakfast', 'lunch', 'dinner'].forEach(slot => {
+                        const slotBtn = document.createElement('button');
+                        slotBtn.className = 'btn btn--outline btn--sm';
+                        slotBtn.textContent = slot === 'breakfast' ? '🌅 AM' : slot === 'lunch' ?
+                            '☀️ Noon' : '🌙 PM';
+                        slotBtn.style.cssText = 'width:100%;font-size:0.7rem;padding:0.35rem 0.5rem;';
+                        slotBtn.addEventListener('click', () => {
+                            addToPlanner(dayKey, slot, State.currentModalRecipe.idMeal, State
+                                .currentModalRecipe.strMeal);
+                        });
+                        dayGroup.appendChild(slotBtn);
+                    });
+                    DOM.plannerDayOptions.appendChild(dayGroup);
+                });
+                DOM.plannerSelector.classList.remove('hidden');
+            }
+
+            // ── FILTER LOGIC ──
+            async function filterByCategory(category) {
+                State.activeFilter = { type: 'category', value: category };
+                State.searchInput.value = '';
+                updateActiveFilterUI();
+                await loadFilteredRecipes();
+            }
+
+            async function filterByArea(area) {
+                State.activeFilter = { type: 'area', value: area };
+                State.searchInput.value = '';
+                updateActiveFilterUI();
+                await loadFilteredRecipes();
+            }
+
+            async function clearFilters() {
+                State.activeFilter = { type: null, value: null };
+                State.searchInput.value = '';
+                updateActiveFilterUI();
+                await loadInitialRecipes();
+            }
+
+            async function loadFilteredRecipes() {
+                renderSkeletons();
+                try {
+                    let data;
+                    switch (State.activeFilter.type) {
+                        case 'category':
+                            data = await API.filterByCategory(State.activeFilter.value);
+                            break;
+                        case 'area':
+                            data = await API.filterByArea(State.activeFilter.value);
+                            break;
+                        case 'ingredient':
+                            data = await API.filterByIngredient(State.activeFilter.value);
+                            break;
+                        case 'search':
+                            data = await API.searchByName(State.activeFilter.value);
+                            break;
+                        default:
+                            data = await API.getRandomRecipes();
+                    }
+                    State.recipes = data.meals || [];
+                    renderRecipes(State.recipes);
+                } catch (err) {
+                    hideSkeletons();
+                    DOM.recipeGrid.classList.add('hidden');
+                    DOM.emptyState.classList.add('hidden');
+                    DOM.errorState.classList.remove('hidden');
+                    console.error('Filter load error:', err);
+                }
+            }
+
+            async function loadInitialRecipes() {
+                renderSkeletons();
+                try {
+                    const data = await API.getRandomRecipes(8);
+                    State.recipes = data.meals || [];
+                    renderRecipes(State.recipes);
+                } catch (err) {
+                    hideSkeletons();
+                    DOM.recipeGrid.classList.add('hidden');
+                    DOM.errorState.classList.remove('hidden');
+                    console.error('Initial load error:', err);
+                }
+            }
+
+            // ── VIEW SWITCHING ──
+            function switchView(viewName) {
+                State.currentView = viewName;
+                // Update nav buttons
+                DOM.navButtons.forEach(btn => {
+                    const isActive = btn.getAttribute('data-view') === viewName;
+                    btn.classList.toggle('header__nav-btn--active', isActive);
+                    btn.setAttribute('aria-pressed', isActive);
+                });
+                // Show/hide views
+                Object.entries(DOM.views).forEach(([key, el]) => {
+                    el.classList.toggle('hidden', key !== viewName);
+                });
+                // Refresh view content
+                if (viewName === 'favorites') {
+                    renderFavorites();
+                } else if (viewName === 'planner') {
+                    renderPlanner();
+                } else if (viewName === 'discover') {
+                    if (State.recipes.length === 0) {
+                        loadInitialRecipes();
+                    } else {
+                        renderRecipes(State.recipes);
+                    }
+                    updateActiveFilterUI();
+                }
+            }
+
+            // ── EVENT HANDLERS ──
+            DOM.searchForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const query = DOM.searchInput.value.trim();
+                if (!query) return;
+                State.activeFilter = { type: 'search', value: query };
+                updateActiveFilterUI();
+                renderSkeletons();
+                try {
+                    const data = await API.searchByName(query);
+                    State.recipes = data.meals || [];
+                    renderRecipes(State.recipes);
+                } catch (err) {
+                    hideSkeletons();
+                    DOM.recipeGrid.classList.add('hidden');
+                    DOM.errorState.classList.remove('hidden');
+                    console.error('Search error:', err);
+                }
+                // Re-render chips without active states
+                renderCategoryChips();
+                renderAreaChips();
+            });
+
+            DOM.clearFiltersBtn.addEventListener('click', clearFilters);
+
+            DOM.retryBtn.addEventListener('click', () => {
+                if (State.activeFilter.type) {
+                    loadFilteredRecipes();
+                } else {
+                    loadInitialRecipes();
+                }
+            });
+
+            DOM.modalClose.addEventListener('click', closeModal);
+            DOM.modalOverlay.addEventListener('click', (e) => {
+                if (e.target === DOM.modalOverlay) closeModal();
+            });
+
+            DOM.modalFavBtn.addEventListener('click', () => {
+                if (State.currentModalRecipe) {
+                    const mealId = State.currentModalRecipe.idMeal;
+                    const favBtn = document.querySelector(`.recipe-card__fav-btn[data-id="${mealId}"]`);
+                    toggleFavorite(mealId, favBtn);
+                }
+            });
+
+            DOM.modalPlannerBtn.addEventListener('click', () => {
+                if (State.currentModalRecipe) {
+                    const isVisible = !DOM.plannerSelector.classList.contains('hidden');
+                    if (isVisible) {
+                        DOM.plannerSelector.classList.add('hidden');
+                    } else {
+                        showPlannerDaySelector();
+                    }
+                }
+            });
+
+            // Nav buttons
+            DOM.navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!DOM.modalOverlay.classList.contains('hidden')) {
+                        closeModal();
+                    }
+                }
+                // Ctrl+K / Cmd+K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    switchView('discover');
+                    DOM.searchInput.focus();
+                }
+            });
+
+            // ── INITIALIZATION ──
+            async function init() {
+                // Load persisted data
+                State.favorites = Storage.loadFavorites();
+                State.planner = Storage.loadPlanner();
+                updateFavCountBadge();
+
+                // Fetch filter options in parallel with initial recipes
+                renderSkeletons();
+                try {
+                    const [categoriesData, areasData, recipesData] = await Promise.allSettled([
+                        API.getCategories(),
+                        API.getAreas(),
+                        API.getRandomRecipes(8),
+                    ]);
+
+                    if (categoriesData.status === 'fulfilled' && categoriesData.value.categories) {
+                        State.categories = categoriesData.value.categories;
+                        renderCategoryChips();
+                    }
+                    if (areasData.status === 'fulfilled' && areasData.value.meals) {
+                        State.areas = areasData.value.meals;
+                        renderAreaChips();
+                    }
+                    if (recipesData.status === 'fulfilled') {
+                        State.recipes = recipesData.value.meals || [];
+                        renderRecipes(State.recipes);
+                    } else {
+                        hideSkeletons();
+                        DOM.errorState.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    hideSkeletons();
+                    DOM.errorState.classList.remove('hidden');
+                    console.error('Init error:', err);
+                }
+
+                updateActiveFilterUI();
+                updateFavCountBadge();
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ── START APP ──
+            init();
+
+            // Expose for debugging
+            if (typeof window !== 'undefined') {
+                window.FoodFusion = { State, API, Storage, CONFIG, switchView, closeModal };
+            }
+
+            console.log('🍽️ FoodFusion initialized successfully!');
+            console.log('💡 Tip: Press Ctrl+K to focus the search bar.');
+        })();
+    </script>
+</body>
+</html>
+

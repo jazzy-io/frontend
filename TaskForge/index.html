@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="TaskForge - Agile Kanban Project Management">
+  <title>TaskForge | Kanban Board</title>
+  <style>
+    /* ----- CSS Reset & Variables ----- */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --color-primary: #4f46e5;
+      --color-primary-light: #818cf8;
+      --color-primary-dark: #3730a3;
+      --color-surface: #ffffff;
+      --color-background: #f8fafc;
+      --color-text: #1e293b;
+      --color-text-muted: #64748b;
+      --color-border: #e2e8f0;
+      --color-danger: #ef4444;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-info: #3b82f6;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s ease;
+      --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ----- Layout ----- */
+    .app-header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo i {
+      font-size: 1.8rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--color-text-muted);
+      font-weight: 500;
+      padding: 0.25rem 0;
+      border-bottom: 2px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ----- Kanban Board (Grid) ----- */
+    .board-container {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      min-height: 60vh;
+    }
+
+    .kanban-column {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      min-width: 280px;
+      max-width: 320px;
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 150px);
+      border: 1px solid var(--color-border);
+    }
+
+    .column-header {
+      padding: 1rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      background: #f1f5f9;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .column-task-count {
+      background: var(--color-primary-light);
+      color: white;
+      border-radius: 20px;
+      padding: 0.1rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .task-list {
+      list-style: none;
+      padding: 0.75rem;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: background 0.15s;
+    }
+
+    .task-list.drag-over {
+      background: #eef2ff;
+      outline: 2px dashed var(--color-primary);
+      outline-offset: -4px;
+    }
+
+    .task-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      cursor: grab;
+      transition: transform var(--transition), box-shadow var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .task-card:active {
+      cursor: grabbing;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .task-card.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .priority-badge {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    .priority-high { background: var(--color-danger); }
+    .priority-medium { background: var(--color-warning); }
+    .priority-low { background: var(--color-success); }
+
+    .assignee-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .add-card-btn {
+      background: none;
+      border: 1px dashed var(--color-border);
+      color: var(--color-text-muted);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all var(--transition);
+      margin-top: 0.5rem;
+    }
+
+    .add-card-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: #eef2ff;
+    }
+
+    .add-column-btn {
+      background: var(--color-surface);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      min-width: 200px;
+      text-align: center;
+      transition: all var(--transition);
+    }
+
+    .add-column-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    /* ----- Modal ----- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: slideUp 0.2s ease;
+    }
+
+    .modal h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    input, select, textarea {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border var(--transition);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background var(--transition), transform 0.1s;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--color-primary-dark); }
+
+    .btn-danger {
+      background: var(--color-danger);
+      color: white;
+    }
+    .btn-danger:hover { background: #b91c1c; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .btn-ghost:hover { background: #f1f5f9; }
+
+    /* ----- Dashboard & Analytics ----- */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-top: 1rem;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+      height: 200px;
+      margin-top: 1rem;
+    }
+
+    .bar {
+      flex: 1;
+      background: var(--color-primary-light);
+      border-radius: 4px 4px 0 0;
+      text-align: center;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0.25rem;
+      transition: height 0.3s;
+    }
+
+    /* ----- Notifications ----- */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 200;
+    }
+
+    .toast {
+      background: var(--color-text);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      animation: slideIn 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .toast.error { background: var(--color-danger); }
+    .toast.success { background: var(--color-success); }
+
+    /* ----- Loading Skeleton ----- */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+      height: 80px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ----- Responsive ----- */
+    @media (max-width: 768px) {
+      .app-header { flex-direction: column; align-items: flex-start; }
+      .board-container { padding-bottom: 2rem; }
+      .kanban-column { min-width: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <span>📋</span> TaskForge
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#" data-view="board" class="active">Board</a></li>
+        <li><a href="#" data-view="dashboard">Dashboard</a></li>
+        <li><a href="#" data-view="analytics">Analytics</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main-content" id="app-main">
+    <!-- Dynamic content injected by JS -->
+    <div class="board-container" id="board-view"></div>
+    <!-- dashboard / analytics containers hidden by default -->
+    <div id="dashboard-view" style="display: none;"></div>
+    <div id="analytics-view" style="display: none;"></div>
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    (function() {
+      // ---------- STATE MANAGEMENT ----------
+      const Store = {
+        _state: {
+          columns: [],
+          tasks: [],
+          currentView: 'board',
+          loading: false
+        },
+        _listeners: [],
+
+        getState() {
+          return this._state;
+        },
+
+        setState(partial) {
+          this._state = { ...this._state, ...partial };
+          this._notify();
+        },
+
+        subscribe(listener) {
+          this._listeners.push(listener);
+        },
+
+        _notify() {
+          this._listeners.forEach(fn => fn(this._state));
+        },
+
+        // Derived helpers
+        getTasksByColumn(columnId) {
+          return this._state.tasks
+            .filter(t => t.columnId === columnId)
+            .sort((a, b) => a.order - b.order);
+        }
+      };
+
+      // ---------- API SERVICE (Fetch with localStorage fallback) ----------
+      const API_BASE_URL = 'http://localhost:3000/api'; // No real backend, will fallback
+      const ApiService = {
+        async request(endpoint, options = {}) {
+          const url = `${API_BASE_URL}${endpoint}`;
+          try {
+            const response = await fetch(url, {
+              headers: { 'Content-Type': 'application/json' },
+              ...options
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return await response.json();
+          } catch (error) {
+            console.warn('API call failed, using local fallback:', error.message);
+            return null;
+          }
+        },
+
+        async fetchBoardData() {
+          const data = await this.request('/board');
+          if (data) return data;
+          // Fallback: localStorage
+          const stored = localStorage.getItem('taskforge_board');
+          return stored ? JSON.parse(stored) : this.getDefaultData();
+        },
+
+        async saveBoardData(payload) {
+          const result = await this.request('/board', {
+            method: 'PUT',
+            body: JSON.stringify(payload)
+          });
+          if (!result) {
+            localStorage.setItem('taskforge_board', JSON.stringify(payload));
+          }
+          return true;
+        },
+
+        getDefaultData() {
+          return {
+            columns: [
+              { id: 'col-1', title: 'To Do' },
+              { id: 'col-2', title: 'In Progress' },
+              { id: 'col-3', title: 'Done' }
+            ],
+            tasks: [
+              { id: 'task-1', title: 'Design landing page', description: 'Create wireframes', assignee: 'Alice', priority: 'high', dueDate: '2026-06-12', columnId: 'col-1', order: 0 },
+              { id: 'task-2', title: 'API integration', description: 'Connect to backend', assignee: 'Bob', priority: 'medium', dueDate: '2026-06-15', columnId: 'col-2', order: 0 }
+            ]
+          };
+        }
+      };
+
+      // ---------- NOTIFICATIONS ----------
+      const Notifications = {
+        show(message, type = 'success') {
+          const container = document.getElementById('toast-container');
+          const toast = document.createElement('div');
+          toast.className = `toast ${type}`;
+          toast.textContent = message;
+          container.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
+      };
+
+      // ---------- UTILS ----------
+      const generateId = () => `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      // ---------- RENDERING ----------
+      function renderBoard(state) {
+        const container = document.getElementById('board-view');
+        if (!container) return;
+        container.innerHTML = '';
+
+        state.columns.forEach(col => {
+          const colDiv = document.createElement('div');
+          colDiv.className = 'kanban-column';
+          colDiv.setAttribute('data-column-id', col.id);
+
+          colDiv.innerHTML = `
+            <div class="column-header">
+              <span>${escapeHtml(col.title)}</span>
+              <span class="column-task-count">${state.tasks.filter(t => t.columnId === col.id).length}</span>
+            </div>
+            <ul class="task-list" data-column-id="${col.id}">
+              ${state.tasks
+                .filter(t => t.columnId === col.id)
+                .sort((a,b) => a.order - b.order)
+                .map(task => renderTaskCard(task))
+                .join('')}
+            </ul>
+            <button class="add-card-btn" data-action="add-task" data-column="${col.id}">+ Add Task</button>
+          `;
+          container.appendChild(colDiv);
+        });
+
+        // Add column button
+        const addColBtn = document.createElement('button');
+        addColBtn.className = 'add-column-btn';
+        addColBtn.textContent = '+ New Column';
+        addColBtn.setAttribute('data-action', 'add-column');
+        container.appendChild(addColBtn);
+
+        attachBoardEvents();
+      }
+
+      function renderTaskCard(task) {
+        const priorityClass = `priority-${task.priority || 'medium'}`;
+        const initials = task.assignee ? task.assignee.charAt(0).toUpperCase() : '?';
+        return `
+          <li class="task-card" draggable="true" data-task-id="${task.id}">
+            <div class="task-title">${escapeHtml(task.title)}</div>
+            <div class="task-meta">
+              <span><span class="priority-badge ${priorityClass}"></span> ${task.priority || 'med'}</span>
+              <span class="assignee-avatar">${initials}</span>
+            </div>
+          </li>
+        `;
+      }
+
+      function escapeHtml(text) {
+        return String(text).replace(/[&<>"]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          if (m === '"') return '&quot;';
+          return m;
+        });
+      }
+
+      // Event delegation for board
+      function attachBoardEvents() {
+        document.querySelectorAll('.task-card').forEach(card => {
+          card.addEventListener('dragstart', handleDragStart);
+          card.addEventListener('dragend', handleDragEnd);
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('button')) return;
+            const taskId = card.dataset.taskId;
+            openTaskModal(taskId);
+          });
+        });
+
+        document.querySelectorAll('.task-list').forEach(list => {
+          list.addEventListener('dragover', handleDragOver);
+          list.addEventListener('dragleave', handleDragLeave);
+          list.addEventListener('drop', handleDrop);
+        });
+
+        document.querySelectorAll('[data-action="add-task"]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const columnId = btn.dataset.column;
+            openTaskModal(null, columnId);
+          });
+        });
+
+        document.querySelector('[data-action="add-column"]')?.addEventListener('click', () => {
+          openColumnModal();
+        });
+      }
+
+      // Drag and Drop
+      let draggedTaskId = null;
+      function handleDragStart(e) {
+        draggedTaskId = this.dataset.taskId;
+        this.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', draggedTaskId);
+        e.dataTransfer.effectAllowed = 'move';
+      }
+
+      function handleDragEnd() {
+        this.classList.remove('dragging');
+        document.querySelectorAll('.task-list').forEach(l => l.classList.remove('drag-over'));
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        this.classList.add('drag-over');
+      }
+
+      function handleDragLeave() {
+        this.classList.remove('drag-over');
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        const targetColumnId = this.dataset.columnId;
+        if (!draggedTaskId || !targetColumnId) return;
+
+        const state = Store.getState();
+        const task = state.tasks.find(t => t.id === draggedTaskId);
+        if (!task) return;
+
+        if (task.columnId !== targetColumnId) {
+          task.columnId = targetColumnId;
+          // Reorder: place at end
+          const tasksInCol = state.tasks.filter(t => t.columnId === targetColumnId);
+          const maxOrder = tasksInCol.reduce((max, t) => Math.max(max, t.order), -1);
+          task.order = maxOrder + 1;
+          Store.setState({ tasks: [...state.tasks] });
+          saveToPersistence();
+          Notifications.show(`Task moved to ${getColumnTitle(targetColumnId)}`);
+        }
+      }
+
+      function getColumnTitle(colId) {
+        return Store.getState().columns.find(c => c.id === colId)?.title || '';
+      }
+
+      // Modal management
+      function openTaskModal(taskId = null, columnId = null) {
+        const state = Store.getState();
+        const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
+        const modalHtml = createTaskModalHtml(task, columnId);
+        showModal(modalHtml);
+
+        document.getElementById('modal-save')?.addEventListener('click', () => saveTaskFromModal(taskId, columnId));
+        document.getElementById('modal-delete')?.addEventListener('click', () => {
+          if (taskId) deleteTask(taskId);
+        });
+        document.getElementById('modal-close')?.addEventListener('click', closeModal);
+      }
+
+      function createTaskModalHtml(task, columnId) {
+        const title = task ? task.title : '';
+        const desc = task ? task.description : '';
+        const assignee = task ? task.assignee : '';
+        const priority = task ? task.priority : 'medium';
+        const dueDate = task ? task.dueDate : '';
+        return `
+          <div class="modal">
+            <h2>${task ? 'Edit Task' : 'New Task'}</h2>
+            <div class="form-group">
+              <label for="task-title">Title</label>
+              <input type="text" id="task-title" value="${escapeHtml(title)}" required>
+            </div>
+            <div class="form-group">
+              <label for="task-desc">Description</label>
+              <textarea id="task-desc" rows="2">${escapeHtml(desc)}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="task-assignee">Assignee</label>
+              <input type="text" id="task-assignee" value="${escapeHtml(assignee)}">
+            </div>
+            <div style="display:flex; gap:1rem;">
+              <div class="form-group" style="flex:1;">
+                <label for="task-priority">Priority</label>
+                <select id="task-priority">
+                  <option value="low" ${priority==='low'?'selected':''}>Low</option>
+                  <option value="medium" ${priority==='medium'?'selected':''}>Medium</option>
+                  <option value="high" ${priority==='high'?'selected':''}>High</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label for="task-due">Due Date</label>
+                <input type="date" id="task-due" value="${dueDate}">
+              </div>
+            </div>
+            <div class="modal-actions">
+              ${task ? '<button class="btn btn-danger" id="modal-delete">Delete</button>' : ''}
+              <button class="btn btn-ghost" id="modal-close">Cancel</button>
+              <button class="btn btn-primary" id="modal-save">Save</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function saveTaskFromModal(taskId, columnId) {
+        const title = document.getElementById('task-title').value.trim();
+        if (!title) {
+          Notifications.show('Title is required', 'error');
+          return;
+        }
+        const description = document.getElementById('task-desc').value;
+        const assignee = document.getElementById('task-assignee').value;
+        const priority = document.getElementById('task-priority').value;
+        const dueDate = document.getElementById('task-due').value;
+
+        const state = Store.getState();
+        if (taskId) {
+          const updatedTasks = state.tasks.map(t => 
+            t.id === taskId ? { ...t, title, description, assignee, priority, dueDate } : t
+          );
+          Store.setState({ tasks: updatedTasks });
+          Notifications.show('Task updated');
+        } else {
+          const newTask = {
+            id: generateId(),
+            title,
+            description,
+            assignee,
+            priority,
+            dueDate,
+            columnId: columnId || state.columns[0]?.id,
+            order: state.tasks.filter(t => t.columnId === (columnId || state.columns[0]?.id)).length
+          };
+          Store.setState({ tasks: [...state.tasks, newTask] });
+          Notifications.show('Task created');
+        }
+        closeModal();
+        saveToPersistence();
+      }
+
+      function deleteTask(taskId) {
+        const state = Store.getState();
+        Store.setState({ tasks: state.tasks.filter(t => t.id !== taskId) });
+        closeModal();
+        saveToPersistence();
+        Notifications.show('Task deleted');
+      }
+
+      function openColumnModal() {
+        const html = `
+          <div class="modal">
+            <h2>New Column</h2>
+            <div class="form-group">
+              <label for="col-title">Column Name</label>
+              <input type="text" id="col-title" required>
+            </div>
+            <div class="modal-actions">
+              <button class="btn btn-ghost" id="modal-close">Cancel</button>
+              <button class="btn btn-primary" id="modal-save-col">Create</button>
+            </div>
+          </div>
+        `;
+        showModal(html);
+        document.getElementById('modal-save-col').addEventListener('click', () => {
+          const title = document.getElementById('col-title').value.trim();
+          if (!title) return;
+          const state = Store.getState();
+          const newCol = { id: generateId(), title };
+          Store.setState({ columns: [...state.columns, newCol] });
+          closeModal();
+          saveToPersistence();
+          Notifications.show('Column added');
+        });
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+      }
+
+      function showModal(html) {
+        const existing = document.querySelector('.modal-overlay');
+        if (existing) existing.remove();
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = html;
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeModal();
+        });
+      }
+
+      function closeModal() {
+        const overlay = document.querySelector('.modal-overlay');
+        if (overlay) overlay.remove();
+      }
+
+      // Persistence with API
+      async function saveToPersistence() {
+        const state = Store.getState();
+        await ApiService.saveBoardData({ columns: state.columns, tasks: state.tasks });
+      }
+
+      // Dashboard rendering
+      function renderDashboard(state) {
+        const container = document.getElementById('dashboard-view');
+        const totalTasks = state.tasks.length;
+        const todoCount = state.tasks.filter(t => t.columnId === state.columns.find(c => c.title==='To Do')?.id).length;
+        container.innerHTML = `
+          <div class="dashboard-grid">
+            <div class="stat-card"><div class="stat-value">${totalTasks}</div><div>Total Tasks</div></div>
+            <div class="stat-card"><div class="stat-value">${state.columns.length}</div><div>Columns</div></div>
+            <div class="stat-card"><div class="stat-value">${todoCount}</div><div>To Do</div></div>
+          </div>
+          <div class="chart-container">
+            <h3>Team Members</h3>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+              ${['Alice', 'Bob', 'Charlie'].map(name => {
+                const count = state.tasks.filter(t => t.assignee === name).length;
+                return `<div class="stat-card" style="text-align:center;"><div class="assignee-avatar" style="width:40px;height:40px;margin:0 auto;">${name[0]}</div><div>${name}</div><div>${count} tasks</div></div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderAnalytics(state) {
+        const container = document.getElementById('analytics-view');
+        const cols = state.columns;
+        const data = cols.map(col => ({
+          title: col.title,
+          count: state.tasks.filter(t => t.columnId === col.id).length
+        }));
+        const maxCount = Math.max(...data.map(d => d.count), 1);
+        container.innerHTML = `
+          <h2>Task Distribution</h2>
+          <div class="chart-container">
+            <div class="bar-chart">
+              ${data.map(d => {
+                const heightPercent = (d.count / maxCount) * 100;
+                return `<div class="bar" style="height:${heightPercent}%;" title="${d.title}: ${d.count}">${d.count}</div>`;
+              }).join('')}
+            </div>
+            <div style="display:flex; gap:1.5rem; margin-top:0.5rem;">
+              ${data.map(d => `<span style="flex:1; text-align:center;">${escapeHtml(d.title)}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // View switcher
+      function setView(viewName) {
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+        document.getElementById('board-view').style.display = viewName === 'board' ? 'flex' : 'none';
+        document.getElementById('dashboard-view').style.display = viewName === 'dashboard' ? 'block' : 'none';
+        document.getElementById('analytics-view').style.display = viewName === 'analytics' ? 'block' : 'none';
+
+        const state = Store.getState();
+        if (viewName === 'dashboard') renderDashboard(state);
+        if (viewName === 'analytics') renderAnalytics(state);
+        Store.setState({ currentView: viewName });
+      }
+
+      // Initial load
+      async function initializeApp() {
+        Store.setState({ loading: true });
+        renderSkeleton();
+        try {
+          const data = await ApiService.fetchBoardData();
+          if (data && data.columns && data.tasks) {
+            Store.setState({ columns: data.columns, tasks: data.tasks, loading: false });
+          } else {
+            // use default
+            const def = ApiService.getDefaultData();
+            Store.setState({ columns: def.columns, tasks: def.tasks, loading: false });
+          }
+        } catch (err) {
+          Notifications.show('Failed to load data', 'error');
+          Store.setState({ loading: false });
+        }
+      }
+
+      function renderSkeleton() {
+        const board = document.getElementById('board-view');
+        board.innerHTML = '<div class="skeleton" style="width:100%; height:200px;"></div>';
+      }
+
+      // Re-render on state change
+      Store.subscribe(state => {
+        if (state.loading) return;
+        if (state.currentView === 'board') renderBoard(state);
+        else if (state.currentView === 'dashboard') renderDashboard(state);
+        else if (state.currentView === 'analytics') renderAnalytics(state);
+      });
+
+      // Event listeners for navigation
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const view = link.dataset.view;
+          setView(view);
+        });
+      });
+
+      // Start
+      initializeApp().then(() => {
+        setView('board');
+      });
+    })();
+  </script>
+</body>
+</html>
+

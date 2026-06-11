@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NewsNova - Your personalized news platform. Stay updated with the latest news across categories.">
+    <meta name="theme-color" content="#3b82f6">
+    <title>NewsNova — Personalized News Platform</title>
+
+    <style>
+        /* ============ CSS CUSTOM PROPERTIES (THEME) ============ */
+        :root {
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
+            --color-surface-hover: #f1f5f9;
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-text-tertiary: #94a3b8;
+            --color-border: #e2e8f0;
+            --color-border-light: #f1f5f9;
+            --color-primary: #3b82f6;
+            --color-primary-hover: #2563eb;
+            --color-primary-light: #eff6ff;
+            --color-bookmark: #f59e0b;
+            --color-bookmark-hover: #d97706;
+            --color-danger: #ef4444;
+            --color-success: #10b981;
+            --color-skeleton: #e2e8f0;
+            --color-skeleton-shine: #f1f5f9;
+            --color-overlay: rgba(15, 23, 42, 0.6);
+            --color-tag-bg: #f1f5f9;
+            --color-tag-text: #475569;
+            --color-tag-active-bg: #3b82f6;
+            --color-tag-active-text: #ffffff;
+            --color-header-bg: rgba(255, 255, 255, 0.85);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 10px -4px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 20px 40px -5px rgba(0, 0, 0, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            --max-width: 1280px;
+            --header-height: 64px;
+        }
+
+        [data-theme="dark"] {
+            --color-bg: #0f172a;
+            --color-surface: #1e293b;
+            --color-surface-hover: #273548;
+            --color-text-primary: #e2e8f0;
+            --color-text-secondary: #94a3b8;
+            --color-text-tertiary: #64748b;
+            --color-border: #334155;
+            --color-border-light: #1e293b;
+            --color-primary: #60a5fa;
+            --color-primary-hover: #3b82f6;
+            --color-primary-light: #1e3a5f;
+            --color-skeleton: #334155;
+            --color-skeleton-shine: #3b4f6b;
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-tag-bg: #273548;
+            --color-tag-text: #cbd5e1;
+            --color-tag-active-bg: #3b82f6;
+            --color-tag-active-text: #ffffff;
+            --color-header-bg: rgba(15, 23, 42, 0.9);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 10px -4px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 40px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ============ RESET & BASE ============ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background-color var(--transition-smooth), color var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            border: none;
+            background: none;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        input {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        ul,
+        ol {
+            list-style: none;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* ============ HEADER ============ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--color-header-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--color-border);
+            padding: 0 1rem;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background var(--transition-smooth), border-color var(--transition-smooth);
+        }
+
+        .header__logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            color: var(--color-text-primary);
+            flex-shrink: 0;
+            transition: color var(--transition-smooth);
+        }
+
+        .header__logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .header__search {
+            flex: 1;
+            max-width: 480px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .header__search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.75rem;
+            border-radius: 50px;
+            border: 2px solid var(--color-border);
+            background: var(--color-surface);
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+            transition: all var(--transition-fast);
+            outline: none;
+        }
+
+        .header__search-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px var(--color-primary-light);
+        }
+
+        .header__search-input::placeholder {
+            color: var(--color-text-tertiary);
+        }
+
+        .header__search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-tertiary);
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+
+        .header__search-clear {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-tertiary);
+            padding: 0.25rem;
+            border-radius: 50%;
+            display: none;
+            transition: all var(--transition-fast);
+            font-size: 0.85rem;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header__search-clear.visible {
+            display: flex;
+        }
+        .header__search-clear:hover {
+            background: var(--color-border);
+            color: var(--color-text-primary);
+        }
+
+        .header__actions {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-shrink: 0;
+        }
+
+        .header__btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            position: relative;
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+        }
+
+        .header__btn:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text-primary);
+        }
+
+        .header__btn--bookmarks .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--color-bookmark);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            line-height: 1;
+            transition: transform var(--transition-fast);
+        }
+
+        .header__btn--bookmarks .badge:empty {
+            display: none;
+        }
+        .header__btn--bookmarks .badge.pop {
+            animation: badgePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes badgePop {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            40% {
+                transform: scale(1.35);
+            }
+        }
+
+        /* ============ CATEGORY NAV ============ */
+        .category-nav {
+            background: var(--color-bg);
+            border-bottom: 1px solid var(--color-border);
+            padding: 0.5rem 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            transition: background var(--transition-smooth), border-color var(--transition-smooth);
+            position: sticky;
+            top: var(--header-height);
+            z-index: 90;
+        }
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-nav__list {
+            display: flex;
+            gap: 0.4rem;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0;
+            flex-wrap: nowrap;
+        }
+
+        .category-nav__item {
+            flex-shrink: 0;
+        }
+
+        .category-nav__btn {
+            padding: 0.5rem 1.1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: var(--color-tag-bg);
+            color: var(--color-tag-text);
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            border: 2px solid transparent;
+        }
+
+        .category-nav__btn:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text-primary);
+        }
+        .category-nav__btn.active {
+            background: var(--color-tag-active-bg);
+            color: var(--color-tag-active-text);
+            border-color: transparent;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main {
+            flex: 1;
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 3rem;
+        }
+
+        .main__status {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--color-text-secondary);
+        }
+
+        .main__status-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .main__status-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            color: var(--color-text-primary);
+        }
+        .main__status-subtitle {
+            font-size: 0.95rem;
+            color: var(--color-text-tertiary);
+        }
+        .main__status-retry {
+            margin-top: 1rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            background: var(--color-primary);
+            color: #fff;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            font-size: 0.9rem;
+        }
+        .main__status-retry:hover {
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Article Grid */
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        @media (min-width: 640px) {
+            .article-grid {
+                grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .article-grid {
+                grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            }
+        }
+
+        /* Article Card */
+        .article-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: all var(--transition-smooth);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .article-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            border-color: var(--color-primary);
+            border-color: transparent;
+        }
+        .article-card:focus-visible {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .article-card__image-wrapper {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 16 / 10;
+            background: var(--color-skeleton);
+            flex-shrink: 0;
+        }
+
+        .article-card__image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .article-card:hover .article-card__image {
+            transform: scale(1.04);
+        }
+        .article-card__image--fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--color-text-tertiary);
+            background: var(--color-skeleton);
+            width: 100%;
+            height: 100%;
+        }
+
+        .article-card__source-tag {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 0.3rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(4px);
+            z-index: 2;
+        }
+
+        .article-card__bookmark-btn {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.7rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            z-index: 3;
+            transition: all var(--transition-fast);
+            backdrop-filter: blur(4px);
+            border: none;
+            cursor: pointer;
+        }
+        .article-card__bookmark-btn:hover {
+            background: rgba(0, 0, 0, 0.75);
+            transform: scale(1.1);
+        }
+        .article-card__bookmark-btn.bookmarked {
+            color: var(--color-bookmark);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .article-card__body {
+            padding: 1rem 1.1rem 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .article-card__title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--color-text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        .article-card__description {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .article-card__meta {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.78rem;
+            color: var(--color-text-tertiary);
+            padding-top: 0.3rem;
+            border-top: 1px solid var(--color-border-light);
+        }
+        .article-card__meta-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--color-text-tertiary);
+            flex-shrink: 0;
+        }
+
+        /* Skeleton Card */
+        .skeleton-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+        }
+        .skeleton-card__image {
+            aspect-ratio: 16 / 10;
+            background: var(--color-skeleton);
+            animation: shimmer 1.6s infinite;
+        }
+        .skeleton-card__body {
+            padding: 1rem 1.1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .skeleton-card__line {
+            height: 14px;
+            border-radius: 6px;
+            background: var(--color-skeleton);
+            animation: shimmer 1.6s infinite;
+        }
+        .skeleton-card__line--short {
+            width: 60%;
+        }
+        .skeleton-card__line--medium {
+            width: 85%;
+        }
+        .skeleton-card__line--long {
+            width: 95%;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background: var(--color-skeleton);
+            }
+            50% {
+                background: var(--color-skeleton-shine);
+            }
+            100% {
+                background: var(--color-skeleton);
+            }
+        }
+
+        /* Sentinel for infinite scroll */
+        .scroll-sentinel {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .scroll-sentinel__loader {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============ ARTICLE MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--color-overlay);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-smooth);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            max-width: 720px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(20px) scale(0.96);
+            transition: transform var(--transition-smooth);
+            border: 1px solid var(--color-border);
+        }
+        .modal-overlay.open .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal__close {
+            position: sticky;
+            top: 0.75rem;
+            right: 0.75rem;
+            float: right;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--color-text-secondary);
+            box-shadow: var(--shadow-sm);
+        }
+        .modal__close:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text-primary);
+            border-color: var(--color-text-tertiary);
+        }
+
+        .modal__image-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            background: var(--color-skeleton);
+            position: relative;
+        }
+        .modal__image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .modal__image--fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--color-text-tertiary);
+            width: 100%;
+            height: 100%;
+            background: var(--color-skeleton);
+        }
+
+        .modal__content {
+            padding: 1.5rem;
+        }
+        .modal__source {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+        .modal__title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 0.6rem;
+            color: var(--color-text-primary);
+            letter-spacing: -0.02em;
+        }
+        .modal__meta {
+            font-size: 0.85rem;
+            color: var(--color-text-tertiary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .modal__description {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--color-text-secondary);
+            margin-bottom: 1.25rem;
+        }
+        .modal__actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .modal__btn {
+            padding: 0.65rem 1.3rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .modal__btn--primary {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        .modal__btn--primary:hover {
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+        .modal__btn--secondary {
+            background: var(--color-tag-bg);
+            color: var(--color-text-primary);
+            border: 2px solid var(--color-border);
+        }
+        .modal__btn--secondary:hover {
+            background: var(--color-surface-hover);
+            border-color: var(--color-text-tertiary);
+        }
+        .modal__btn--bookmark {
+            background: var(--color-tag-bg);
+            color: var(--color-text-primary);
+            border: 2px solid var(--color-border);
+        }
+        .modal__btn--bookmark.bookmarked {
+            background: #fef3c7;
+            color: var(--color-bookmark);
+            border-color: var(--color-bookmark);
+        }
+        [data-theme="dark"] .modal__btn--bookmark.bookmarked {
+            background: #3d2e00;
+            color: #fbbf24;
+            border-color: #f59e0b;
+        }
+
+        /* ============ BOOKMARKS PANEL ============ */
+        .bookmarks-panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--color-overlay);
+            z-index: 250;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-smooth);
+        }
+        .bookmarks-panel-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bookmarks-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: var(--color-surface);
+            z-index: 260;
+            box-shadow: var(--shadow-xl);
+            transform: translateX(100%);
+            transition: transform var(--transition-smooth);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--color-border);
+        }
+        .bookmarks-panel.open {
+            transform: translateX(0);
+        }
+
+        .bookmarks-panel__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--color-border);
+            flex-shrink: 0;
+        }
+        .bookmarks-panel__title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: -0.01em;
+        }
+        .bookmarks-panel__close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+        }
+        .bookmarks-panel__close:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text-primary);
+        }
+        .bookmarks-panel__list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .bookmarks-panel__empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--color-text-tertiary);
+        }
+        .bookmarks-panel__empty-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .bookmark-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.7rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid transparent;
+            align-items: flex-start;
+        }
+        .bookmark-item:hover {
+            background: var(--color-surface-hover);
+            border-color: var(--color-border);
+        }
+        .bookmark-item__thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            flex-shrink: 0;
+            background: var(--color-skeleton);
+        }
+        .bookmark-item__info {
+            flex: 1;
+            min-width: 0;
+        }
+        .bookmark-item__title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .bookmark-item__source {
+            font-size: 0.75rem;
+            color: var(--color-text-tertiary);
+            margin-top: 0.2rem;
+        }
+        .bookmark-item__remove {
+            padding: 0.3rem 0.5rem;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            color: var(--color-text-tertiary);
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+        }
+        .bookmark-item__remove:hover {
+            color: var(--color-danger);
+            background: #fef2f2;
+        }
+        [data-theme="dark"] .bookmark-item__remove:hover {
+            background: #3b1a1a;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--color-text-tertiary);
+            font-size: 0.82rem;
+            border-top: 1px solid var(--color-border);
+            transition: all var(--transition-smooth);
+        }
+        .footer__heart {
+            color: #ef4444;
+            animation: heartbeat 1.2s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes heartbeat {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            15% {
+                transform: scale(1.25);
+            }
+            30% {
+                transform: scale(1);
+            }
+            45% {
+                transform: scale(1.15);
+            }
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        /* ============ TOAST ============ */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--color-text-primary);
+            color: var(--color-bg);
+            padding: 0.75rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), toastOut 0.35s ease-in forwards;
+            animation-delay: 0s, 2.2s;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-15px) scale(0.9);
+            }
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 640px) {
+            .header {
+                padding: 0 0.75rem;
+                gap: 0.5rem;
+            }
+            .header__logo {
+                font-size: 1.1rem;
+                gap: 0.3rem;
+            }
+            .header__logo-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+            .header__search {
+                max-width: 100%;
+                margin: 0;
+            }
+            .header__search-input {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.8rem 0.5rem 2.3rem;
+            }
+            .header__btn {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+            }
+            .article-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .category-nav__btn {
+                padding: 0.4rem 0.85rem;
+                font-size: 0.8rem;
+            }
+            .modal {
+                max-height: 95vh;
+                border-radius: var(--radius-lg);
+            }
+            .modal__content {
+                padding: 1rem;
+            }
+            .modal__title {
+                font-size: 1.15rem;
+            }
+            .bookmarks-panel {
+                max-width: 100%;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .article-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.15rem;
+            }
+        }
+
+        /* ============ ACCESSIBILITY ============ */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--color-primary);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ============ HEADER ============ -->
+    <header class="header" role="banner">
+        <a href="index.html" class="header__logo" aria-label="NewsNova Home">
+            <span class="header__logo-icon" aria-hidden="true">✦</span>
+            <span>NewsNova</span>
+        </a>
+
+        <div class="header__search" role="search">
+            <label for="search-input" class="sr-only">Search articles</label>
+            <span class="header__search-icon" aria-hidden="true">🔍</span>
+            <input
+            type="text"
+            id="search-input"
+            class="header__search-input"
+            placeholder="Search news..."
+            autocomplete="off"
+            >
+            <button class="header__search-clear" id="search-clear" aria-label="Clear search" type="button">✕</button>
+        </div>
+
+        <nav class="header__actions" aria-label="Header actions">
+            <button class="header__btn header__btn--bookmarks" id="btn-bookmarks-panel" aria-label="Bookmarks" type="button" title="Bookmarks">
+                🔖
+                <span class="badge" id="bookmark-badge"></span>
+            </button>
+            <button class="header__btn" id="btn-theme-toggle" aria-label="Toggle dark mode" type="button" title="Toggle dark mode">
+                🌙
+            </button>
+        </nav>
+    </header>
+
+    <!-- ============ CATEGORY NAVIGATION ============ -->
+    <nav class="category-nav" aria-label="News categories">
+        <ul class="category-nav__list" id="category-list" role="tablist">
+            <!-- Rendered by JS -->
+        </ul>
+    </nav>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="main" id="main-content" role="main" aria-live="polite" aria-busy="false">
+        <!-- Article grid rendered by JS -->
+        <div class="article-grid" id="article-grid"></div>
+        <div class="scroll-sentinel" id="scroll-sentinel" aria-hidden="true">
+            <div class="scroll-sentinel__loader" id="scroll-loader" style="display:none;"></div>
+        </div>
+        <div class="main__status" id="status-message" style="display:none;"></div>
+    </main>
+
+    <!-- ============ ARTICLE MODAL ============ -->
+    <div class="modal-overlay" id="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <article class="modal" id="article-modal">
+            <button class="modal__close" id="modal-close" aria-label="Close article" type="button">✕</button>
+            <div class="modal__image-wrapper" id="modal-image-wrapper"></div>
+            <div class="modal__content">
+                <span class="modal__source" id="modal-source"></span>
+                <h2 class="modal__title" id="modal-title"></h2>
+                <div class="modal__meta" id="modal-meta"></div>
+                <p class="modal__description" id="modal-description"></p>
+                <div class="modal__actions">
+                    <a class="modal__btn modal__btn--primary" id="modal-read-more" href="#" target="_blank" rel="noopener noreferrer">
+                        Read Full Article ↗
+                    </a>
+                    <button class="modal__btn modal__btn--bookmark" id="modal-bookmark-btn" type="button">
+                        🔖 Bookmark
+                    </button>
+                    <button class="modal__btn modal__btn--secondary" id="modal-close-btn" type="button">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <!-- ============ BOOKMARKS PANEL ============ -->
+    <div class="bookmarks-panel-overlay" id="bookmarks-overlay" aria-hidden="true"></div>
+    <aside class="bookmarks-panel" id="bookmarks-panel" aria-label="Bookmarked articles" role="complementary">
+        <div class="bookmarks-panel__header">
+            <h3 class="bookmarks-panel__title">🔖 Your Bookmarks</h3>
+            <button class="bookmarks-panel__close" id="bookmarks-close" aria-label="Close bookmarks panel" type="button">✕</button>
+        </div>
+        <div class="bookmarks-panel__list" id="bookmarks-list"></div>
+    </aside>
+
+    <!-- ============ TOAST CONTAINER ============ -->
+    <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer" role="contentinfo">
+        <p>Built with <span class="footer__heart" aria-label="love">❤️</span> — NewsNova &copy; <span id="footer-year"></span></p>
+        <p style="font-size:0.75rem;margin-top:0.25rem;">Powered by NewsAPI · Demo mode with mock data</p>
+    </footer>
+
+    <script>
+        (() => {
+            /* ================================================================
+               NEWSNOVA — Modular JavaScript Architecture
+               ================================================================ */
+
+            // ──────────────────────────────────────────────
+            // CONFIGURATION
+            // ──────────────────────────────────────────────
+            const CONFIG = {
+                NEWS_API_KEY: 'bde603bd65b14504a5157a21d975b07c', // Set your NewsAPI key here (free tier: newsapi.org)
+                NEWS_API_BASE: 'https://newsapi.org/v2',
+                USE_MOCK_DATA: false, // Falls back to mock data if no key or on error
+                ARTICLES_PER_PAGE: 8,
+                DEBOUNCE_DELAY: 350,
+                MAX_BOOKMARKS: 50,
+                CATEGORIES: [
+                    { id: 'general', label: '📰 Top Headlines' },
+                    { id: 'business', label: '💼 Business' },
+                    { id: 'technology', label: '💻 Technology' },
+                    { id: 'sports', label: '⚽ Sports' },
+                    { id: 'entertainment', label: '🎬 Entertainment' },
+                    { id: 'health', label: '🏥 Health' },
+                    { id: 'science', label: '🔬 Science' },
+                ],
+            };
+
+            // ──────────────────────────────────────────────
+            // STATE MANAGEMENT
+            // ──────────────────────────────────────────────
+            const State = {
+                activeCategory: 'general',
+                searchQuery: '',
+                articles: [],
+                displayedCount: 0,
+                isLoading: false,
+                hasMore: true,
+                bookmarks: [],
+                currentModalArticle: null,
+                isDarkMode: false,
+            };
+
+            // ──────────────────────────────────────────────
+            // DOM REFERENCES (cached)
+            // ──────────────────────────────────────────────
+            const DOM = {
+                articleGrid: document.getElementById('article-grid'),
+                scrollSentinel: document.getElementById('scroll-sentinel'),
+                scrollLoader: document.getElementById('scroll-loader'),
+                statusMessage: document.getElementById('status-message'),
+                categoryList: document.getElementById('category-list'),
+                searchInput: document.getElementById('search-input'),
+                searchClear: document.getElementById('search-clear'),
+                btnThemeToggle: document.getElementById('btn-theme-toggle'),
+                btnBookmarksPanel: document.getElementById('btn-bookmarks-panel'),
+                bookmarkBadge: document.getElementById('bookmark-badge'),
+                modalOverlay: document.getElementById('modal-overlay'),
+                modalTitle: document.getElementById('modal-title'),
+                modalSource: document.getElementById('modal-source'),
+                modalMeta: document.getElementById('modal-meta'),
+                modalDescription: document.getElementById('modal-description'),
+                modalImageWrapper: document.getElementById('modal-image-wrapper'),
+                modalReadMore: document.getElementById('modal-read-more'),
+                modalBookmarkBtn: document.getElementById('modal-bookmark-btn'),
+                modalClose: document.getElementById('modal-close'),
+                modalCloseBtn: document.getElementById('modal-close-btn'),
+                bookmarksOverlay: document.getElementById('bookmarks-overlay'),
+                bookmarksPanel: document.getElementById('bookmarks-panel'),
+                bookmarksList: document.getElementById('bookmarks-list'),
+                bookmarksClose: document.getElementById('bookmarks-close'),
+                toastContainer: document.getElementById('toast-container'),
+                footerYear: document.getElementById('footer-year'),
+            };
+
+            // ──────────────────────────────────────────────
+            // UTILITY FUNCTIONS
+            // ──────────────────────────────────────────────
+            const debounce = (fn, delay) => {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn(...args), delay);
+                };
+            };
+
+            const formatDate = (dateStr) => {
+                try {
+                    const date = new Date(dateStr);
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                    if (diffHrs < 1) return 'Just now';
+                    if (diffHrs < 24) return `${diffHrs}h ago`;
+                    const diffDays = Math.floor(diffHrs / 24);
+                    if (diffDays < 7) return `${diffDays}d ago`;
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } catch {
+                    return dateStr;
+                }
+            };
+
+            const generateId = () => `art_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+            const sanitizeHTML = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+
+            // ──────────────────────────────────────────────
+            // TOAST NOTIFICATIONS
+            // ──────────────────────────────────────────────
+            const showToast = (message, icon = '✅') => {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `<span>${icon}</span> ${sanitizeHTML(message)}`;
+                DOM.toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 2600);
+            };
+
+            // ──────────────────────────────────────────────
+            // BOOKMARK MANAGER (localStorage)
+            // ──────────────────────────────────────────────
+            const BookmarkManager = {
+                load() {
+                    try {
+                        const stored = localStorage.getItem('newsnova_bookmarks');
+                        State.bookmarks = stored ? JSON.parse(stored) : [];
+                    } catch {
+                        State.bookmarks = [];
+                    }
+                },
+                save() {
+                    try {
+                        localStorage.setItem('newsnova_bookmarks', JSON.stringify(State.bookmarks));
+                    } catch {
+                        showToast('Storage full. Please clear some bookmarks.', '⚠️');
+                    }
+                },
+                isBookmarked(article) {
+                    const url = article.url || article.id || '';
+                    return State.bookmarks.some((b) => b.url === url);
+                },
+                toggle(article) {
+                    const url = article.url || article.id || '';
+                    const existingIndex = State.bookmarks.findIndex((b) => b.url === url);
+                    if (existingIndex > -1) {
+                        State.bookmarks.splice(existingIndex, 1);
+                        this.save();
+                        this.updateBadge();
+                        return false; // removed
+                    } else {
+                        if (State.bookmarks.length >= CONFIG.MAX_BOOKMARKS) {
+                            showToast(`Maximum ${CONFIG.MAX_BOOKMARKS} bookmarks allowed.`, '⚠️');
+                            return true; // still bookmarked (didn't add)
+                        }
+                        State.bookmarks.push({
+                            id: generateId(),
+                            title: article.title,
+                            description: article.description,
+                            url: article.url,
+                            urlToImage: article.urlToImage,
+                            source: article.source?.name || article.source || 'Unknown',
+                            publishedAt: article.publishedAt,
+                            bookmarkedAt: new Date().toISOString(),
+                        });
+                        this.save();
+                        this.updateBadge();
+                        return true; // added
+                    }
+                },
+                updateBadge() {
+                    const count = State.bookmarks.length;
+                    DOM.bookmarkBadge.textContent = count > 0 ? count : '';
+                    if (count > 0) {
+                        DOM.bookmarkBadge.classList.add('pop');
+                        setTimeout(() => DOM.bookmarkBadge.classList.remove('pop'), 400);
+                    }
+                },
+                getList() {
+                    return [...State.bookmarks].reverse();
+                },
+            };
+
+            // ──────────────────────────────────────────────
+            // THEME MANAGER
+            // ──────────────────────────────────────────────
+            const ThemeManager = {
+                init() {
+                    const saved = localStorage.getItem('newsnova_theme');
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    State.isDarkMode = saved ? saved === 'dark' : prefersDark;
+                    this.apply();
+                    this.updateIcon();
+                },
+                toggle() {
+                    State.isDarkMode = !State.isDarkMode;
+                    this.apply();
+                    this.updateIcon();
+                    localStorage.setItem('newsnova_theme', State.isDarkMode ? 'dark' : 'light');
+                },
+                apply() {
+                    document.documentElement.setAttribute('data-theme', State.isDarkMode ? 'dark' : 'light');
+                    document.querySelector('meta[name="theme-color"]')
+                        .setAttribute('content', State.isDarkMode ? '#0f172a' : '#3b82f6');
+                },
+                updateIcon() {
+                    DOM.btnThemeToggle.textContent = State.isDarkMode ? '☀️' : '🌙';
+                    DOM.btnThemeToggle.setAttribute('aria-label',
+                        State.isDarkMode ? 'Switch to light mode' : 'Switch to dark mode');
+                },
+            };
+
+            // ──────────────────────────────────────────────
+            // MOCK DATA GENERATOR
+            // ──────────────────────────────────────────────
+            const MockData = {
+                _articles: null,
+                generateArticles() {
+                    if (this._articles) return this._articles;
+                    const categories = ['general', 'business', 'technology', 'sports', 'entertainment', 'health',
+                        'science'
+                    ];
+                    const sources = [
+                        'Reuters', 'Associated Press', 'Bloomberg', 'TechCrunch', 'The Verge', 'ESPN',
+                        'BBC News', 'CNN', 'The Guardian', 'Wired', 'Nature', 'Science Daily',
+                        'Financial Times', 'CNBC', 'NBC News', 'ABC News', 'The Washington Post',
+                    ];
+                    const topics = {
+                        general: [
+                            'Global Summit Addresses Climate Policy',
+                            'International Trade Agreement Reached',
+                            'Major Infrastructure Bill Passes',
+                            'World Leaders Gather for Economic Forum',
+                            'Historic Peace Accord Signed',
+                            'Global Health Initiative Launched',
+                            'Education Reform Debate Intensifies',
+                            'Cultural Heritage Sites Receive Funding',
+                        ],
+                        business: [
+                            'Stock Markets Rally on Strong Earnings',
+                            'Startup Unicorn Valued at $12 Billion',
+                            'Supply Chain Innovations Reshape Industry',
+                            'Central Bank Adjusts Interest Rates',
+                            'Merger Creates Industry Giant',
+                            'Small Business Recovery Gains Momentum',
+                            'Cryptocurrency Regulation Framework Proposed',
+                            'Real Estate Market Shows Resilience',
+                        ],
+                        technology: [
+                            'AI Breakthrough Promises Faster Processing',
+                            'Quantum Computing Milestone Achieved',
+                            'New Smartphone Features Revolutionary Display',
+                            'Cybersecurity Threats on the Rise',
+                            'SpaceX Launches Next-Gen Satellite Network',
+                            'Autonomous Vehicles Get Regulatory Green Light',
+                            'Blockchain Technology Transforms Supply Chains',
+                            '5G Expansion Reaches Rural Communities',
+                        ],
+                        sports: [
+                            'Underdog Team Wins Championship Title',
+                            'Olympic Athlete Breaks World Record',
+                            'Transfer Window Sees Record Deals',
+                            'Tennis Star Claims Grand Slam Victory',
+                            'Formula 1 Season Finale Thrills Fans',
+                            'Basketball Legend Announces Retirement',
+                            'Cricket World Cup Draws Record Viewership',
+                            'Marathon Runner Completes Historic Feat',
+                        ],
+                        entertainment: [
+                            'Blockbuster Film Breaks Box Office Records',
+                            'Streaming Platform Launches Original Series',
+                            'Music Festival Draws Massive Crowd',
+                            'Award Season Nominations Announced',
+                            'Indie Game Captures Global Attention',
+                            'Broadway Show Receives Rave Reviews',
+                            'Virtual Reality Concert Experience Debuts',
+                            'Celebrity Philanthropy Initiative Goes Viral',
+                        ],
+                        health: [
+                            'New Study Reveals Benefits of Mediterranean Diet',
+                            'Vaccine Research Shows Promising Results',
+                            'Mental Health Awareness Campaign Launches',
+                            'Telemedicine Expands Access to Care',
+                            'Exercise Linked to Improved Cognitive Function',
+                            'Sleep Science Breakthrough Announced',
+                            'Global Health Organization Updates Guidelines',
+                            'Nutrition Experts Recommend Plant-Based Options',
+                        ],
+                        science: [
+                            'NASA Rover Discovers Evidence of Ancient Water',
+                            'Gene Editing Technology Advances',
+                            'Archaeologists Unearth Ancient City',
+                            'Climate Research Reveals New Patterns',
+                            'Particle Physics Experiment Yields Surprises',
+                            'Marine Biologists Discover New Species',
+                            'Renewable Energy Efficiency Hits New High',
+                            'Space Telescope Captures Stunning Images',
+                        ],
+                    };
+
+                    this._articles = [];
+                    let id = 0;
+                    categories.forEach((cat) => {
+                        topics[cat].forEach((title, idx) => {
+                            id++;
+                            const sourceName = sources[Math.floor(Math.random() * sources.length)];
+                            this._articles.push({
+                                id: `mock_${id}`,
+                                title,
+                                description: `This is a detailed description for "${title}". The story covers key developments and expert analysis from leading voices in the field. Readers can expect in-depth coverage of the events as they unfold.`,
+                                url: `https://example.com/article/${id}`,
+                                urlToImage: `https://picsum.photos/seed/news${id}/600/375`,
+                                source: { id: null, name: sourceName },
+                                publishedAt: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 *
+                                    1000)).toISOString(),
+                                category: cat,
+                            });
+                        });
+                    });
+                    return this._articles;
+                },
+                getByCategory(category) {
+                    const all = this.generateArticles();
+                    if (category === 'general') return [...all].sort(() => Math.random() - 0.5);
+                    return all.filter((a) => a.category === category);
+                },
+                search(query) {
+                    const all = this.generateArticles();
+                    const q = query.toLowerCase();
+                    return all.filter(
+                        (a) =>
+                        a.title.toLowerCase().includes(q) ||
+                        a.description.toLowerCase().includes(q) ||
+                        (a.source?.name || '').toLowerCase().includes(q)
+                    );
+                },
+            };
+
+            // ──────────────────────────────────────────────
+            // API SERVICE (Fetch API with mock fallback)
+            // ──────────────────────────────────────────────
+            const ApiService = {
+                async fetchTopHeadlines(category, page = 1) {
+                    if (CONFIG.USE_MOCK_DATA || !CONFIG.NEWS_API_KEY) {
+                        return this._mockFetch(category, page);
+                    }
+                    try {
+                        const url =
+                            `${CONFIG.NEWS_API_BASE}/top-headlines?category=${category}&pageSize=${CONFIG.ARTICLES_PER_PAGE}&page=${page}&country=us&apiKey=${CONFIG.NEWS_API_KEY}`;
+                        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                        const data = await response.json();
+                        return { articles: data.articles || [], totalResults: data.totalResults || 0 };
+                    } catch (err) {
+                        console.warn('API fetch failed, using mock data:', err.message);
+                        return this._mockFetch(category, page);
+                    }
+                },
+                async fetchSearch(query, page = 1) {
+                    if (CONFIG.USE_MOCK_DATA || !CONFIG.NEWS_API_KEY) {
+                        return this._mockSearch(query, page);
+                    }
+                    try {
+                        const url =
+                            `${CONFIG.NEWS_API_BASE}/everything?q=${encodeURIComponent(query)}&pageSize=${CONFIG.ARTICLES_PER_PAGE}&page=${page}&sortBy=publishedAt&apiKey=${CONFIG.NEWS_API_KEY}`;
+                        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                        const data = await response.json();
+                        return { articles: data.articles || [], totalResults: data.totalResults || 0 };
+                    } catch (err) {
+                        console.warn('Search API failed, using mock data:', err.message);
+                        return this._mockSearch(query, page);
+                    }
+                },
+                _mockFetch(category, page) {
+                    const all = MockData.getByCategory(category);
+                    const start = (page - 1) * CONFIG.ARTICLES_PER_PAGE;
+                    const slice = all.slice(start, start + CONFIG.ARTICLES_PER_PAGE);
+                    return Promise.resolve({
+                        articles: slice,
+                        totalResults: all.length,
+                    });
+                },
+                _mockSearch(query, page) {
+                    const all = MockData.search(query);
+                    const start = (page - 1) * CONFIG.ARTICLES_PER_PAGE;
+                    const slice = all.slice(start, start + CONFIG.ARTICLES_PER_PAGE);
+                    return Promise.resolve({
+                        articles: slice,
+                        totalResults: all.length,
+                    });
+                },
+            };
+
+            // ──────────────────────────────────────────────
+            // UI RENDERER
+            // ──────────────────────────────────────────────
+            const Renderer = {
+                renderSkeletons(count = CONFIG.ARTICLES_PER_PAGE) {
+                    DOM.articleGrid.innerHTML = '';
+                    for (let i = 0; i < count; i++) {
+                        const card = document.createElement('div');
+                        card.className = 'skeleton-card';
+                        card.setAttribute('aria-hidden', 'true');
+                        card.innerHTML = `
+                  <div class="skeleton-card__image"></div>
+                  <div class="skeleton-card__body">
+                    <div class="skeleton-card__line skeleton-card__line--long"></div>
+                    <div class="skeleton-card__line skeleton-card__line--medium"></div>
+                    <div class="skeleton-card__line skeleton-card__line--short"></div>
+                  </div>`;
+                        DOM.articleGrid.appendChild(card);
+                    }
+                },
+
+                renderArticles(articles, append = false) {
+                    if (!append) {
+                        DOM.articleGrid.innerHTML = '';
+                    }
+                    if (articles.length === 0 && !append) {
+                        this.renderEmptyState('No articles found', 'Try a different search or category.', '🔍');
+                        return;
+                    }
+                    articles.forEach((article) => {
+                        const card = this.createArticleCard(article);
+                        DOM.articleGrid.appendChild(card);
+                    });
+                },
+
+                createArticleCard(article) {
+                    const card = document.createElement('article');
+                    card.className = 'article-card';
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('role', 'button');
+                    card.setAttribute('aria-label', `Read article: ${article.title}`);
+                    card.dataset.articleId = article.id || generateId();
+                    card.dataset.articleData = JSON.stringify({
+                        title: article.title,
+                        description: article.description,
+                        url: article.url,
+                        urlToImage: article.urlToImage,
+                        source: article.source?.name || article.source || 'Unknown',
+                        publishedAt: article.publishedAt,
+                    });
+
+                    const isBookmarked = BookmarkManager.isBookmarked(article);
+                    const imageHTML = article.urlToImage ?
+                        `<img class="article-card__image" src="${sanitizeHTML(article.urlToImage)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">` +
+                        `<div class="article-card__image--fallback" style="display:none;" aria-hidden="true">📰</div>` :
+                        `<div class="article-card__image--fallback" aria-hidden="true">📰</div>`;
+
+                    card.innerHTML = `
+                <div class="article-card__image-wrapper">
+                  ${imageHTML}
+                  <span class="article-card__source-tag">${sanitizeHTML(article.source?.name || article.source || 'Unknown')}</span>
+                  <button class="article-card__bookmark-btn ${isBookmarked ? 'bookmarked' : ''}"
+                          aria-label="${isBookmarked ? 'Remove bookmark' : 'Bookmark this article'}"
+                          type="button"
+                          data-action="bookmark-toggle">
+                    ${isBookmarked ? '⭐' : '☆'}
+                  </button>
+                </div>
+                <div class="article-card__body">
+                  <h3 class="article-card__title">${sanitizeHTML(article.title)}</h3>
+                  <p class="article-card__description">${sanitizeHTML(article.description || 'No description available.')}</p>
+                  <div class="article-card__meta">
+                    <span>${sanitizeHTML(article.source?.name || article.source || 'Unknown')}</span>
+                    <span class="article-card__meta-dot" aria-hidden="true"></span>
+                    <time datetime="${article.publishedAt || ''}">${formatDate(article.publishedAt)}</time>
+                  </div>
+                </div>`;
+                    return card;
+                },
+
+                renderEmptyState(title, subtitle, icon = '📭') {
+                    DOM.articleGrid.innerHTML = '';
+                    DOM.statusMessage.style.display = 'block';
+                    DOM.statusMessage.innerHTML = `
+                <span class="main__status-icon">${icon}</span>
+                <p class="main__status-title">${sanitizeHTML(title)}</p>
+                <p class="main__status-subtitle">${sanitizeHTML(subtitle)}</p>`;
+                },
+
+                renderErrorState(message) {
+                    DOM.articleGrid.innerHTML = '';
+                    DOM.statusMessage.style.display = 'block';
+                    DOM.statusMessage.innerHTML = `
+                <span class="main__status-icon">⚠️</span>
+                <p class="main__status-title">Something went wrong</p>
+                <p class="main__status-subtitle">${sanitizeHTML(message)}</p>
+                <button class="main__status-retry" id="btn-retry">Try Again</button>`;
+                    document.getElementById('btn-retry')?.addEventListener('click', () => {
+                        DOM.statusMessage.style.display = 'none';
+                        loadArticles(true);
+                    });
+                },
+
+                hideStatus() {
+                    DOM.statusMessage.style.display = 'none';
+                },
+
+                renderCategoryNav() {
+                    DOM.categoryList.innerHTML = '';
+                    CONFIG.CATEGORIES.forEach((cat) => {
+                        const li = document.createElement('li');
+                        li.className = 'category-nav__item';
+                        const btn = document.createElement('button');
+                        btn.className =
+                            `category-nav__btn${cat.id === State.activeCategory ? ' active' : ''}`;
+                        btn.textContent = cat.label;
+                        btn.setAttribute('role', 'tab');
+                        btn.setAttribute('aria-selected', cat.id === State.activeCategory ? 'true' : 'false');
+                        btn.dataset.category = cat.id;
+                        btn.addEventListener('click', () => switchCategory(cat.id));
+                        li.appendChild(btn);
+                        DOM.categoryList.appendChild(li);
+                    });
+                },
+
+                updateActiveCategory() {
+                    const buttons = DOM.categoryList.querySelectorAll('.category-nav__btn');
+                    buttons.forEach((btn) => {
+                        const isActive = btn.dataset.category === State.activeCategory;
+                        btn.classList.toggle('active', isActive);
+                        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                    });
+                },
+
+                renderBookmarksList() {
+                    const list = BookmarkManager.getList();
+                    if (list.length === 0) {
+                        DOM.bookmarksList.innerHTML = `
+                  <div class="bookmarks-panel__empty">
+                    <span class="bookmarks-panel__empty-icon">📭</span>
+                    <p>No bookmarks yet.</p>
+                    <p style="font-size:0.85rem;color:var(--color-text-tertiary);">Click the ☆ icon on any article to save it here.</p>
+                  </div>`;
+                        return;
+                    }
+                    DOM.bookmarksList.innerHTML = '';
+                    list.forEach((bm) => {
+                        const item = document.createElement('div');
+                        item.className = 'bookmark-item';
+                        item.setAttribute('tabindex', '0');
+                        item.setAttribute('role', 'button');
+                        item.setAttribute('aria-label', `Read bookmarked article: ${bm.title}`);
+                        item.innerHTML = `
+                  <img class="bookmark-item__thumb"
+                       src="${sanitizeHTML(bm.urlToImage || '')}"
+                       alt=""
+                       loading="lazy"
+                       onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><rect fill=%22%23ccc%22 width=%2260%22 height=%2260%22/><text x=%2230%22 y=%2235%22 text-anchor=%22middle%22 font-size=%2220%22>📰</text></svg>';">
+                  <div class="bookmark-item__info">
+                    <p class="bookmark-item__title">${sanitizeHTML(bm.title)}</p>
+                    <p class="bookmark-item__source">${sanitizeHTML(bm.source)} · ${formatDate(bm.publishedAt)}</p>
+                  </div>
+                  <button class="bookmark-item__remove" aria-label="Remove bookmark" type="button" data-action="remove-bookmark" data-url="${sanitizeHTML(bm.url)}">🗑️</button>`;
+                        // Click on item opens article
+                        item.addEventListener('click', (e) => {
+                            if (e.target.closest('[data-action="remove-bookmark"]')) return;
+                            openArticleModal({
+                                title: bm.title,
+                                description: bm.description,
+                                url: bm.url,
+                                urlToImage: bm.urlToImage,
+                                source: { name: bm.source },
+                                publishedAt: bm.publishedAt,
+                            });
+                            closeBookmarksPanel();
+                        });
+                        // Remove button
+                        item.querySelector('[data-action="remove-bookmark"]').addEventListener('click',
+                            (e) => {
+                                e.stopPropagation();
+                                BookmarkManager.toggle({ url: bm.url });
+                                BookmarkManager.updateBadge();
+                                Renderer.renderBookmarksList();
+                                refreshVisibleBookmarkIcons();
+                                showToast('Bookmark removed', '🗑️');
+                            });
+                        DOM.bookmarksList.appendChild(item);
+                    });
+                },
+            };
+
+            // ──────────────────────────────────────────────
+            // INFINITE SCROLL (Intersection Observer)
+            // ──────────────────────────────────────────────
+            let currentPage = 1;
+            let totalResults = 0;
+            let isLoadingMore = false;
+
+            const scrollObserver = new IntersectionObserver(
+                (entries) => {
+                    const entry = entries[0];
+                    if (entry.isIntersecting && !isLoadingMore && State.hasMore && !State.isLoading) {
+                        loadMoreArticles();
+                    }
+                }, { rootMargin: '200px', threshold: 0.1 }
+            );
+
+            // ──────────────────────────────────────────────
+            // CORE: LOAD ARTICLES
+            // ──────────────────────────────────────────────
+            async function loadArticles(reset = true) {
+                if (State.isLoading) return;
+                State.isLoading = true;
+                if (reset) {
+                    currentPage = 1;
+                    State.displayedCount = 0;
+                    State.hasMore = true;
+                    State.articles = [];
+                    DOM.articleGrid.innerHTML = '';
+                    Renderer.hideStatus();
+                    Renderer.renderSkeletons();
+                    DOM.scrollLoader.style.display = 'none';
+                }
+
+                DOM.articleGrid.setAttribute('aria-busy', 'true');
+                DOM.scrollLoader.style.display = reset ? 'none' : 'block';
+
+                try {
+                    let result;
+                    if (State.searchQuery.trim()) {
+                        result = await ApiService.fetchSearch(State.searchQuery.trim(), currentPage);
+                    } else {
+                        result = await ApiService.fetchTopHeadlines(State.activeCategory, currentPage);
+                    }
+                    const articles = result.articles || [];
+                    totalResults = result.totalResults || 0;
+
+                    if (reset) {
+                        State.articles = articles;
+                        State.displayedCount = articles.length;
+                        Renderer.renderArticles(articles, false);
+                    } else {
+                        const newArticles = articles.filter(
+                            (a) => !State.articles.some((existing) => existing.url === a.url)
+                        );
+                        State.articles = [...State.articles, ...newArticles];
+                        State.displayedCount += newArticles.length;
+                        Renderer.renderArticles(newArticles, true);
+                    }
+
+                    State.hasMore = State.displayedCount < totalResults && articles.length === CONFIG
+                        .ARTICLES_PER_PAGE;
+                    if (!State.hasMore && State.articles.length === 0) {
+                        Renderer.renderEmptyState('No articles found',
+                            'Try a different search term or category.', '🔍');
+                    }
+                } catch (err) {
+                    console.error('Load articles error:', err);
+                    if (reset) {
+                        Renderer.renderErrorState(err.message || 'Failed to load articles. Please try again.');
+                    } else {
+                        showToast('Failed to load more articles.', '⚠️');
+                    }
+                } finally {
+                    State.isLoading = false;
+                    isLoadingMore = false;
+                    DOM.articleGrid.setAttribute('aria-busy', 'false');
+                    DOM.scrollLoader.style.display = 'none';
+                    if (State.hasMore && State.articles.length > 0) {
+                        DOM.scrollLoader.style.display = 'none';
+                    }
+                }
+            }
+
+            async function loadMoreArticles() {
+                if (isLoadingMore || !State.hasMore || State.isLoading) return;
+                isLoadingMore = true;
+                currentPage++;
+                DOM.scrollLoader.style.display = 'block';
+                await loadArticles(false);
+                isLoadingMore = false;
+                if (!State.hasMore) {
+                    DOM.scrollLoader.style.display = 'none';
+                }
+            }
+
+            // ──────────────────────────────────────────────
+            // CATEGORY SWITCHING
+            // ──────────────────────────────────────────────
+            function switchCategory(categoryId) {
+                if (State.activeCategory === categoryId && !State.searchQuery) return;
+                State.activeCategory = categoryId;
+                State.searchQuery = '';
+                DOM.searchInput.value = '';
+                DOM.searchClear.classList.remove('visible');
+                Renderer.updateActiveCategory();
+                loadArticles(true);
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ──────────────────────────────────────────────
+            // SEARCH HANDLING
+            // ──────────────────────────────────────────────
+            const handleSearch = debounce((query) => {
+                State.searchQuery = query;
+                if (query.trim()) {
+                    DOM.searchClear.classList.add('visible');
+                } else {
+                    DOM.searchClear.classList.remove('visible');
+                }
+                loadArticles(true);
+            }, CONFIG.DEBOUNCE_DELAY);
+
+            function clearSearch() {
+                DOM.searchInput.value = '';
+                State.searchQuery = '';
+                DOM.searchClear.classList.remove('visible');
+                loadArticles(true);
+                DOM.searchInput.focus();
+            }
+
+            // ──────────────────────────────────────────────
+            // ARTICLE MODAL
+            // ──────────────────────────────────────────────
+            function openArticleModal(articleData) {
+                State.currentModalArticle = articleData;
+                DOM.modalTitle.textContent = articleData.title || 'Untitled';
+                DOM.modalSource.textContent = articleData.source?.name || articleData.source || 'Unknown Source';
+                DOM.modalMeta.innerHTML = `
+              <span>${sanitizeHTML(articleData.source?.name || articleData.source || 'Unknown')}</span>
+              <span aria-hidden="true">·</span>
+              <time datetime="${articleData.publishedAt || ''}">${formatDate(articleData.publishedAt)}</time>`;
+                DOM.modalDescription.textContent = articleData.description || 'No description available.';
+                DOM.modalReadMore.href = articleData.url || '#';
+                DOM.modalReadMore.target = '_blank';
+                DOM.modalReadMore.rel = 'noopener noreferrer';
+
+                // Image
+                if (articleData.urlToImage) {
+                    DOM.modalImageWrapper.innerHTML =
+                        `<img class="modal__image" src="${sanitizeHTML(articleData.urlToImage)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="modal__image--fallback" style="display:none;" aria-hidden="true">📰</div>`;
+                } else {
+                    DOM.modalImageWrapper.innerHTML =
+                        '<div class="modal__image--fallback" aria-hidden="true">📰</div>';
+                }
+
+                // Bookmark button state
+                const isBm = BookmarkManager.isBookmarked(articleData);
+                DOM.modalBookmarkBtn.classList.toggle('bookmarked', isBm);
+                DOM.modalBookmarkBtn.innerHTML = isBm ? '⭐ Bookmarked' : '🔖 Bookmark';
+
+                // Open modal
+                DOM.modalOverlay.classList.add('open');
+                DOM.modalOverlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                DOM.modalClose.focus();
+            }
+
+            function closeArticleModal() {
+                DOM.modalOverlay.classList.remove('open');
+                DOM.modalOverlay.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                State.currentModalArticle = null;
+            }
+
+            function toggleBookmarkFromModal() {
+                if (!State.currentModalArticle) return;
+                const added = BookmarkManager.toggle(State.currentModalArticle);
+                BookmarkManager.updateBadge();
+                const isBm = BookmarkManager.isBookmarked(State.currentModalArticle);
+                DOM.modalBookmarkBtn.classList.toggle('bookmarked', isBm);
+                DOM.modalBookmarkBtn.innerHTML = isBm ? '⭐ Bookmarked' : '🔖 Bookmark';
+                refreshVisibleBookmarkIcons();
+                showToast(added ? 'Article bookmarked! ⭐' : 'Bookmark removed', added ? '⭐' : '🗑️');
+                Renderer.renderBookmarksList();
+            }
+
+            function refreshVisibleBookmarkIcons() {
+                document.querySelectorAll('.article-card__bookmark-btn').forEach((btn) => {
+                    const card = btn.closest('.article-card');
+                    if (!card || !card.dataset.articleData) return;
+                    try {
+                        const data = JSON.parse(card.dataset.articleData);
+                        const isBm = BookmarkManager.isBookmarked(data);
+                        btn.classList.toggle('bookmarked', isBm);
+                        btn.innerHTML = isBm ? '⭐' : '☆';
+                        btn.setAttribute('aria-label', isBm ? 'Remove bookmark' : 'Bookmark this article');
+                    } catch { /* ignore */ }
+                });
+            }
+
+            // ──────────────────────────────────────────────
+            // BOOKMARKS PANEL
+            // ──────────────────────────────────────────────
+            function openBookmarksPanel() {
+                Renderer.renderBookmarksList();
+                DOM.bookmarksPanel.classList.add('open');
+                DOM.bookmarksOverlay.classList.add('open');
+                DOM.bookmarksOverlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                DOM.bookmarksClose.focus();
+            }
+
+            function closeBookmarksPanel() {
+                DOM.bookmarksPanel.classList.remove('open');
+                DOM.bookmarksOverlay.classList.remove('open');
+                DOM.bookmarksOverlay.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            // ──────────────────────────────────────────────
+            // EVENT DELEGATION
+            // ──────────────────────────────────────────────
+            function setupGlobalEventDelegation() {
+                // Article card clicks → open modal
+                DOM.articleGrid.addEventListener('click', (e) => {
+                    const card = e.target.closest('.article-card');
+                    if (!card) return;
+
+                    // If clicking bookmark button, handle separately
+                    if (e.target.closest('[data-action="bookmark-toggle"]')) {
+                        e.stopPropagation();
+                        const btn = e.target.closest('[data-action="bookmark-toggle"]');
+                        try {
+                            const data = JSON.parse(card.dataset.articleData);
+                            const added = BookmarkManager.toggle(data);
+                            BookmarkManager.updateBadge();
+                            btn.classList.toggle('bookmarked', BookmarkManager.isBookmarked(data));
+                            btn.innerHTML = BookmarkManager.isBookmarked(data) ? '⭐' : '☆';
+                            btn.setAttribute('aria-label', BookmarkManager.isBookmarked(data) ?
+                                'Remove bookmark' : 'Bookmark this article');
+                            showToast(added ? 'Article bookmarked! ⭐' : 'Bookmark removed', added ? '⭐' :
+                                '🗑️');
+                            Renderer.renderBookmarksList();
+                        } catch { /* ignore */ }
+                        return;
+                    }
+
+                    // Open modal
+                    try {
+                        const data = JSON.parse(card.dataset.articleData);
+                        openArticleModal(data);
+                    } catch { /* ignore */ }
+                });
+
+                // Keyboard support for article cards
+                DOM.articleGrid.addEventListener('keydown', (e) => {
+                    const card = e.target.closest('.article-card');
+                    if (!card) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        try {
+                            const data = JSON.parse(card.dataset.articleData);
+                            openArticleModal(data);
+                        } catch { /* ignore */ }
+                    }
+                });
+
+                // Bookmark items in panel use event delegation on the list
+                DOM.bookmarksList.addEventListener('click', (e) => {
+                    const removeBtn = e.target.closest('[data-action="remove-bookmark"]');
+                    if (removeBtn) {
+                        e.stopPropagation();
+                        const url = removeBtn.dataset.url;
+                        BookmarkManager.toggle({ url });
+                        BookmarkManager.updateBadge();
+                        Renderer.renderBookmarksList();
+                        refreshVisibleBookmarkIcons();
+                        showToast('Bookmark removed', '🗑️');
+                        return;
+                    }
+                    const item = e.target.closest('.bookmark-item');
+                    if (item) {
+                        // handled by inline click listener
+                    }
+                });
+            }
+
+            // ──────────────────────────────────────────────
+            // INITIALIZATION
+            // ──────────────────────────────────────────────
+            function init() {
+                // Set footer year
+                DOM.footerYear.textContent = new Date().getFullYear();
+
+                // Load theme
+                ThemeManager.init();
+
+                // Load bookmarks
+                BookmarkManager.load();
+                BookmarkManager.updateBadge();
+
+                // Render category navigation
+                Renderer.renderCategoryNav();
+
+                // Setup infinite scroll observer
+                scrollObserver.observe(DOM.scrollSentinel);
+
+                // Setup event delegation
+                setupGlobalEventDelegation();
+
+                // Event listeners
+                DOM.btnThemeToggle.addEventListener('click', () => ThemeManager.toggle());
+                DOM.btnBookmarksPanel.addEventListener('click', () => openBookmarksPanel());
+                DOM.bookmarksClose.addEventListener('click', () => closeBookmarksPanel());
+                DOM.bookmarksOverlay.addEventListener('click', () => closeBookmarksPanel());
+                DOM.modalClose.addEventListener('click', () => closeArticleModal());
+                DOM.modalCloseBtn.addEventListener('click', () => closeArticleModal());
+                DOM.modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === DOM.modalOverlay) closeArticleModal();
+                });
+                DOM.modalBookmarkBtn.addEventListener('click', () => toggleBookmarkFromModal());
+                DOM.searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+                DOM.searchClear.addEventListener('click', () => clearSearch());
+
+                // Keyboard: Escape closes modals/panels
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        if (DOM.modalOverlay.classList.contains('open')) {
+                            closeArticleModal();
+                        } else if (DOM.bookmarksPanel.classList.contains('open')) {
+                            closeBookmarksPanel();
+                        }
+                    }
+                });
+
+                // Initial load
+                loadArticles(true);
+
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                    const saved = localStorage.getItem('newsnova_theme');
+                    if (!saved) {
+                        State.isDarkMode = e.matches;
+                        ThemeManager.apply();
+                        ThemeManager.updateIcon();
+                    }
+                });
+
+                console.log('🚀 NewsNova initialized successfully!');
+                console.log(`   Theme: ${State.isDarkMode ? 'Dark' : 'Light'} mode`);
+                console.log(`   Bookmarks: ${State.bookmarks.length} saved`);
+                console.log(`   API Mode: ${CONFIG.USE_MOCK_DATA || !CONFIG.NEWS_API_KEY ? 'Mock Data (demo)' : 'Live NewsAPI'}`);
+                if (!CONFIG.NEWS_API_KEY && !CONFIG.USE_MOCK_DATA) {
+                    console.log('   💡 Tip: Add your NewsAPI key in CONFIG.NEWS_API_KEY for live data.');
+                }
+            }
+
+            // ──────────────────────────────────────────────
+            // START THE APP
+            // ──────────────────────────────────────────────
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>
