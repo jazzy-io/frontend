@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Gallery - Jazzy IO Frontend Templates</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #475569;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--background) 0%, #1a1f3a 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            background: var(--surface-light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+            min-height: calc(100vh - 400px);
+        }
+
+        /* Filters */
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Gallery Grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 1024px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Template Card */
+        .template-card {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .template-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .template-card:hover::before {
+            left: 100%;
+        }
+
+        .template-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2), 0 0 20px rgba(99, 102, 241, 0.1);
+            background: linear-gradient(135deg, var(--surface-light) 0%, rgba(99, 102, 241, 0.1) 100%);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .card-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .card-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+            padding: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 0.75rem 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 45px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0 1rem;
+        }
+
+        /* Stats */
+        .stats-section {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* View Mode Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .view-toggle-btn {
+            padding: 0.5rem 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .view-toggle-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1>🎨 Template Gallery</h1>
+            <p class="subtitle">Explore our collection of beautiful, responsive frontend templates</p>
+            
+            <!-- Search and Filters -->
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; margin-top: 1.5rem;">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search templates...">
+                </div>
+                
+                <div class="filter-section">
+                    <span class="filter-label">Sort:</span>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-sort="name">A-Z</button>
+                        <button class="filter-btn" data-sort="newest">Newest</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Statistics -->
+        <div class="stats-section">
+            <div class="stat">
+                <div class="stat-number" id="totalCount">20</div>
+                <div class="stat-label">Total Templates</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="displayedCount">20</div>
+                <div class="stat-label">Displayed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="pageInfo">1</div>
+                <div class="stat-label">Current Page</div>
+            </div>
+        </div>
+
+        <!-- Gallery -->
+        <div id="gallery" class="gallery"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No templates found</h3>
+            <p>Try adjusting your search or filters</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <button class="pagination-btn" id="prevBtn" onclick="previousPage()">← Previous</button>
+            <div id="paginationNumbers" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Next →</button>
+            <span class="pagination-info" id="paginationInfo"></span>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#home">Home</a>
+                <a href="https://github.com/jazzy-io/frontend" target="_blank">GitHub Repository</a>
+                <a href="#templates">Templates</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <p>&copy; 2024 Jazzy IO Frontend. All rights reserved. | Made with ❤️</p>
+        </div>
+    </footer>
+
+    <script>
+        // Template Data
+        const templates = [
+            { name: 'CareerLaunch', icon: '🚀', description: 'Career advancement and job search platform' },
+            { name: 'ChatHive', icon: '💬', description: 'Real-time messaging and communication app' },
+            { name: 'CineScope', icon: '🎬', description: 'Movie streaming and review platform' },
+            { name: 'DevLink', icon: '💻', description: 'Developer networking and collaboration hub' },
+            { name: 'EcoTrack', icon: '🌱', description: 'Environmental impact tracking dashboard' },
+            { name: 'EventPulse', icon: '🎉', description: 'Event management and ticketing platform' },
+            { name: 'FinTrackPro', icon: '💰', description: 'Personal finance and investment tracker' },
+            { name: 'FitSync', icon: '💪', description: 'Fitness tracking and workout planner' },
+            { name: 'FoodFusion', icon: '🍔', description: 'Recipe sharing and food discovery app' },
+            { name: 'MindMap', icon: '🧠', description: 'Mind mapping and idea organization tool' },
+            { name: 'NewsNova', icon: '📰', description: 'News aggregation and personalized feed' },
+            { name: 'PhotoFlow', icon: '📸', description: 'Photo editing and sharing platform' },
+            { name: 'PulseBoard', icon: '📊', description: 'Analytics and metrics dashboard' },
+            { name: 'ReadNest', icon: '📚', description: 'Book reading and review community' },
+            { name: 'ShopFlux', icon: '🛍️', description: 'E-commerce marketplace solution' },
+            { name: 'SkillSphere', icon: '🎓', description: 'Online learning and skill development' },
+            { name: 'TaskForge', icon: '✅', description: 'Task management and productivity suite' },
+            { name: 'TravelOrbit', icon: '✈️', description: 'Travel planning and itinerary builder' },
+            { name: 'TuneWave', icon: '🎵', description: 'Music streaming and playlist curator' },
+            { name: 'WeatherVista', icon: '⛅', description: 'Weather forecasting and alerts app' }
+        ];
+
+        // State
+        let filteredTemplates = [...templates];
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let sortOrder = 'name';
+
+        // Initialize
+        function init() {
+            renderGallery();
+            updatePagination();
+            setupEventListeners();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            document.querySelectorAll('[data-sort]').forEach(btn => {
+                btn.addEventListener('click', (e) => handleSort(e.target.dataset.sort, e.target));
+            });
+        }
+
+        // Handle Search
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredTemplates = templates.filter(template =>
+                template.name.toLowerCase().includes(searchTerm) ||
+                template.description.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderGallery();
+            updatePagination();
+        }
+
+        // Handle Sort
+        function handleSort(type, button) {
+            sortOrder = type;
+            document.querySelectorAll('[data-sort]').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            if (type === 'name') {
+                filteredTemplates.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (type === 'newest') {
+                filteredTemplates.reverse();
+            }
+
+            currentPage = 1;
+            renderGallery();
+            updatePagination();
+        }
+
+        // Render Gallery
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredTemplates.length === 0) {
+                gallery.style.display = 'none';
+                emptyState.style.display = 'block';
+                updateStats(0);
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filteredTemplates.slice(start, end);
+
+            gallery.innerHTML = pageItems.map(template => `
+                <div class="template-card">
+                    <div class="card-icon">${template.icon}</div>
+                    <h3 class="card-title">${template.name}</h3>
+                    <p class="card-description">${template.description}</p>
+                    <a href="${template.name}/" class="card-link">Explore Template →</a>
+                </div>
+            `).join('');
+
+            updateStats(pageItems.length);
+        }
+
+        // Update Statistics
+        function updateStats(displayedCount) {
+            document.getElementById('totalCount').textContent = templates.length;
+            document.getElementById('displayedCount').textContent = displayedCount;
+            document.getElementById('pageInfo').textContent = currentPage;
+        }
+
+        // Update Pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
+            const paginationNumbers = document.getElementById('paginationNumbers');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            paginationNumbers.innerHTML = '';
+
+            // Generate page numbers
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            // First page button
+            if (startPage > 1) {
+                const btn = createPageButton(1);
+                paginationNumbers.appendChild(btn);
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationNumbers.appendChild(ellipsis);
+                }
+            }
+
+            // Middle page buttons
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = createPageButton(i);
+                if (i === currentPage) btn.classList.add('active');
+                paginationNumbers.appendChild(btn);
+            }
+
+            // Last page button
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-info';
+                    ellipsis.textContent = '...';
+                    paginationNumbers.appendChild(ellipsis);
+                }
+                const btn = createPageButton(totalPages);
+                paginationNumbers.appendChild(btn);
+            }
+
+            // Update buttons
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            // Update info
+            const start = (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(currentPage * itemsPerPage, filteredTemplates.length);
+            paginationInfo.textContent = `${start}-${end} of ${filteredTemplates.length}`;
+        }
+
+        function createPageButton(page) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn';
+            btn.textContent = page;
+            btn.onclick = () => goToPage(page);
+            return btn;
+        }
+
+        // Pagination Controls
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderGallery();
+                updatePagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderGallery();
+                updatePagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderGallery();
+            updatePagination();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
